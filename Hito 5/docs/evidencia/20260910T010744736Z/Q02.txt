@@ -1,0 +1,13 @@
+equipo, nombre
+"EQ-001", "Seleccion Sintetica 01"
+"EQ-002", "Seleccion Sintetica 02"
+"EQ-003", "Seleccion Sintetica 03"
+"EQ-017", "Seleccion Sintetica 17"
+"EQ-018", "Seleccion Sintetica 18"
+"EQ-019", "Seleccion Sintetica 19"
+"EQ-033", "Seleccion Sintetica 33"
+"EQ-034", "Seleccion Sintetica 34"
+"EQ-035", "Seleccion Sintetica 35"
+"EQ-049", "Seleccion Sintetica 49"
+"EQ-050", "Seleccion Sintetica 50"
+"EQ-051", "Seleccion Sintetica 51"

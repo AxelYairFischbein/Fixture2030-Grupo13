@@ -1,0 +1,5 @@
+evento, minuto, rol, jugador, equipo
+"EVT-PAR-001-LOCAL", 60, "ENTRA", "JUG-0021", "EQ-001"
+"EVT-PAR-001-LOCAL", 60, "SALE", "JUG-0020", "EQ-001"
+"EVT-PAR-001-VISITANTE", 65, "ENTRA", "JUG-0045", "EQ-002"
+"EVT-PAR-001-VISITANTE", 65, "SALE", "JUG-0044", "EQ-002"

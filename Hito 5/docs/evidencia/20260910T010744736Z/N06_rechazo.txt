@@ -1,0 +1,1 @@
+An error occurred while in an open transaction. The transaction will be rolled back and terminated. Error: Node(1774) already exists with label `EventoDeportivo` and property `eventoId` = 'EVT-PAR-001-LOCAL'

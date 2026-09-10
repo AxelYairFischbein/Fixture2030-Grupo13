@@ -1,0 +1,45 @@
++------------------+
+| codigo | equipos |
++------------------+
+| "L01"  | 64      |
++------------------+
+
+1 row
+ready to start consuming query after 175 ms, results consumed after another 50 ms
+Set 320 properties
++--------------------+
+| codigo | jugadores |
++--------------------+
+| "L02"  | 1536      |
++--------------------+
+
+1 row
+ready to start consuming query after 111 ms, results consumed after another 127 ms
+Set 9216 properties
++-------------------+
+| codigo | estadios |
++-------------------+
+| "L03"  | 8        |
++-------------------+
+
+1 row
+ready to start consuming query after 39 ms, results consumed after another 1 ms
+Set 32 properties
++-------------------+
+| codigo | partidos |
++-------------------+
+| "L04"  | 64       |
++-------------------+
+
+1 row
+ready to start consuming query after 201 ms, results consumed after another 27 ms
+Set 576 properties
++------------------+
+| codigo | eventos |
++------------------+
+| "L05"  | 128     |
++------------------+
+
+1 row
+ready to start consuming query after 145 ms, results consumed after another 41 ms
+Set 768 properties

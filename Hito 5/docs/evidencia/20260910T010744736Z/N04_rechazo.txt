@@ -1,0 +1,1 @@
+An error occurred while in an open transaction. The transaction will be rolled back and terminated. Error: Node(1608) already exists with label `Partido` and property `partidoId` = 'PAR-001'

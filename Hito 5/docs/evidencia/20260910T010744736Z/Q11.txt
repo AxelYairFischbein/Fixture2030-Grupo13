@@ -1,0 +1,9 @@
+estadio, partidos
+"EST-01", 8
+"EST-02", 8
+"EST-03", 8
+"EST-04", 8
+"EST-05", 8
+"EST-06", 8
+"EST-07", 8
+"EST-08", 8

@@ -1,0 +1,3 @@
+rival, partido
+"EQ-002", "PAR-001"
+"EQ-003", "PAR-033"

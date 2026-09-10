@@ -1,0 +1,19 @@
+codigo, actual, esperado
+"C01_preexistentes", 0, 0
+codigo, actual, esperado
+"C02_creado", 1, 1
+codigo, evento, minuto, rol, jugador
+"C03_lectura", "CRUD-G13-EVT-001", 70, "ENTRA", "JUG-0021"
+"C03_lectura", "CRUD-G13-EVT-001", 70, "SALE", "JUG-0020"
+codigo, actual, esperado, motivo
+"C04_actualizado", 72, 72, "CORRECCION_DE_PLANILLA"
+codigo, actual, esperado
+"C05_reasignado", "JUG-0022", "JUG-0022"
+codigo, evento, relacion, destino
+"C06_previsualizacion", "CRUD-G13-EVT-001", "INVOLUCRA", "JUG-0020"
+"C06_previsualizacion", "CRUD-G13-EVT-001", "INVOLUCRA", "JUG-0022"
+"C06_previsualizacion", "CRUD-G13-EVT-001", "OCURRE_EN", "PAR-001"
+codigo, actual, esperado
+"C07_eliminado", 1, 1
+codigo, actual, esperado
+"C07_residuos", 0, 0

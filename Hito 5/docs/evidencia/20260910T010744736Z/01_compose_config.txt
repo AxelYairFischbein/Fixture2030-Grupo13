@@ -1,0 +1,61 @@
+name: grupo13-hito5
+services:
+  neo4j:
+    environment:
+      NEO4J_AUTH: [REDACTADO]
+      NEO4J_server_memory_heap_initial__size: 256m
+      NEO4J_server_memory_heap_max__size: 512m
+      NEO4J_server_memory_pagecache_size: 256m
+    healthcheck:
+      test:
+        - CMD
+        - sh
+        - /workspace/container/cypher.sh
+        - RETURN 1 AS disponible;
+      timeout: 15s
+      interval: 15s
+      retries: 20
+      start_period: 1m0s
+    image: neo4j:latest
+    networks:
+      default: null
+    ports:
+      - mode: ingress
+        host_ip: 127.0.0.1
+        target: 7474
+        published: "7474"
+        protocol: tcp
+      - mode: ingress
+        host_ip: 127.0.0.1
+        target: 7687
+        published: "7687"
+        protocol: tcp
+    restart: unless-stopped
+    stop_grace_period: 1m0s
+    volumes:
+      - type: volume
+        source: neo4j_data
+        target: /data
+        volume: {}
+      - type: volume
+        source: neo4j_logs
+        target: /logs
+        volume: {}
+      - type: bind
+        source: <RUTA_LOCAL_DEL_PROYECTO>\Hito 5\queries
+        target: /workspace/queries
+        read_only: true
+        bind: {}
+      - type: bind
+        source: <RUTA_LOCAL_DEL_PROYECTO>\Hito 5\scripts\container
+        target: /workspace/container
+        read_only: true
+        bind: {}
+networks:
+  default:
+    name: grupo13-hito5_default
+volumes:
+  neo4j_data:
+    name: grupo13-hito5_neo4j_data
+  neo4j_logs:
+    name: grupo13-hito5_neo4j_logs

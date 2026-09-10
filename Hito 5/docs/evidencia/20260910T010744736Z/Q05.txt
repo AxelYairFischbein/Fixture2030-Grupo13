@@ -1,0 +1,2 @@
+evento, tipo, minuto, partido
+"EVT-PAR-001-LOCAL", "SUSTITUCION", 60, "PAR-001"

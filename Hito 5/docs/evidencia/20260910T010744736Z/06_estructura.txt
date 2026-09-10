@@ -1,0 +1,17 @@
+name, type, labelsOrTypes, properties
+"uq_equipo_codigo", "NODE_PROPERTY_UNIQUENESS", ["Equipo"], ["codigo"]
+"uq_equipo_id", "NODE_PROPERTY_UNIQUENESS", ["Equipo"], ["equipoId"]
+"uq_estadio_id", "NODE_PROPERTY_UNIQUENESS", ["Estadio"], ["estadioId"]
+"uq_evento_id", "NODE_PROPERTY_UNIQUENESS", ["EventoDeportivo"], ["eventoId"]
+"uq_jugador_id", "NODE_PROPERTY_UNIQUENESS", ["Jugador"], ["jugadorId"]
+"uq_partido_id", "NODE_PROPERTY_UNIQUENESS", ["Partido"], ["partidoId"]
+name, type, state, labelsOrTypes, properties, owningConstraint
+"idx_partido_inicio", "RANGE", "ONLINE", ["Partido"], ["inicio"], NULL
+"index_1b9dcc97", "LOOKUP", "ONLINE", NULL, NULL, NULL
+"index_460996c0", "LOOKUP", "ONLINE", NULL, NULL, NULL
+"uq_equipo_codigo", "RANGE", "ONLINE", ["Equipo"], ["codigo"], "uq_equipo_codigo"
+"uq_equipo_id", "RANGE", "ONLINE", ["Equipo"], ["equipoId"], "uq_equipo_id"
+"uq_estadio_id", "RANGE", "ONLINE", ["Estadio"], ["estadioId"], "uq_estadio_id"
+"uq_evento_id", "RANGE", "ONLINE", ["EventoDeportivo"], ["eventoId"], "uq_evento_id"
+"uq_jugador_id", "RANGE", "ONLINE", ["Jugador"], ["jugadorId"], "uq_jugador_id"
+"uq_partido_id", "RANGE", "ONLINE", ["Partido"], ["partidoId"], "uq_partido_id"

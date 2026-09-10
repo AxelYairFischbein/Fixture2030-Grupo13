@@ -1,0 +1,1115 @@
+{
+    "inicioUtc":  "20260910T010744736Z",
+    "estado":  "OK",
+    "directorio":  "20260910T010744736Z",
+    "pasos":  [
+                  {
+                      "evidencia":  "01_compose_config.txt",
+                      "utc":  "2026-09-10T01:07:44.8890495Z",
+                      "comando":  "docker compose config",
+                      "consulta":  "",
+                      "exitCode":  0
+                  },
+                  {
+                      "evidencia":  "02_inicio.txt",
+                      "utc":  "2026-09-10T01:07:45.0750288Z",
+                      "comando":  "docker compose up -d",
+                      "consulta":  "",
+                      "exitCode":  0
+                  },
+                  {
+                      "evidencia":  "03_disponibilidad.txt",
+                      "utc":  "2026-09-10T01:07:46.9310129Z",
+                      "comando":  "docker compose exec -T neo4j sh /workspace/container/cypher.sh --format plain",
+                      "consulta":  "",
+                      "exitCode":  0
+                  },
+                  {
+                      "evidencia":  "04_estado_inicial.txt",
+                      "utc":  "2026-09-10T01:07:47.0602679Z",
+                      "comando":  "docker compose ps",
+                      "consulta":  "",
+                      "exitCode":  0
+                  },
+                  {
+                      "evidencia":  "05_version.txt",
+                      "utc":  "2026-09-10T01:07:48.6664626Z",
+                      "comando":  "docker compose exec -T neo4j sh /workspace/container/cypher.sh --format plain",
+                      "consulta":  "",
+                      "exitCode":  0
+                  },
+                  {
+                      "evidencia":  "05_imagen.txt",
+                      "utc":  "2026-09-10T01:07:48.7321636Z",
+                      "comando":  "docker image inspect neo4j:latest --format {{json .RepoDigests}}",
+                      "consulta":  "",
+                      "exitCode":  0
+                  },
+                  {
+                      "evidencia":  "05_montajes.txt",
+                      "utc":  "2026-09-10T01:07:48.9133638Z",
+                      "comando":  "docker inspect f52a2619114dc5eff534ce9a2f43745a3a10e4d0f360ee4cd8bbef25884b53df --format {{json .Mounts}}",
+                      "consulta":  "",
+                      "exitCode":  0
+                  },
+                  {
+                      "evidencia":  "06_estructura.txt",
+                      "utc":  "2026-09-10T01:07:50.6489366Z",
+                      "comando":  "docker compose exec -T neo4j sh /workspace/container/cypher.sh --format plain -f /workspace/queries/01_constraints.cypher",
+                      "consulta":  "",
+                      "exitCode":  0
+                  },
+                  {
+                      "evidencia":  "06_restricciones.txt",
+                      "utc":  "2026-09-10T01:07:52.2543986Z",
+                      "comando":  "docker compose exec -T neo4j sh /workspace/container/cypher.sh --format plain",
+                      "consulta":  "SHOW CONSTRAINTS YIELD name, type, labelsOrTypes, properties RETURN name, type, labelsOrTypes, properties ORDER BY name;",
+                      "exitCode":  0
+                  },
+                  {
+                      "evidencia":  "06_indices.txt",
+                      "utc":  "2026-09-10T01:07:53.8024614Z",
+                      "comando":  "docker compose exec -T neo4j sh /workspace/container/cypher.sh --format plain",
+                      "consulta":  "SHOW INDEXES YIELD name, state, type RETURN name, state, type ORDER BY name;",
+                      "exitCode":  0
+                  },
+                  {
+                      "evidencia":  "07_antes_carga.txt",
+                      "utc":  "2026-09-10T01:07:55.4350379Z",
+                      "comando":  "docker compose exec -T neo4j sh /workspace/container/cypher.sh --format plain",
+                      "consulta":  "MATCH (n) RETURN count(n) AS nodosAntes;",
+                      "exitCode":  0
+                  },
+                  {
+                      "evidencia":  "08_primera_carga.txt",
+                      "utc":  "2026-09-10T01:07:58.1548880Z",
+                      "comando":  "docker compose exec -T neo4j sh /workspace/container/cypher.sh --format verbose -f /workspace/queries/02_load.cypher",
+                      "consulta":  "",
+                      "exitCode":  0
+                  },
+                  {
+                      "evidencia":  "09_integridad_primera.txt",
+                      "utc":  "2026-09-10T01:07:59.7789714Z",
+                      "comando":  "docker compose exec -T neo4j sh /workspace/container/cypher.sh --format plain -f /workspace/queries/06_verify.cypher",
+                      "consulta":  "",
+                      "exitCode":  0
+                  },
+                  {
+                      "evidencia":  "10_snapshot_primera.txt",
+                      "utc":  "2026-09-10T01:08:01.7154520Z",
+                      "comando":  "docker compose exec -T neo4j sh /workspace/container/cypher.sh --format plain -f /workspace/queries/09_snapshot.cypher",
+                      "consulta":  "",
+                      "exitCode":  0
+                  },
+                  {
+                      "evidencia":  "11_segunda_carga.txt",
+                      "utc":  "2026-09-10T01:08:03.6366504Z",
+                      "comando":  "docker compose exec -T neo4j sh /workspace/container/cypher.sh --format verbose -f /workspace/queries/02_load.cypher",
+                      "consulta":  "",
+                      "exitCode":  0
+                  },
+                  {
+                      "evidencia":  "12_integridad_segunda.txt",
+                      "utc":  "2026-09-10T01:08:05.1867472Z",
+                      "comando":  "docker compose exec -T neo4j sh /workspace/container/cypher.sh --format plain -f /workspace/queries/06_verify.cypher",
+                      "consulta":  "",
+                      "exitCode":  0
+                  },
+                  {
+                      "evidencia":  "13_snapshot_segunda.txt",
+                      "utc":  "2026-09-10T01:08:06.9888536Z",
+                      "comando":  "docker compose exec -T neo4j sh /workspace/container/cypher.sh --format plain -f /workspace/queries/09_snapshot.cypher",
+                      "consulta":  "",
+                      "exitCode":  0
+                  },
+                  {
+                      "evidencia":  "N01_rechazo.txt",
+                      "utc":  "2026-09-10T01:08:08.6259749Z",
+                      "comando":  "docker compose exec -T neo4j sh /workspace/container/cypher.sh --format plain",
+                      "consulta":  ":begin\nCREATE (:Equipo {equipoId:\u0027EQ-001\u0027});\n:rollback",
+                      "exitCode":  1
+                  },
+                  {
+                      "evidencia":  "N02_rechazo.txt",
+                      "utc":  "2026-09-10T01:08:10.1902701Z",
+                      "comando":  "docker compose exec -T neo4j sh /workspace/container/cypher.sh --format plain",
+                      "consulta":  ":begin\nCREATE (:Equipo {codigo:\u0027F01\u0027});\n:rollback",
+                      "exitCode":  1
+                  },
+                  {
+                      "evidencia":  "N03_rechazo.txt",
+                      "utc":  "2026-09-10T01:08:11.7341265Z",
+                      "comando":  "docker compose exec -T neo4j sh /workspace/container/cypher.sh --format plain",
+                      "consulta":  ":begin\nCREATE (:Jugador {jugadorId:\u0027JUG-0001\u0027});\n:rollback",
+                      "exitCode":  1
+                  },
+                  {
+                      "evidencia":  "N04_rechazo.txt",
+                      "utc":  "2026-09-10T01:08:13.2843102Z",
+                      "comando":  "docker compose exec -T neo4j sh /workspace/container/cypher.sh --format plain",
+                      "consulta":  ":begin\nCREATE (:Partido {partidoId:\u0027PAR-001\u0027});\n:rollback",
+                      "exitCode":  1
+                  },
+                  {
+                      "evidencia":  "N05_rechazo.txt",
+                      "utc":  "2026-09-10T01:08:14.8653988Z",
+                      "comando":  "docker compose exec -T neo4j sh /workspace/container/cypher.sh --format plain",
+                      "consulta":  ":begin\nCREATE (:Estadio {estadioId:\u0027EST-01\u0027});\n:rollback",
+                      "exitCode":  1
+                  },
+                  {
+                      "evidencia":  "N06_rechazo.txt",
+                      "utc":  "2026-09-10T01:08:16.4249168Z",
+                      "comando":  "docker compose exec -T neo4j sh /workspace/container/cypher.sh --format plain",
+                      "consulta":  ":begin\nCREATE (:EventoDeportivo {eventoId:\u0027EVT-PAR-001-LOCAL\u0027});\n:rollback",
+                      "exitCode":  1
+                  },
+                  {
+                      "evidencia":  "14_crud.txt",
+                      "utc":  "2026-09-10T01:08:18.3815296Z",
+                      "comando":  "docker compose exec -T neo4j sh /workspace/container/cypher.sh --format plain -f /workspace/queries/03_crud.cypher",
+                      "consulta":  "",
+                      "exitCode":  0
+                  },
+                  {
+                      "evidencia":  "15_integridad_post_crud.txt",
+                      "utc":  "2026-09-10T01:08:20.2457961Z",
+                      "comando":  "docker compose exec -T neo4j sh /workspace/container/cypher.sh --format plain -f /workspace/queries/06_verify.cypher",
+                      "consulta":  "",
+                      "exitCode":  0
+                  },
+                  {
+                      "evidencia":  "16_snapshot_post_crud.txt",
+                      "utc":  "2026-09-10T01:08:22.1172162Z",
+                      "comando":  "docker compose exec -T neo4j sh /workspace/container/cypher.sh --format plain -f /workspace/queries/09_snapshot.cypher",
+                      "consulta":  "",
+                      "exitCode":  0
+                  },
+                  {
+                      "evidencia":  "Q01.txt",
+                      "utc":  "2026-09-10T01:08:23.7315779Z",
+                      "comando":  "docker compose exec -T neo4j sh /workspace/container/cypher.sh --format plain",
+                      "consulta":  "// Plantel de un equipo: pertenencia inmediata y orden de camiseta.\nWITH \u0027EQ-001\u0027 AS equipoId\nMATCH (j:Jugador)-[r:PERTENECE_A]-\u003e(e:Equipo {equipoId:equipoId})\nRETURN j.jugadorId AS jugador,j.nombre AS nombre,j.apellido AS apellido,j.posicion AS posicion,r.numeroCamiseta AS camiseta\nORDER BY camiseta,jugador;",
+                      "exitCode":  0
+                  },
+                  {
+                      "evidencia":  "Q02.txt",
+                      "utc":  "2026-09-10T01:08:25.5834355Z",
+                      "comando":  "docker compose exec -T neo4j sh /workspace/container/cypher.sh --format plain",
+                      "consulta":  "// Equipos con partidos en el estadio, sin repetirlos por jornada.\nWITH \u0027EST-01\u0027 AS estadioId\nMATCH (e:Equipo)-[:DISPUTA]-\u003e(:Partido)-[:SE_JUEGA_EN]-\u003e(:Estadio {estadioId:estadioId})\nRETURN DISTINCT e.equipoId AS equipo,e.nombre AS nombre ORDER BY equipo;",
+                      "exitCode":  0
+                  },
+                  {
+                      "evidencia":  "Q03.txt",
+                      "utc":  "2026-09-10T01:08:27.2376847Z",
+                      "comando":  "docker compose exec -T neo4j sh /workspace/container/cypher.sh --format plain",
+                      "consulta":  "// Planteles cuyos equipos disputan PAR-001. No implica presencia en cancha.\nWITH [\u0027PAR-001\u0027] AS partidos\nMATCH (j:Jugador)-[:PERTENECE_A]-\u003e(e:Equipo)-[:DISPUTA]-\u003e(p:Partido)\nWHERE p.partidoId IN partidos\nRETURN p.partidoId AS partido,e.equipoId AS equipo,j.jugadorId AS jugador ORDER BY partido,equipo,jugador;",
+                      "exitCode":  0
+                  },
+                  {
+                      "evidencia":  "Q04.txt",
+                      "utc":  "2026-09-10T01:08:28.8197322Z",
+                      "comando":  "docker compose exec -T neo4j sh /workspace/container/cypher.sh --format plain",
+                      "consulta":  "// Dos saltos: rivales reales del dataset a traves de partidos compartidos.\nWITH \u0027EQ-001\u0027 AS equipoId\nMATCH (e:Equipo {equipoId:equipoId})-[:DISPUTA]-\u003e(p:Partido)\u003c-[:DISPUTA]-(rival:Equipo)\nWHERE rival\u003c\u003ee\nRETURN rival.equipoId AS rival,p.partidoId AS partido ORDER BY partido,rival;",
+                      "exitCode":  0
+                  },
+                  {
+                      "evidencia":  "Q05.txt",
+                      "utc":  "2026-09-10T01:08:30.4379180Z",
+                      "comando":  "docker compose exec -T neo4j sh /workspace/container/cypher.sh --format plain",
+                      "consulta":  "// Partido relacionado con una incidencia puntual identificada.\nWITH \u0027EVT-PAR-001-LOCAL\u0027 AS eventoId\nMATCH (v:EventoDeportivo {eventoId:eventoId})-[:OCURRE_EN]-\u003e(p:Partido)\nRETURN v.eventoId AS evento,v.tipo AS tipo,v.minuto AS minuto,p.partidoId AS partido;",
+                      "exitCode":  0
+                  },
+                  {
+                      "evidencia":  "Q06.txt",
+                      "utc":  "2026-09-10T01:08:32.0161746Z",
+                      "comando":  "docker compose exec -T neo4j sh /workspace/container/cypher.sh --format plain",
+                      "consulta":  "// Agenda del equipo: partido, rol, hora UTC y estadio.\nWITH \u0027EQ-001\u0027 AS equipoId\nMATCH (:Equipo {equipoId:equipoId})-[r:DISPUTA]-\u003e(p:Partido)-[:SE_JUEGA_EN]-\u003e(s:Estadio)\nRETURN p.partidoId AS partido,toString(p.inicio) AS inicio,r.rol AS rol,s.estadioId AS estadio\nORDER BY inicio,partido;",
+                      "exitCode":  0
+                  },
+                  {
+                      "evidencia":  "Q07.txt",
+                      "utc":  "2026-09-10T01:08:33.6791498Z",
+                      "comando":  "docker compose exec -T neo4j sh /workspace/container/cypher.sh --format plain",
+                      "consulta":  "// Evento, partido y participantes: valida tambien su pertenencia al equipo que disputa.\nWITH \u0027PAR-001\u0027 AS partidoId\nMATCH (p:Partido {partidoId:partidoId})\u003c-[:OCURRE_EN]-(v:EventoDeportivo)-[r:INVOLUCRA]-\u003e(j:Jugador)\nMATCH (j)-[:PERTENECE_A]-\u003e(e:Equipo)-[:DISPUTA]-\u003e(p)\nRETURN v.eventoId AS evento,v.minuto AS minuto,r.rol AS rol,j.jugadorId AS jugador,e.equipoId AS equipo\nORDER BY minuto,evento,rol;",
+                      "exitCode":  0
+                  },
+                  {
+                      "evidencia":  "Q08.txt",
+                      "utc":  "2026-09-10T01:08:35.3143850Z",
+                      "comando":  "docker compose exec -T neo4j sh /workspace/container/cypher.sh --format plain",
+                      "consulta":  "// Tres saltos: jugador -\u003e equipo -\u003e partido -\u003e estadio.\nWITH \u0027JUG-0001\u0027 AS jugadorId\nMATCH (j:Jugador {jugadorId:jugadorId})-[:PERTENECE_A]-\u003e(e:Equipo)-[:DISPUTA]-\u003e(p:Partido)-[:SE_JUEGA_EN]-\u003e(s:Estadio)\nRETURN j.jugadorId AS jugador,e.equipoId AS equipo,p.partidoId AS partido,s.estadioId AS estadio\nORDER BY partido;",
+                      "exitCode":  0
+                  },
+                  {
+                      "evidencia":  "Q09.txt",
+                      "utc":  "2026-09-10T01:08:37.1072224Z",
+                      "comando":  "docker compose exec -T neo4j sh /workspace/container/cypher.sh --format plain",
+                      "consulta":  "// Filtro temporal con indice idx_partido_inicio; rango semiabierto.\nWITH datetime(\u00272030-06-10T00:00:00Z\u0027) AS desde,datetime(\u00272030-06-11T00:00:00Z\u0027) AS hasta\nMATCH (p:Partido)-[:SE_JUEGA_EN]-\u003e(s:Estadio)\nWHERE p.inicio\u003e=desde AND p.inicio\u003chasta\nRETURN p.partidoId AS partido,toString(p.inicio) AS inicio,s.estadioId AS estadio ORDER BY inicio,partido;",
+                      "exitCode":  0
+                  },
+                  {
+                      "evidencia":  "Q10.txt",
+                      "utc":  "2026-09-10T01:08:38.6940658Z",
+                      "comando":  "docker compose exec -T neo4j sh /workspace/container/cypher.sh --format plain",
+                      "consulta":  "// Segunda pagina del plantel. Orden estable por ID antes de SKIP/LIMIT.\nWITH \u0027EQ-001\u0027 AS equipoId\nMATCH (j:Jugador)-[:PERTENECE_A]-\u003e(:Equipo {equipoId:equipoId})\nRETURN j.jugadorId AS jugador ORDER BY jugador SKIP 5 LIMIT 5;",
+                      "exitCode":  0
+                  },
+                  {
+                      "evidencia":  "Q11.txt",
+                      "utc":  "2026-09-10T01:08:40.2647765Z",
+                      "comando":  "docker compose exec -T neo4j sh /workspace/container/cypher.sh --format plain",
+                      "consulta":  "// Cantidad de partidos programados por estadio; cuenta relaciones.\nMATCH (p:Partido)-[:SE_JUEGA_EN]-\u003e(s:Estadio)\nRETURN s.estadioId AS estadio,count(p) AS partidos ORDER BY estadio;",
+                      "exitCode":  0
+                  },
+                  {
+                      "evidencia":  "Q12.txt",
+                      "utc":  "2026-09-10T01:08:41.8660216Z",
+                      "comando":  "docker compose exec -T neo4j sh /workspace/container/cypher.sh --format plain",
+                      "consulta":  "// Filtro de atributo propio y top acotado, sin estadisticas deportivas.\nWITH \u0027UEFA\u0027 AS confederacion\nMATCH (e:Equipo) WHERE e.confederacion=confederacion\nRETURN e.equipoId AS equipo,e.codigo AS codigo,e.confederacion AS confederacion ORDER BY equipo LIMIT 5;",
+                      "exitCode":  0
+                  },
+                  {
+                      "evidencia":  "Q13.txt",
+                      "utc":  "2026-09-10T01:08:43.4374304Z",
+                      "comando":  "docker compose exec -T neo4j sh /workspace/container/cypher.sh --format plain",
+                      "consulta":  "// Caso vacio interpretable: ningun plantel para un identificador inexistente.\nMATCH (j:Jugador)-[:PERTENECE_A]-\u003e(:Equipo {equipoId:\u0027EQ-999\u0027})\nRETURN count(j) AS jugadores;",
+                      "exitCode":  0
+                  },
+                  {
+                      "evidencia":  "A01.txt",
+                      "utc":  "2026-09-10T01:08:45.0990464Z",
+                      "comando":  "docker compose exec -T neo4j sh /workspace/container/cypher.sh --format plain",
+                      "consulta":  "// Camino minimo de encuentros entre EQ-001 y EQ-004, hasta 6 relaciones.\n// Solo DISPUTA: compartir estadio no equivale a competir entre si.\nMATCH (a:Equipo {equipoId:\u0027EQ-001\u0027}),(b:Equipo {equipoId:\u0027EQ-004\u0027})\nMATCH camino=allShortestPaths((a)-[:DISPUTA*1..6]-(b))\nWITH camino,[n IN nodes(camino)|coalesce(n.equipoId,n.partidoId)] AS entidades\nWITH camino,entidades ORDER BY entidades LIMIT 1\nRETURN length(camino) AS saltos,\n       reduce(texto=\u0027\u0027,id IN entidades|texto+CASE WHEN texto=\u0027\u0027 THEN \u0027\u0027 ELSE \u0027 -\u003e \u0027 END+id) AS entidades;",
+                      "exitCode":  0
+                  },
+                  {
+                      "evidencia":  "A02.txt",
+                      "utc":  "2026-09-10T01:08:46.7071312Z",
+                      "comando":  "docker compose exec -T neo4j sh /workspace/container/cypher.sh --format plain",
+                      "consulta":  "// Control de conectividad entre grupos distintos, en la misma proyeccion y cota.\nMATCH (a:Equipo {equipoId:\u0027EQ-001\u0027}),(b:Equipo {equipoId:\u0027EQ-005\u0027})\nOPTIONAL MATCH camino=shortestPath((a)-[:DISPUTA*1..6]-(b))\nRETURN a.equipoId AS origen,b.equipoId AS destino,camino IS NOT NULL AS conectado;",
+                      "exitCode":  0
+                  },
+                  {
+                      "evidencia":  "24_browser_consultas.txt",
+                      "utc":  "2026-09-10T01:08:48.4494792Z",
+                      "comando":  "docker compose exec -T neo4j sh /workspace/container/cypher.sh --format plain -f /workspace/queries/07_browser.cypher",
+                      "consulta":  "",
+                      "exitCode":  0
+                  },
+                  {
+                      "evidencia":  "17_plan_indice.txt",
+                      "utc":  "2026-09-10T01:08:50.6732414Z",
+                      "comando":  "docker compose exec -T neo4j sh /workspace/container/cypher.sh --format verbose -f /workspace/queries/08_index_plan.cypher",
+                      "consulta":  "",
+                      "exitCode":  0
+                  },
+                  {
+                      "evidencia":  "18_reinicio.txt",
+                      "utc":  "2026-09-10T01:09:01.6352633Z",
+                      "comando":  "docker compose restart neo4j",
+                      "consulta":  "",
+                      "exitCode":  0
+                  },
+                  {
+                      "evidencia":  "19_disponibilidad_reinicio.txt",
+                      "utc":  "2026-09-10T01:09:14.5098697Z",
+                      "comando":  "docker compose exec -T neo4j sh /workspace/container/cypher.sh --format plain",
+                      "consulta":  "",
+                      "exitCode":  0
+                  },
+                  {
+                      "evidencia":  "20_integridad_persistencia.txt",
+                      "utc":  "2026-09-10T01:09:19.4685967Z",
+                      "comando":  "docker compose exec -T neo4j sh /workspace/container/cypher.sh --format plain -f /workspace/queries/06_verify.cypher",
+                      "consulta":  "",
+                      "exitCode":  0
+                  },
+                  {
+                      "evidencia":  "21_snapshot_persistencia.txt",
+                      "utc":  "2026-09-10T01:09:21.6100688Z",
+                      "comando":  "docker compose exec -T neo4j sh /workspace/container/cypher.sh --format plain -f /workspace/queries/09_snapshot.cypher",
+                      "consulta":  "",
+                      "exitCode":  0
+                  },
+                  {
+                      "evidencia":  "22_salud_final.txt",
+                      "utc":  "2026-09-10T01:09:21.7941570Z",
+                      "comando":  "docker inspect f52a2619114dc5eff534ce9a2f43745a3a10e4d0f360ee4cd8bbef25884b53df --format {{.State.Health.Status}}",
+                      "consulta":  "",
+                      "exitCode":  0
+                  },
+                  {
+                      "evidencia":  "23_estado_final.txt",
+                      "utc":  "2026-09-10T01:09:21.9151286Z",
+                      "comando":  "docker compose ps",
+                      "consulta":  "",
+                      "exitCode":  0
+                  }
+              ],
+    "version":  "name, versions, edition\n\"Neo4j Kernel\", [\"2026.07.1\"], \"community\"\n\"Cypher\", [\"5\", \"25\"], \"\"",
+    "controlesIntegridad":  44,
+    "hashPrimera":  "2b96c61ef49ddfa24a8e213360dd6176e04eabdd321ab925ee99c6fd7dfcb645",
+    "hashSegunda":  "2b96c61ef49ddfa24a8e213360dd6176e04eabdd321ab925ee99c6fd7dfcb645",
+    "idempotencia":  "OK: contenido completo y recuentos identicos",
+    "rechazosUnicidad":  6,
+    "crud":  "OK: altas, lectura, cambios y bajas; canon identico",
+    "consultas":  [
+                      {
+                          "codigo":  "Q01",
+                          "filas":  24,
+                          "estado":  "OK",
+                          "resultado":  [
+                                            {
+                                                "jugador":  "JUG-0001",
+                                                "nombre":  "Nombre0001",
+                                                "apellido":  "Apellido0001",
+                                                "posicion":  "ARQUERO",
+                                                "camiseta":  "1"
+                                            },
+                                            {
+                                                "jugador":  "JUG-0002",
+                                                "nombre":  "Nombre0002",
+                                                "apellido":  "Apellido0002",
+                                                "posicion":  "ARQUERO",
+                                                "camiseta":  "2"
+                                            },
+                                            {
+                                                "jugador":  "JUG-0003",
+                                                "nombre":  "Nombre0003",
+                                                "apellido":  "Apellido0003",
+                                                "posicion":  "ARQUERO",
+                                                "camiseta":  "3"
+                                            },
+                                            {
+                                                "jugador":  "JUG-0004",
+                                                "nombre":  "Nombre0004",
+                                                "apellido":  "Apellido0004",
+                                                "posicion":  "DEFENSOR",
+                                                "camiseta":  "4"
+                                            },
+                                            {
+                                                "jugador":  "JUG-0005",
+                                                "nombre":  "Nombre0005",
+                                                "apellido":  "Apellido0005",
+                                                "posicion":  "DEFENSOR",
+                                                "camiseta":  "5"
+                                            },
+                                            {
+                                                "jugador":  "JUG-0006",
+                                                "nombre":  "Nombre0006",
+                                                "apellido":  "Apellido0006",
+                                                "posicion":  "DEFENSOR",
+                                                "camiseta":  "6"
+                                            },
+                                            {
+                                                "jugador":  "JUG-0007",
+                                                "nombre":  "Nombre0007",
+                                                "apellido":  "Apellido0007",
+                                                "posicion":  "DEFENSOR",
+                                                "camiseta":  "7"
+                                            },
+                                            {
+                                                "jugador":  "JUG-0008",
+                                                "nombre":  "Nombre0008",
+                                                "apellido":  "Apellido0008",
+                                                "posicion":  "DEFENSOR",
+                                                "camiseta":  "8"
+                                            },
+                                            {
+                                                "jugador":  "JUG-0009",
+                                                "nombre":  "Nombre0009",
+                                                "apellido":  "Apellido0009",
+                                                "posicion":  "DEFENSOR",
+                                                "camiseta":  "9"
+                                            },
+                                            {
+                                                "jugador":  "JUG-0010",
+                                                "nombre":  "Nombre0010",
+                                                "apellido":  "Apellido0010",
+                                                "posicion":  "DEFENSOR",
+                                                "camiseta":  "10"
+                                            },
+                                            {
+                                                "jugador":  "JUG-0011",
+                                                "nombre":  "Nombre0011",
+                                                "apellido":  "Apellido0011",
+                                                "posicion":  "DEFENSOR",
+                                                "camiseta":  "11"
+                                            },
+                                            {
+                                                "jugador":  "JUG-0012",
+                                                "nombre":  "Nombre0012",
+                                                "apellido":  "Apellido0012",
+                                                "posicion":  "MEDIOCAMPISTA",
+                                                "camiseta":  "12"
+                                            },
+                                            {
+                                                "jugador":  "JUG-0013",
+                                                "nombre":  "Nombre0013",
+                                                "apellido":  "Apellido0013",
+                                                "posicion":  "MEDIOCAMPISTA",
+                                                "camiseta":  "13"
+                                            },
+                                            {
+                                                "jugador":  "JUG-0014",
+                                                "nombre":  "Nombre0014",
+                                                "apellido":  "Apellido0014",
+                                                "posicion":  "MEDIOCAMPISTA",
+                                                "camiseta":  "14"
+                                            },
+                                            {
+                                                "jugador":  "JUG-0015",
+                                                "nombre":  "Nombre0015",
+                                                "apellido":  "Apellido0015",
+                                                "posicion":  "MEDIOCAMPISTA",
+                                                "camiseta":  "15"
+                                            },
+                                            {
+                                                "jugador":  "JUG-0016",
+                                                "nombre":  "Nombre0016",
+                                                "apellido":  "Apellido0016",
+                                                "posicion":  "MEDIOCAMPISTA",
+                                                "camiseta":  "16"
+                                            },
+                                            {
+                                                "jugador":  "JUG-0017",
+                                                "nombre":  "Nombre0017",
+                                                "apellido":  "Apellido0017",
+                                                "posicion":  "MEDIOCAMPISTA",
+                                                "camiseta":  "17"
+                                            },
+                                            {
+                                                "jugador":  "JUG-0018",
+                                                "nombre":  "Nombre0018",
+                                                "apellido":  "Apellido0018",
+                                                "posicion":  "MEDIOCAMPISTA",
+                                                "camiseta":  "18"
+                                            },
+                                            {
+                                                "jugador":  "JUG-0019",
+                                                "nombre":  "Nombre0019",
+                                                "apellido":  "Apellido0019",
+                                                "posicion":  "MEDIOCAMPISTA",
+                                                "camiseta":  "19"
+                                            },
+                                            {
+                                                "jugador":  "JUG-0020",
+                                                "nombre":  "Nombre0020",
+                                                "apellido":  "Apellido0020",
+                                                "posicion":  "DELANTERO",
+                                                "camiseta":  "20"
+                                            },
+                                            {
+                                                "jugador":  "JUG-0021",
+                                                "nombre":  "Nombre0021",
+                                                "apellido":  "Apellido0021",
+                                                "posicion":  "DELANTERO",
+                                                "camiseta":  "21"
+                                            },
+                                            {
+                                                "jugador":  "JUG-0022",
+                                                "nombre":  "Nombre0022",
+                                                "apellido":  "Apellido0022",
+                                                "posicion":  "DELANTERO",
+                                                "camiseta":  "22"
+                                            },
+                                            {
+                                                "jugador":  "JUG-0023",
+                                                "nombre":  "Nombre0023",
+                                                "apellido":  "Apellido0023",
+                                                "posicion":  "DELANTERO",
+                                                "camiseta":  "23"
+                                            },
+                                            {
+                                                "jugador":  "JUG-0024",
+                                                "nombre":  "Nombre0024",
+                                                "apellido":  "Apellido0024",
+                                                "posicion":  "DELANTERO",
+                                                "camiseta":  "24"
+                                            }
+                                        ]
+                      },
+                      {
+                          "codigo":  "Q02",
+                          "filas":  12,
+                          "estado":  "OK",
+                          "resultado":  [
+                                            {
+                                                "equipo":  "EQ-001",
+                                                "nombre":  "Seleccion Sintetica 01"
+                                            },
+                                            {
+                                                "equipo":  "EQ-002",
+                                                "nombre":  "Seleccion Sintetica 02"
+                                            },
+                                            {
+                                                "equipo":  "EQ-003",
+                                                "nombre":  "Seleccion Sintetica 03"
+                                            },
+                                            {
+                                                "equipo":  "EQ-017",
+                                                "nombre":  "Seleccion Sintetica 17"
+                                            },
+                                            {
+                                                "equipo":  "EQ-018",
+                                                "nombre":  "Seleccion Sintetica 18"
+                                            },
+                                            {
+                                                "equipo":  "EQ-019",
+                                                "nombre":  "Seleccion Sintetica 19"
+                                            },
+                                            {
+                                                "equipo":  "EQ-033",
+                                                "nombre":  "Seleccion Sintetica 33"
+                                            },
+                                            {
+                                                "equipo":  "EQ-034",
+                                                "nombre":  "Seleccion Sintetica 34"
+                                            },
+                                            {
+                                                "equipo":  "EQ-035",
+                                                "nombre":  "Seleccion Sintetica 35"
+                                            },
+                                            {
+                                                "equipo":  "EQ-049",
+                                                "nombre":  "Seleccion Sintetica 49"
+                                            },
+                                            {
+                                                "equipo":  "EQ-050",
+                                                "nombre":  "Seleccion Sintetica 50"
+                                            },
+                                            {
+                                                "equipo":  "EQ-051",
+                                                "nombre":  "Seleccion Sintetica 51"
+                                            }
+                                        ]
+                      },
+                      {
+                          "codigo":  "Q03",
+                          "filas":  48,
+                          "estado":  "OK",
+                          "resultado":  [
+                                            {
+                                                "partido":  "PAR-001",
+                                                "equipo":  "EQ-001",
+                                                "jugador":  "JUG-0001"
+                                            },
+                                            {
+                                                "partido":  "PAR-001",
+                                                "equipo":  "EQ-001",
+                                                "jugador":  "JUG-0002"
+                                            },
+                                            {
+                                                "partido":  "PAR-001",
+                                                "equipo":  "EQ-001",
+                                                "jugador":  "JUG-0003"
+                                            },
+                                            {
+                                                "partido":  "PAR-001",
+                                                "equipo":  "EQ-001",
+                                                "jugador":  "JUG-0004"
+                                            },
+                                            {
+                                                "partido":  "PAR-001",
+                                                "equipo":  "EQ-001",
+                                                "jugador":  "JUG-0005"
+                                            },
+                                            {
+                                                "partido":  "PAR-001",
+                                                "equipo":  "EQ-001",
+                                                "jugador":  "JUG-0006"
+                                            },
+                                            {
+                                                "partido":  "PAR-001",
+                                                "equipo":  "EQ-001",
+                                                "jugador":  "JUG-0007"
+                                            },
+                                            {
+                                                "partido":  "PAR-001",
+                                                "equipo":  "EQ-001",
+                                                "jugador":  "JUG-0008"
+                                            },
+                                            {
+                                                "partido":  "PAR-001",
+                                                "equipo":  "EQ-001",
+                                                "jugador":  "JUG-0009"
+                                            },
+                                            {
+                                                "partido":  "PAR-001",
+                                                "equipo":  "EQ-001",
+                                                "jugador":  "JUG-0010"
+                                            },
+                                            {
+                                                "partido":  "PAR-001",
+                                                "equipo":  "EQ-001",
+                                                "jugador":  "JUG-0011"
+                                            },
+                                            {
+                                                "partido":  "PAR-001",
+                                                "equipo":  "EQ-001",
+                                                "jugador":  "JUG-0012"
+                                            },
+                                            {
+                                                "partido":  "PAR-001",
+                                                "equipo":  "EQ-001",
+                                                "jugador":  "JUG-0013"
+                                            },
+                                            {
+                                                "partido":  "PAR-001",
+                                                "equipo":  "EQ-001",
+                                                "jugador":  "JUG-0014"
+                                            },
+                                            {
+                                                "partido":  "PAR-001",
+                                                "equipo":  "EQ-001",
+                                                "jugador":  "JUG-0015"
+                                            },
+                                            {
+                                                "partido":  "PAR-001",
+                                                "equipo":  "EQ-001",
+                                                "jugador":  "JUG-0016"
+                                            },
+                                            {
+                                                "partido":  "PAR-001",
+                                                "equipo":  "EQ-001",
+                                                "jugador":  "JUG-0017"
+                                            },
+                                            {
+                                                "partido":  "PAR-001",
+                                                "equipo":  "EQ-001",
+                                                "jugador":  "JUG-0018"
+                                            },
+                                            {
+                                                "partido":  "PAR-001",
+                                                "equipo":  "EQ-001",
+                                                "jugador":  "JUG-0019"
+                                            },
+                                            {
+                                                "partido":  "PAR-001",
+                                                "equipo":  "EQ-001",
+                                                "jugador":  "JUG-0020"
+                                            },
+                                            {
+                                                "partido":  "PAR-001",
+                                                "equipo":  "EQ-001",
+                                                "jugador":  "JUG-0021"
+                                            },
+                                            {
+                                                "partido":  "PAR-001",
+                                                "equipo":  "EQ-001",
+                                                "jugador":  "JUG-0022"
+                                            },
+                                            {
+                                                "partido":  "PAR-001",
+                                                "equipo":  "EQ-001",
+                                                "jugador":  "JUG-0023"
+                                            },
+                                            {
+                                                "partido":  "PAR-001",
+                                                "equipo":  "EQ-001",
+                                                "jugador":  "JUG-0024"
+                                            },
+                                            {
+                                                "partido":  "PAR-001",
+                                                "equipo":  "EQ-002",
+                                                "jugador":  "JUG-0025"
+                                            },
+                                            {
+                                                "partido":  "PAR-001",
+                                                "equipo":  "EQ-002",
+                                                "jugador":  "JUG-0026"
+                                            },
+                                            {
+                                                "partido":  "PAR-001",
+                                                "equipo":  "EQ-002",
+                                                "jugador":  "JUG-0027"
+                                            },
+                                            {
+                                                "partido":  "PAR-001",
+                                                "equipo":  "EQ-002",
+                                                "jugador":  "JUG-0028"
+                                            },
+                                            {
+                                                "partido":  "PAR-001",
+                                                "equipo":  "EQ-002",
+                                                "jugador":  "JUG-0029"
+                                            },
+                                            {
+                                                "partido":  "PAR-001",
+                                                "equipo":  "EQ-002",
+                                                "jugador":  "JUG-0030"
+                                            },
+                                            {
+                                                "partido":  "PAR-001",
+                                                "equipo":  "EQ-002",
+                                                "jugador":  "JUG-0031"
+                                            },
+                                            {
+                                                "partido":  "PAR-001",
+                                                "equipo":  "EQ-002",
+                                                "jugador":  "JUG-0032"
+                                            },
+                                            {
+                                                "partido":  "PAR-001",
+                                                "equipo":  "EQ-002",
+                                                "jugador":  "JUG-0033"
+                                            },
+                                            {
+                                                "partido":  "PAR-001",
+                                                "equipo":  "EQ-002",
+                                                "jugador":  "JUG-0034"
+                                            },
+                                            {
+                                                "partido":  "PAR-001",
+                                                "equipo":  "EQ-002",
+                                                "jugador":  "JUG-0035"
+                                            },
+                                            {
+                                                "partido":  "PAR-001",
+                                                "equipo":  "EQ-002",
+                                                "jugador":  "JUG-0036"
+                                            },
+                                            {
+                                                "partido":  "PAR-001",
+                                                "equipo":  "EQ-002",
+                                                "jugador":  "JUG-0037"
+                                            },
+                                            {
+                                                "partido":  "PAR-001",
+                                                "equipo":  "EQ-002",
+                                                "jugador":  "JUG-0038"
+                                            },
+                                            {
+                                                "partido":  "PAR-001",
+                                                "equipo":  "EQ-002",
+                                                "jugador":  "JUG-0039"
+                                            },
+                                            {
+                                                "partido":  "PAR-001",
+                                                "equipo":  "EQ-002",
+                                                "jugador":  "JUG-0040"
+                                            },
+                                            {
+                                                "partido":  "PAR-001",
+                                                "equipo":  "EQ-002",
+                                                "jugador":  "JUG-0041"
+                                            },
+                                            {
+                                                "partido":  "PAR-001",
+                                                "equipo":  "EQ-002",
+                                                "jugador":  "JUG-0042"
+                                            },
+                                            {
+                                                "partido":  "PAR-001",
+                                                "equipo":  "EQ-002",
+                                                "jugador":  "JUG-0043"
+                                            },
+                                            {
+                                                "partido":  "PAR-001",
+                                                "equipo":  "EQ-002",
+                                                "jugador":  "JUG-0044"
+                                            },
+                                            {
+                                                "partido":  "PAR-001",
+                                                "equipo":  "EQ-002",
+                                                "jugador":  "JUG-0045"
+                                            },
+                                            {
+                                                "partido":  "PAR-001",
+                                                "equipo":  "EQ-002",
+                                                "jugador":  "JUG-0046"
+                                            },
+                                            {
+                                                "partido":  "PAR-001",
+                                                "equipo":  "EQ-002",
+                                                "jugador":  "JUG-0047"
+                                            },
+                                            {
+                                                "partido":  "PAR-001",
+                                                "equipo":  "EQ-002",
+                                                "jugador":  "JUG-0048"
+                                            }
+                                        ]
+                      },
+                      {
+                          "codigo":  "Q04",
+                          "filas":  2,
+                          "estado":  "OK",
+                          "resultado":  [
+                                            {
+                                                "rival":  "EQ-002",
+                                                "partido":  "PAR-001"
+                                            },
+                                            {
+                                                "rival":  "EQ-003",
+                                                "partido":  "PAR-033"
+                                            }
+                                        ]
+                      },
+                      {
+                          "codigo":  "Q05",
+                          "filas":  1,
+                          "estado":  "OK",
+                          "resultado":  [
+                                            {
+                                                "evento":  "EVT-PAR-001-LOCAL",
+                                                "tipo":  "SUSTITUCION",
+                                                "minuto":  "60",
+                                                "partido":  "PAR-001"
+                                            }
+                                        ]
+                      },
+                      {
+                          "codigo":  "Q06",
+                          "filas":  2,
+                          "estado":  "OK",
+                          "resultado":  [
+                                            {
+                                                "partido":  "PAR-001",
+                                                "inicio":  "2030-06-10T18:00:00Z",
+                                                "rol":  "LOCAL",
+                                                "estadio":  "EST-01"
+                                            },
+                                            {
+                                                "partido":  "PAR-033",
+                                                "inicio":  "2030-06-14T18:00:00Z",
+                                                "rol":  "LOCAL",
+                                                "estadio":  "EST-01"
+                                            }
+                                        ]
+                      },
+                      {
+                          "codigo":  "Q07",
+                          "filas":  4,
+                          "estado":  "OK",
+                          "resultado":  [
+                                            {
+                                                "evento":  "EVT-PAR-001-LOCAL",
+                                                "minuto":  "60",
+                                                "rol":  "ENTRA",
+                                                "jugador":  "JUG-0021",
+                                                "equipo":  "EQ-001"
+                                            },
+                                            {
+                                                "evento":  "EVT-PAR-001-LOCAL",
+                                                "minuto":  "60",
+                                                "rol":  "SALE",
+                                                "jugador":  "JUG-0020",
+                                                "equipo":  "EQ-001"
+                                            },
+                                            {
+                                                "evento":  "EVT-PAR-001-VISITANTE",
+                                                "minuto":  "65",
+                                                "rol":  "ENTRA",
+                                                "jugador":  "JUG-0045",
+                                                "equipo":  "EQ-002"
+                                            },
+                                            {
+                                                "evento":  "EVT-PAR-001-VISITANTE",
+                                                "minuto":  "65",
+                                                "rol":  "SALE",
+                                                "jugador":  "JUG-0044",
+                                                "equipo":  "EQ-002"
+                                            }
+                                        ]
+                      },
+                      {
+                          "codigo":  "Q08",
+                          "filas":  2,
+                          "estado":  "OK",
+                          "resultado":  [
+                                            {
+                                                "jugador":  "JUG-0001",
+                                                "equipo":  "EQ-001",
+                                                "partido":  "PAR-001",
+                                                "estadio":  "EST-01"
+                                            },
+                                            {
+                                                "jugador":  "JUG-0001",
+                                                "equipo":  "EQ-001",
+                                                "partido":  "PAR-033",
+                                                "estadio":  "EST-01"
+                                            }
+                                        ]
+                      },
+                      {
+                          "codigo":  "Q09",
+                          "filas":  8,
+                          "estado":  "OK",
+                          "resultado":  [
+                                            {
+                                                "partido":  "PAR-001",
+                                                "inicio":  "2030-06-10T18:00:00Z",
+                                                "estadio":  "EST-01"
+                                            },
+                                            {
+                                                "partido":  "PAR-002",
+                                                "inicio":  "2030-06-10T18:00:00Z",
+                                                "estadio":  "EST-02"
+                                            },
+                                            {
+                                                "partido":  "PAR-003",
+                                                "inicio":  "2030-06-10T18:00:00Z",
+                                                "estadio":  "EST-03"
+                                            },
+                                            {
+                                                "partido":  "PAR-004",
+                                                "inicio":  "2030-06-10T18:00:00Z",
+                                                "estadio":  "EST-04"
+                                            },
+                                            {
+                                                "partido":  "PAR-005",
+                                                "inicio":  "2030-06-10T18:00:00Z",
+                                                "estadio":  "EST-05"
+                                            },
+                                            {
+                                                "partido":  "PAR-006",
+                                                "inicio":  "2030-06-10T18:00:00Z",
+                                                "estadio":  "EST-06"
+                                            },
+                                            {
+                                                "partido":  "PAR-007",
+                                                "inicio":  "2030-06-10T18:00:00Z",
+                                                "estadio":  "EST-07"
+                                            },
+                                            {
+                                                "partido":  "PAR-008",
+                                                "inicio":  "2030-06-10T18:00:00Z",
+                                                "estadio":  "EST-08"
+                                            }
+                                        ]
+                      },
+                      {
+                          "codigo":  "Q10",
+                          "filas":  5,
+                          "estado":  "OK",
+                          "resultado":  [
+                                            {
+                                                "jugador":  "JUG-0006"
+                                            },
+                                            {
+                                                "jugador":  "JUG-0007"
+                                            },
+                                            {
+                                                "jugador":  "JUG-0008"
+                                            },
+                                            {
+                                                "jugador":  "JUG-0009"
+                                            },
+                                            {
+                                                "jugador":  "JUG-0010"
+                                            }
+                                        ]
+                      },
+                      {
+                          "codigo":  "Q11",
+                          "filas":  8,
+                          "estado":  "OK",
+                          "resultado":  [
+                                            {
+                                                "estadio":  "EST-01",
+                                                "partidos":  "8"
+                                            },
+                                            {
+                                                "estadio":  "EST-02",
+                                                "partidos":  "8"
+                                            },
+                                            {
+                                                "estadio":  "EST-03",
+                                                "partidos":  "8"
+                                            },
+                                            {
+                                                "estadio":  "EST-04",
+                                                "partidos":  "8"
+                                            },
+                                            {
+                                                "estadio":  "EST-05",
+                                                "partidos":  "8"
+                                            },
+                                            {
+                                                "estadio":  "EST-06",
+                                                "partidos":  "8"
+                                            },
+                                            {
+                                                "estadio":  "EST-07",
+                                                "partidos":  "8"
+                                            },
+                                            {
+                                                "estadio":  "EST-08",
+                                                "partidos":  "8"
+                                            }
+                                        ]
+                      },
+                      {
+                          "codigo":  "Q12",
+                          "filas":  5,
+                          "estado":  "OK",
+                          "resultado":  [
+                                            {
+                                                "equipo":  "EQ-006",
+                                                "codigo":  "F06",
+                                                "confederacion":  "UEFA"
+                                            },
+                                            {
+                                                "equipo":  "EQ-012",
+                                                "codigo":  "F12",
+                                                "confederacion":  "UEFA"
+                                            },
+                                            {
+                                                "equipo":  "EQ-018",
+                                                "codigo":  "F18",
+                                                "confederacion":  "UEFA"
+                                            },
+                                            {
+                                                "equipo":  "EQ-024",
+                                                "codigo":  "F24",
+                                                "confederacion":  "UEFA"
+                                            },
+                                            {
+                                                "equipo":  "EQ-030",
+                                                "codigo":  "F30",
+                                                "confederacion":  "UEFA"
+                                            }
+                                        ]
+                      },
+                      {
+                          "codigo":  "Q13",
+                          "filas":  1,
+                          "estado":  "OK",
+                          "resultado":  [
+                                            {
+                                                "jugadores":  "0"
+                                            }
+                                        ]
+                      },
+                      {
+                          "codigo":  "A01",
+                          "filas":  1,
+                          "estado":  "OK",
+                          "resultado":  [
+                                            {
+                                                "saltos":  "4",
+                                                "entidades":  "EQ-001 -\u003e PAR-001 -\u003e EQ-002 -\u003e PAR-034 -\u003e EQ-004"
+                                            }
+                                        ]
+                      },
+                      {
+                          "codigo":  "A02",
+                          "filas":  1,
+                          "estado":  "OK",
+                          "resultado":  [
+                                            {
+                                                "origen":  "EQ-001",
+                                                "destino":  "EQ-005",
+                                                "conectado":  "FALSE"
+                                            }
+                                        ]
+                      }
+                  ],
+    "hashPersistencia":  "2b96c61ef49ddfa24a8e213360dd6176e04eabdd321ab925ee99c6fd7dfcb645",
+    "persistencia":  "OK: contenido completo y recuentos identicos despues del reinicio",
+    "browserHttp":  200,
+    "boltTcp":  true,
+    "finUtc":  "2026-09-10T01:09:28.9369563Z"
+}

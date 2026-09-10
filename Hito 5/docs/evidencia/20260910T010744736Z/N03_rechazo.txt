@@ -1,0 +1,1 @@
+An error occurred while in an open transaction. The transaction will be rolled back and terminated. Error: Node(64) already exists with label `Jugador` and property `jugadorId` = 'JUG-0001'

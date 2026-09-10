@@ -1,0 +1,7 @@
+name, type, labelsOrTypes, properties
+"uq_equipo_codigo", "NODE_PROPERTY_UNIQUENESS", ["Equipo"], ["codigo"]
+"uq_equipo_id", "NODE_PROPERTY_UNIQUENESS", ["Equipo"], ["equipoId"]
+"uq_estadio_id", "NODE_PROPERTY_UNIQUENESS", ["Estadio"], ["estadioId"]
+"uq_evento_id", "NODE_PROPERTY_UNIQUENESS", ["EventoDeportivo"], ["eventoId"]
+"uq_jugador_id", "NODE_PROPERTY_UNIQUENESS", ["Jugador"], ["jugadorId"]
+"uq_partido_id", "NODE_PROPERTY_UNIQUENESS", ["Partido"], ["partidoId"]

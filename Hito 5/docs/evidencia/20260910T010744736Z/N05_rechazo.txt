@@ -1,0 +1,1 @@
+An error occurred while in an open transaction. The transaction will be rolled back and terminated. Error: Node(1600) already exists with label `Estadio` and property `estadioId` = 'EST-01'

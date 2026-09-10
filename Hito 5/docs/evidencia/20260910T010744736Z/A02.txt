@@ -1,0 +1,2 @@
+origen, destino, conectado
+"EQ-001", "EQ-005", FALSE

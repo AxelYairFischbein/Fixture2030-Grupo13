@@ -1,0 +1,563 @@
+{
+  "Q01": {
+    "filas": 24,
+    "columnas": {
+      "jugador": [
+        "JUG-0001",
+        "JUG-0002",
+        "JUG-0003",
+        "JUG-0004",
+        "JUG-0005",
+        "JUG-0006",
+        "JUG-0007",
+        "JUG-0008",
+        "JUG-0009",
+        "JUG-0010",
+        "JUG-0011",
+        "JUG-0012",
+        "JUG-0013",
+        "JUG-0014",
+        "JUG-0015",
+        "JUG-0016",
+        "JUG-0017",
+        "JUG-0018",
+        "JUG-0019",
+        "JUG-0020",
+        "JUG-0021",
+        "JUG-0022",
+        "JUG-0023",
+        "JUG-0024"
+      ],
+      "camiseta": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19",
+        "20",
+        "21",
+        "22",
+        "23",
+        "24"
+      ],
+      "posicion": [
+        "ARQUERO",
+        "ARQUERO",
+        "ARQUERO",
+        "DEFENSOR",
+        "DEFENSOR",
+        "DEFENSOR",
+        "DEFENSOR",
+        "DEFENSOR",
+        "DEFENSOR",
+        "DEFENSOR",
+        "DEFENSOR",
+        "MEDIOCAMPISTA",
+        "MEDIOCAMPISTA",
+        "MEDIOCAMPISTA",
+        "MEDIOCAMPISTA",
+        "MEDIOCAMPISTA",
+        "MEDIOCAMPISTA",
+        "MEDIOCAMPISTA",
+        "MEDIOCAMPISTA",
+        "DELANTERO",
+        "DELANTERO",
+        "DELANTERO",
+        "DELANTERO",
+        "DELANTERO"
+      ],
+      "nombre": [
+        "Nombre0001",
+        "Nombre0002",
+        "Nombre0003",
+        "Nombre0004",
+        "Nombre0005",
+        "Nombre0006",
+        "Nombre0007",
+        "Nombre0008",
+        "Nombre0009",
+        "Nombre0010",
+        "Nombre0011",
+        "Nombre0012",
+        "Nombre0013",
+        "Nombre0014",
+        "Nombre0015",
+        "Nombre0016",
+        "Nombre0017",
+        "Nombre0018",
+        "Nombre0019",
+        "Nombre0020",
+        "Nombre0021",
+        "Nombre0022",
+        "Nombre0023",
+        "Nombre0024"
+      ],
+      "apellido": [
+        "Apellido0001",
+        "Apellido0002",
+        "Apellido0003",
+        "Apellido0004",
+        "Apellido0005",
+        "Apellido0006",
+        "Apellido0007",
+        "Apellido0008",
+        "Apellido0009",
+        "Apellido0010",
+        "Apellido0011",
+        "Apellido0012",
+        "Apellido0013",
+        "Apellido0014",
+        "Apellido0015",
+        "Apellido0016",
+        "Apellido0017",
+        "Apellido0018",
+        "Apellido0019",
+        "Apellido0020",
+        "Apellido0021",
+        "Apellido0022",
+        "Apellido0023",
+        "Apellido0024"
+      ]
+    }
+  },
+  "Q02": {
+    "filas": 12,
+    "columnas": {
+      "equipo": [
+        "EQ-001",
+        "EQ-002",
+        "EQ-003",
+        "EQ-017",
+        "EQ-018",
+        "EQ-019",
+        "EQ-033",
+        "EQ-034",
+        "EQ-035",
+        "EQ-049",
+        "EQ-050",
+        "EQ-051"
+      ],
+      "nombre": [
+        "Seleccion Sintetica 01",
+        "Seleccion Sintetica 02",
+        "Seleccion Sintetica 03",
+        "Seleccion Sintetica 17",
+        "Seleccion Sintetica 18",
+        "Seleccion Sintetica 19",
+        "Seleccion Sintetica 33",
+        "Seleccion Sintetica 34",
+        "Seleccion Sintetica 35",
+        "Seleccion Sintetica 49",
+        "Seleccion Sintetica 50",
+        "Seleccion Sintetica 51"
+      ]
+    }
+  },
+  "Q03": {
+    "filas": 48,
+    "columnas": {
+      "partido": [
+        "PAR-001",
+        "PAR-001",
+        "PAR-001",
+        "PAR-001",
+        "PAR-001",
+        "PAR-001",
+        "PAR-001",
+        "PAR-001",
+        "PAR-001",
+        "PAR-001",
+        "PAR-001",
+        "PAR-001",
+        "PAR-001",
+        "PAR-001",
+        "PAR-001",
+        "PAR-001",
+        "PAR-001",
+        "PAR-001",
+        "PAR-001",
+        "PAR-001",
+        "PAR-001",
+        "PAR-001",
+        "PAR-001",
+        "PAR-001",
+        "PAR-001",
+        "PAR-001",
+        "PAR-001",
+        "PAR-001",
+        "PAR-001",
+        "PAR-001",
+        "PAR-001",
+        "PAR-001",
+        "PAR-001",
+        "PAR-001",
+        "PAR-001",
+        "PAR-001",
+        "PAR-001",
+        "PAR-001",
+        "PAR-001",
+        "PAR-001",
+        "PAR-001",
+        "PAR-001",
+        "PAR-001",
+        "PAR-001",
+        "PAR-001",
+        "PAR-001",
+        "PAR-001",
+        "PAR-001"
+      ],
+      "equipo": [
+        "EQ-001",
+        "EQ-001",
+        "EQ-001",
+        "EQ-001",
+        "EQ-001",
+        "EQ-001",
+        "EQ-001",
+        "EQ-001",
+        "EQ-001",
+        "EQ-001",
+        "EQ-001",
+        "EQ-001",
+        "EQ-001",
+        "EQ-001",
+        "EQ-001",
+        "EQ-001",
+        "EQ-001",
+        "EQ-001",
+        "EQ-001",
+        "EQ-001",
+        "EQ-001",
+        "EQ-001",
+        "EQ-001",
+        "EQ-001",
+        "EQ-002",
+        "EQ-002",
+        "EQ-002",
+        "EQ-002",
+        "EQ-002",
+        "EQ-002",
+        "EQ-002",
+        "EQ-002",
+        "EQ-002",
+        "EQ-002",
+        "EQ-002",
+        "EQ-002",
+        "EQ-002",
+        "EQ-002",
+        "EQ-002",
+        "EQ-002",
+        "EQ-002",
+        "EQ-002",
+        "EQ-002",
+        "EQ-002",
+        "EQ-002",
+        "EQ-002",
+        "EQ-002",
+        "EQ-002"
+      ],
+      "jugador": [
+        "JUG-0001",
+        "JUG-0002",
+        "JUG-0003",
+        "JUG-0004",
+        "JUG-0005",
+        "JUG-0006",
+        "JUG-0007",
+        "JUG-0008",
+        "JUG-0009",
+        "JUG-0010",
+        "JUG-0011",
+        "JUG-0012",
+        "JUG-0013",
+        "JUG-0014",
+        "JUG-0015",
+        "JUG-0016",
+        "JUG-0017",
+        "JUG-0018",
+        "JUG-0019",
+        "JUG-0020",
+        "JUG-0021",
+        "JUG-0022",
+        "JUG-0023",
+        "JUG-0024",
+        "JUG-0025",
+        "JUG-0026",
+        "JUG-0027",
+        "JUG-0028",
+        "JUG-0029",
+        "JUG-0030",
+        "JUG-0031",
+        "JUG-0032",
+        "JUG-0033",
+        "JUG-0034",
+        "JUG-0035",
+        "JUG-0036",
+        "JUG-0037",
+        "JUG-0038",
+        "JUG-0039",
+        "JUG-0040",
+        "JUG-0041",
+        "JUG-0042",
+        "JUG-0043",
+        "JUG-0044",
+        "JUG-0045",
+        "JUG-0046",
+        "JUG-0047",
+        "JUG-0048"
+      ]
+    }
+  },
+  "Q04": {
+    "filas": 2,
+    "columnas": {
+      "rival": [
+        "EQ-002",
+        "EQ-003"
+      ],
+      "partido": [
+        "PAR-001",
+        "PAR-033"
+      ]
+    }
+  },
+  "Q05": {
+    "filas": 1,
+    "columnas": {
+      "evento": [
+        "EVT-PAR-001-LOCAL"
+      ],
+      "tipo": [
+        "SUSTITUCION"
+      ],
+      "minuto": [
+        "60"
+      ],
+      "partido": [
+        "PAR-001"
+      ]
+    }
+  },
+  "Q06": {
+    "filas": 2,
+    "columnas": {
+      "partido": [
+        "PAR-001",
+        "PAR-033"
+      ],
+      "inicio": [
+        "2030-06-10T18:00:00Z",
+        "2030-06-14T18:00:00Z"
+      ],
+      "rol": [
+        "LOCAL",
+        "LOCAL"
+      ],
+      "estadio": [
+        "EST-01",
+        "EST-01"
+      ]
+    }
+  },
+  "Q07": {
+    "filas": 4,
+    "columnas": {
+      "evento": [
+        "EVT-PAR-001-LOCAL",
+        "EVT-PAR-001-LOCAL",
+        "EVT-PAR-001-VISITANTE",
+        "EVT-PAR-001-VISITANTE"
+      ],
+      "minuto": [
+        "60",
+        "60",
+        "65",
+        "65"
+      ],
+      "rol": [
+        "ENTRA",
+        "SALE",
+        "ENTRA",
+        "SALE"
+      ],
+      "jugador": [
+        "JUG-0021",
+        "JUG-0020",
+        "JUG-0045",
+        "JUG-0044"
+      ],
+      "equipo": [
+        "EQ-001",
+        "EQ-001",
+        "EQ-002",
+        "EQ-002"
+      ]
+    }
+  },
+  "Q08": {
+    "filas": 2,
+    "columnas": {
+      "jugador": [
+        "JUG-0001",
+        "JUG-0001"
+      ],
+      "equipo": [
+        "EQ-001",
+        "EQ-001"
+      ],
+      "partido": [
+        "PAR-001",
+        "PAR-033"
+      ],
+      "estadio": [
+        "EST-01",
+        "EST-01"
+      ]
+    }
+  },
+  "Q09": {
+    "filas": 8,
+    "columnas": {
+      "partido": [
+        "PAR-001",
+        "PAR-002",
+        "PAR-003",
+        "PAR-004",
+        "PAR-005",
+        "PAR-006",
+        "PAR-007",
+        "PAR-008"
+      ],
+      "inicio": [
+        "2030-06-10T18:00:00Z",
+        "2030-06-10T18:00:00Z",
+        "2030-06-10T18:00:00Z",
+        "2030-06-10T18:00:00Z",
+        "2030-06-10T18:00:00Z",
+        "2030-06-10T18:00:00Z",
+        "2030-06-10T18:00:00Z",
+        "2030-06-10T18:00:00Z"
+      ],
+      "estadio": [
+        "EST-01",
+        "EST-02",
+        "EST-03",
+        "EST-04",
+        "EST-05",
+        "EST-06",
+        "EST-07",
+        "EST-08"
+      ]
+    }
+  },
+  "Q10": {
+    "filas": 5,
+    "columnas": {
+      "jugador": [
+        "JUG-0006",
+        "JUG-0007",
+        "JUG-0008",
+        "JUG-0009",
+        "JUG-0010"
+      ]
+    }
+  },
+  "Q11": {
+    "filas": 8,
+    "columnas": {
+      "estadio": [
+        "EST-01",
+        "EST-02",
+        "EST-03",
+        "EST-04",
+        "EST-05",
+        "EST-06",
+        "EST-07",
+        "EST-08"
+      ],
+      "partidos": [
+        "8",
+        "8",
+        "8",
+        "8",
+        "8",
+        "8",
+        "8",
+        "8"
+      ]
+    }
+  },
+  "Q12": {
+    "filas": 5,
+    "columnas": {
+      "equipo": [
+        "EQ-006",
+        "EQ-012",
+        "EQ-018",
+        "EQ-024",
+        "EQ-030"
+      ],
+      "codigo": [
+        "F06",
+        "F12",
+        "F18",
+        "F24",
+        "F30"
+      ],
+      "confederacion": [
+        "UEFA",
+        "UEFA",
+        "UEFA",
+        "UEFA",
+        "UEFA"
+      ]
+    }
+  },
+  "Q13": {
+    "filas": 1,
+    "columnas": {
+      "jugadores": [
+        "0"
+      ]
+    }
+  },
+  "A01": {
+    "filas": 1,
+    "columnas": {
+      "saltos": [
+        "4"
+      ],
+      "entidades": [
+        "EQ-001 -> PAR-001 -> EQ-002 -> PAR-034 -> EQ-004"
+      ]
+    }
+  },
+  "A02": {
+    "filas": 1,
+    "columnas": {
+      "origen": [
+        "EQ-001"
+      ],
+      "destino": [
+        "EQ-005"
+      ],
+      "conectado": [
+        "FALSE"
+      ]
+    }
+  }
+}

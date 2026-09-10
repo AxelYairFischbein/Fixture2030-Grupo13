@@ -1,0 +1,2 @@
+saltos, entidades
+4, "EQ-001 -> PAR-001 -> EQ-002 -> PAR-034 -> EQ-004"

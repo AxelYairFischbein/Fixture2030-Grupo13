@@ -1,0 +1,10 @@
+name, state, type
+"idx_partido_inicio", "ONLINE", "RANGE"
+"index_1b9dcc97", "ONLINE", "LOOKUP"
+"index_460996c0", "ONLINE", "LOOKUP"
+"uq_equipo_codigo", "ONLINE", "RANGE"
+"uq_equipo_id", "ONLINE", "RANGE"
+"uq_estadio_id", "ONLINE", "RANGE"
+"uq_evento_id", "ONLINE", "RANGE"
+"uq_jugador_id", "ONLINE", "RANGE"
+"uq_partido_id", "ONLINE", "RANGE"

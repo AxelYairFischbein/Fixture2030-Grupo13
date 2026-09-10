@@ -1,0 +1,1 @@
+An error occurred while in an open transaction. The transaction will be rolled back and terminated. Error: Node(0) already exists with label `Equipo` and property `codigo` = 'F01'

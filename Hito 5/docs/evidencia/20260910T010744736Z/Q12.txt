@@ -1,0 +1,6 @@
+equipo, codigo, confederacion
+"EQ-006", "F06", "UEFA"
+"EQ-012", "F12", "UEFA"
+"EQ-018", "F18", "UEFA"
+"EQ-024", "F24", "UEFA"
+"EQ-030", "F30", "UEFA"
