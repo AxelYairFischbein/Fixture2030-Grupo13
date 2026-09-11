@@ -1,6 +1,6 @@
 # Modelo de grafo del Fixture 2030
 
-El subgrafo responde quién pertenece a cada selección, contra quién juega, dónde está programado cada encuentro y qué personas intervienen en una incidencia de ese partido. Representa relaciones del torneo y una muestra de programación; no reemplaza las fichas documentales ni almacena estadísticas acumuladas.
+El grafo permite consultar a qué equipo pertenece un jugador, contra quién juega cada equipo, dónde se disputa un partido y quién interviene en una incidencia. Para resolver estas preguntas conectamos equipos, jugadores, partidos, estadios y eventos mediante relaciones.
 
 ## Diagrama
 
@@ -13,58 +13,57 @@ flowchart LR
     V -->|INVOLUCRA: rol SALE o ENTRA| J
 ```
 
-Las flechas indican la dirección almacenada. Cypher puede recorrerlas en sentido inverso; no se duplican relaciones inversas. El análisis de encuentros trata `DISPUTA` como no dirigida para poder pasar de un equipo a su rival.
+Las flechas indican la dirección de cada relación. Cypher también permite recorrerlas en sentido inverso, por lo que no necesitamos guardar una segunda relación para volver al nodo de origen.
 
-## Etiquetas y propiedades
+## Etiquetas y propiedades principales
 
-Cada nodo de la muestra tiene **una sola etiqueta**, `origen: 'sintetico-grupo13-v1'` y `esDatoSintetico: true`. Las propiedades siguientes son obligatorias en la carga; su presencia se comprueba por Cypher. No se usan identificadores internos de Neo4j como identidad de negocio.
+Cada nodo tiene una etiqueta y las propiedades `origen: 'sintetico-grupo13-v1'` y `esDatoSintetico: true`.
 
-| Etiqueta | Propiedades específicas y tipos | Identificador y ejemplo | Cantidad |
+| Etiqueta | Propiedades y tipos | Identificadores | Cantidad |
 |---|---|---|---:|
-| `Equipo` | `equipoId`, `codigo`, `nombre`, `confederacion`: String | `EQ-001` a `EQ-064`; códigos `F01` a `F64` | 64 |
-| `Jugador` | `jugadorId`, `nombre`, `apellido`, `posicion`: String | `JUG-0001` a `JUG-1536` | 1.536 |
-| `Partido` | `partidoId`, `grupo`, `fase`, `estado`: String; `jornada`: Integer; `inicio`: DateTime con UTC | `PAR-001` a `PAR-064` | 64 |
-| `Estadio` | `estadioId`, `nombre`, `ciudad`: String | `EST-01` a `EST-08` | 8 |
-| `EventoDeportivo` | `eventoId`, `tipo`: String; `minuto`: Integer | `EVT-PAR-001-LOCAL`, `EVT-PAR-001-VISITANTE`, etc. | 128 |
+| `Equipo` | `equipoId`, `codigo`, `nombre`, `confederacion`: texto | `EQ-001` a `EQ-064`, códigos `F01` a `F64` | 64 |
+| `Jugador` | `jugadorId`, `nombre`, `apellido`, `posicion`: texto | `JUG-0001` a `JUG-1536` | 1.536 |
+| `Partido` | `partidoId`, `grupo`, `fase`, `estado`: texto. `jornada`: entero. `inicio`: DateTime en UTC | `PAR-001` a `PAR-064` | 64 |
+| `Estadio` | `estadioId`, `nombre`, `ciudad`: texto | `EST-01` a `EST-08` | 8 |
+| `EventoDeportivo` | `eventoId`, `tipo`: texto. `minuto`: entero | `EVT-PAR-001-LOCAL`, `EVT-PAR-001-VISITANTE`, entre otros | 128 |
 
-Dominios: confederaciones AFC, CAF, CONCACAF, CONMEBOL, OFC y UEFA; posiciones ARQUERO, DEFENSOR, MEDIOCAMPISTA y DELANTERO. En esta muestra los partidos tienen `fase=GRUPOS_MUESTRA`, `estado=FINALIZADO`, jornadas 1 y 2 y grupos G01 a G16. Los eventos tienen `tipo=SUSTITUCION`; minuto 60 para el equipo local y 65 para el visitante. Son hechos ficticios de una simulación del torneo de 2030, no resultados oficiales ni datos observados en 2026.
+Las confederaciones son AFC, CAF, CONCACAF, CONMEBOL, OFC y UEFA. Las posiciones son ARQUERO, DEFENSOR, MEDIOCAMPISTA y DELANTERO. Los partidos pertenecen a los grupos G01 a G16, con jornadas 1 y 2, `fase=GRUPOS_MUESTRA` y `estado=FINALIZADO`. Los eventos son de tipo `SUSTITUCION`, en el minuto 60 para el equipo local y 65 para el visitante.
 
-## Relaciones, propiedades y cardinalidades
+## Relaciones, dirección y cardinalidad
 
-| Patrón dirigido | Propiedades | Regla de dominio del módulo | Cardinalidad en la muestra | Cantidad |
-|---|---|---|---|---:|
-| `Jugador → PERTENECE_A → Equipo` | `numeroCamiseta`: Integer 1–24 | Cada jugador pertenece a un equipo actual; cada equipo tiene un plantel | 1 equipo por jugador, 24 jugadores por equipo | 1.536 |
-| `Equipo → DISPUTA → Partido` | `rol`: String, LOCAL o VISITANTE | Dos equipos distintos por partido; un rol de cada clase; equipo con 0..N encuentros | 2 partidos por equipo, 2 equipos por partido | 128 |
-| `Partido → SE_JUEGA_EN → Estadio` | Ninguna | Un estadio por partido; estadio con 0..N partidos | 1 estadio por partido, 8 partidos por estadio | 64 |
-| `EventoDeportivo → OCURRE_EN → Partido` | Ninguna | Una incidencia pertenece a un partido; partido con 0..N incidencias | 2 incidencias por partido | 128 |
-| `EventoDeportivo → INVOLUCRA → Jugador` | `rol`: String, SALE o ENTRA | Una sustitución involucra dos jugadores diferentes del mismo equipo participante | 2 jugadores por evento; cada uno puede figurar en 0..N eventos | 256 |
+| Relación dirigida | Propiedades | Cardinalidad del modelo | Cantidad en la muestra |
+|---|---|---|---:|
+| `Jugador → PERTENECE_A → Equipo` | `numeroCamiseta`: entero de 1 a 24 | Un equipo por jugador y varios jugadores por equipo. La muestra tiene 24 jugadores por equipo | 1.536 |
+| `Equipo → DISPUTA → Partido` | `rol`: LOCAL o VISITANTE | Un equipo puede disputar 0..N partidos. Cada partido tiene dos equipos distintos, uno por rol. La muestra tiene dos partidos por equipo | 128 |
+| `Partido → SE_JUEGA_EN → Estadio` | Ninguna | Un estadio por partido y 0..N partidos por estadio. La muestra tiene ocho partidos por estadio | 64 |
+| `EventoDeportivo → OCURRE_EN → Partido` | Ninguna | Un partido por evento y 0..N eventos por partido. La muestra tiene dos eventos por partido | 128 |
+| `EventoDeportivo → INVOLUCRA → Jugador` | `rol`: SALE o ENTRA | Dos jugadores distintos del mismo equipo participante por sustitución, uno por rol. Cada jugador puede figurar en 0..N eventos | 256 |
 
-Total: **1.800 nodos y 2.112 relaciones**. Los roles LOCAL/VISITANTE son administrativos; no afirman ventaja de localía. No se crea `JUGO_EN`: pertenecer al plantel de un equipo que disputa un partido no demuestra que el jugador ingresó a la cancha. `INVOLUCRA` expresa únicamente la intervención registrada por la incidencia.
+El total es de **1.800 nodos y 2.112 relaciones**. LOCAL y VISITANTE distinguen los roles del encuentro. La pertenencia al plantel no demuestra que un jugador haya ingresado a la cancha, por eso `INVOLUCRA` registra su participación en una incidencia concreta.
 
-## Identidad y continuidad documental
+## Relación con los identificadores del Hito 4
 
-Para el jugador de número global `n` (1..1536), el equipo es `EQ-` seguido de `floor((n-1)/24)+1`, con tres dígitos, y la camiseta es `(n-1)%24+1`. El grafo conserva `equipoId`, `jugadorId`, códigos, nombres, apellidos, posiciones y pertenencia de los datos de prueba del Hito 4.
+Conservamos `equipoId`, `jugadorId`, códigos, nombres, apellidos, posiciones y pertenencia de los datos de prueba del Hito 4. Por ejemplo, `EQ-001` reúne a `JUG-0001` a `JUG-0024`. Estos identificadores permiten reconocer las mismas entidades en ambos hitos sin depender de los identificadores internos de Neo4j.
 
-`jugadores.equipoId` se representa mediante el extremo de `PERTENECE_A`. `numeroCamiseta` se guarda en esa relación porque corresponde al plantel de la selección. No se conserva además un array de jugadores en el equipo ni un segundo campo de referencia en el jugador. El `_id` documental es derivable (`equipo:` + equipoId; `jugador:` + jugadorId) y no se duplica.
+La referencia `jugadores.equipoId` pasa a representarse con `PERTENECE_A`. La propiedad `numeroCamiseta` queda en esa relación porque corresponde al jugador dentro de su plantel. No repetimos una lista de jugadores en cada equipo ni el `_id` documental.
 
-## Restricciones e integridad
+## Restricciones e índice temporal
 
-`01_constraints.cypher` instala seis restricciones de unicidad: `uq_equipo_id`, `uq_equipo_codigo`, `uq_jugador_id`, `uq_partido_id`, `uq_estadio_id`, `uq_evento_id`. Cada una tiene su índice de respaldo. También crea `idx_partido_inicio` para el rango temporal de Q09, inspeccionado mediante P01. Los índices LOOKUP de etiquetas/tipos provienen de Neo4j.
+[01_constraints.cypher](../queries/01_constraints.cypher) define seis restricciones de unicidad:
 
-Las restricciones de unicidad no exigen que la propiedad exista ni controlan la cantidad de relaciones. `06_verify.cypher` comprueba las propiedades requeridas, identidades, planteles, camisetas, roles, extremos, duplicados, participantes y programación. Los 44 controles deben devolver `TRUE`.
+- `uq_equipo_id` y `uq_equipo_codigo`, para el identificador y el código de equipo.
+- `uq_jugador_id`, `uq_partido_id`, `uq_estadio_id` y `uq_evento_id`, para los demás identificadores.
 
-## Política de duplicación y carga
+También crea `idx_partido_inicio` sobre `Partido.inicio`, utilizado en el filtro por fechas de Q09. Las restricciones de unicidad no controlan la presencia de propiedades ni la cardinalidad de las relaciones. Esas condiciones se revisan con [06_verify.cypher](../queries/06_verify.cypher).
 
-La carga hace `MERGE` de nodos por el identificador único y `MERGE` de relaciones por extremos y tipo; las propiedades se asignan después con `SET`. Se ejecuta de forma serial y en una única transacción explícita de `cypher-shell`. No usa aleatoriedad, reloj de ejecución, incrementos ni eliminaciones.
+## Cómo evitamos duplicados
 
-Repetir la carga sobre el ambiente preparado conserva nodos, relaciones y propiedades, sin duplicados. La recarga restablece los valores definidos, pero no elimina datos agregados por fuera de ella. Las consultas de integridad permiten detectar diferencias con la muestra esperada.
+La [carga](../queries/02_load.cypher) usa `MERGE` para buscar o crear nodos por su identificador y relaciones por su tipo y extremos. Después asigna sus propiedades con `SET`. Así se mantiene la idempotencia: repetir la carga conserva la muestra sin agregar duplicados. La recarga restablece los valores definidos, pero no elimina datos añadidos por fuera de ella.
 
-## Recorridos y valor del grafo
+## Ejemplos de recorridos
 
-- Q02: equipo → partido → estadio, para listar selecciones que pasan por una sede sin duplicarlas por jornada.
-- Q04: equipo → partido ← rival, para recuperar rivales sin mantener una lista redundante de enfrentamientos.
-- Q07: partido ← evento → jugador → equipo → partido, para contextualizar la incidencia y comprobar que el plantel pertenece al encuentro.
-- Q08: jugador → equipo → partido → estadio, para navegar la programación desde la identidad del jugador.
-- A01: camino alternante de equipos y partidos para encontrar una conexión indirecta entre selecciones.
-
-Un partido vincula equipos que vuelven a aparecer en otros encuentros y sedes; una incidencia conecta un partido con personas identificables. Las relaciones explícitas permiten expresar esos recorridos sin embeber ni sincronizar copias de planteles, rivales, estadios o incidencias dentro de cada ficha.
+- Q02 recorre equipo → partido → estadio para listar las selecciones que juegan en una sede.
+- Q04 recorre equipo → partido ← rival para obtener los rivales de un equipo.
+- Q07 conecta partido, evento, jugador y equipo para consultar las incidencias y sus participantes.
+- Q08 recorre jugador → equipo → partido → estadio para consultar la programación desde un jugador.
+- A01 busca un camino mínimo entre equipos a través de sus partidos, recorriendo `DISPUTA` en ambos sentidos.

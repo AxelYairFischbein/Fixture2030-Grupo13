@@ -1,83 +1,66 @@
-# Decisiones técnicas del Grupo 13
+# Decisiones de diseño del Grupo 13
 
-## Problema y relación con los Hitos anteriores
+## 1. Problema relacional
 
-El Fixture 2030 necesita responder qué jugadores pertenecen a un equipo, contra quién juega, dónde se programa cada encuentro y quién participa en una incidencia. Neo4j permite representar estas conexiones como relaciones y consultarlas mediante recorridos.
+El Fixture 2030 necesita relacionar planteles, encuentros, sedes e incidencias. Preguntas como quiénes son los rivales de un equipo o en qué estadio juega el equipo de un jugador requieren seguir varias conexiones. Elegimos Neo4j para representar esas conexiones como relaciones y consultarlas con Cypher.
 
-El problema planteado en los Hitos 1 y 2 combina equipos, jugadores, partidos y eventos. El Hito 2 identifica a Neo4j como una opción para los datos relacionados con partidos e incidencias. El Hito 3 separa las fichas documentales de sus conexiones deportivas, y el Hito 4 implementa las fichas de equipos y jugadores. Este módulo mantiene esa separación y utiliza los mismos identificadores de equipos y jugadores.
+## 2. Relación con los hitos anteriores
 
-## MongoDB, Neo4j e información replicada
+Los Hitos 1 y 2 plantean el problema de equipos, jugadores, partidos y eventos. El Hito 2 propone Neo4j para las relaciones entre partidos e incidencias. El Hito 3 separa las fichas documentales de sus conexiones deportivas, y el Hito 4 implementa las fichas de equipos y jugadores en MongoDB.
 
-MongoDB organiza la información en documentos y resulta adecuado para las fichas de equipos y jugadores. Neo4j organiza nodos y relaciones, lo que permite recorrer planteles, encuentros, sedes e incidencias.
+Este hito conserva los identificadores `equipoId` y `jugadorId` y los atributos básicos de esos datos de prueba. MongoDB organiza las fichas y Neo4j permite recorrer sus conexiones deportivas. La carga del grafo es independiente, sin conexión ni sincronización con MongoDB.
 
-Los nodos de equipo y jugador conservan únicamente los atributos necesarios para identificarlos y recorrer sus relaciones. Del equipo se replican `equipoId`, `codigo`, `nombre` y `confederacion`; del jugador, `jugadorId`, `nombre`, `apellido` y `posicion`. La camiseta se guarda en la relación `PERTENECE_A`.
+## 3. Modelo elegido
 
-Las estadísticas acumuladas y las fichas extensas no forman parte de este módulo. Los partidos conservan identidad, grupo, jornada, fase, estado y fecha de inicio. Los eventos representan incidencias individuales.
+Usamos cinco etiquetas: `Equipo`, `Jugador`, `Partido`, `Estadio` y `EventoDeportivo`. Las conectamos mediante `PERTENECE_A`, `DISPUTA`, `SE_JUEGA_EN`, `OCURRE_EN` e `INVOLUCRA`.
 
-La carga es independiente y utiliza datos sintéticos definidos en Cypher. No hay conexión ni sincronización con MongoDB.
+La camiseta queda en `PERTENECE_A` porque corresponde al jugador dentro de su plantel. Los roles LOCAL y VISITANTE quedan en `DISPUTA`, y SALE y ENTRA en `INVOLUCRA`. Cada evento tiene un nodo propio para vincularlo con su partido y sus participantes.
 
-## Modelo e identificadores
+Usamos identificadores estables como `EQ-001`, `JUG-0001`, `PAR-001`, `EST-01` y `EVT-PAR-001-LOCAL`. El [modelo de grafo](modelo_grafo.md) detalla las propiedades, direcciones y cardinalidades.
 
-Se utilizan cinco etiquetas: `Equipo`, `Jugador`, `Partido`, `Estadio` y `EventoDeportivo`. Sus conexiones son:
+## 4. Datos de prueba
 
-- Jugador → `PERTENECE_A` → Equipo, con la camiseta.
-- Equipo → `DISPUTA` → Partido, con el rol LOCAL o VISITANTE.
-- Partido → `SE_JUEGA_EN` → Estadio.
-- EventoDeportivo → `OCURRE_EN` → Partido.
-- EventoDeportivo → `INVOLUCRA` → Jugador, con el rol SALE o ENTRA.
+La muestra contiene **64 equipos, 1.536 jugadores, 64 partidos, 8 estadios y 128 eventos**, con un total de **1.800 nodos y 2.112 relaciones**. Cada equipo tiene 24 jugadores.
 
-Los identificadores son legibles y estables: `EQ-001`, `JUG-0001`, `PAR-001`, `EST-01` y `EVT-PAR-001-LOCAL`. Se usan como claves de negocio en lugar de los identificadores internos de Neo4j. El [modelo de grafo](modelo_grafo.md) detalla propiedades, direcciones y cardinalidades.
+Organizamos 16 grupos ficticios de cuatro equipos y dos jornadas. Para un grupo con equipos A, B, C y D, la primera jornada incluye A–B y C–D. La segunda incluye A–C y B–D. Cada equipo disputa dos encuentros.
 
-## Datos sintéticos
+Los partidos se distribuyen del 10 al 17 de junio de 2030 a las 18:00 UTC. Cada estadio recibe ocho partidos, sin superposiciones de equipo o sede. Cada encuentro tiene dos sustituciones, una por equipo. Sale el jugador con camiseta 20 y entra el de camiseta 21.
 
-La muestra contiene **64 equipos, 1.536 jugadores, 64 partidos, 8 estadios y 128 eventos**: 1.800 nodos y 2.112 relaciones.
+Estos datos permiten probar las consultas y los recorridos. No representan el fixture, los planteles ni las sedes oficiales.
 
-Hay 16 grupos ficticios de cuatro equipos y dos jornadas. Para un grupo con equipos A, B, C y D, la primera jornada incluye A–B y C–D; la segunda, A–C y B–D. Cada equipo disputa dos encuentros.
+## 5. Carga repetible e integridad
 
-Los partidos se distribuyen entre ocho estadios, del 10 al 17 de junio de 2030 a las 18:00 UTC. Cada estadio recibe ocho partidos y no hay superposiciones de equipo o sede. Cada encuentro tiene dos sustituciones: una por equipo, con la camiseta 20 como SALE y la 21 como ENTRA.
+La carga usa `MERGE` para buscar o crear nodos por identificador y relaciones por tipo y extremos. Con `SET` asigna sus propiedades. La idempotencia permite repetir la carga sin generar duplicados, como se comprobó en las [evidencias](evidencia/README.md).
 
-Los datos permiten probar los recorridos; no representan el fixture, los planteles ni las sedes oficiales.
+Definimos seis restricciones de unicidad para los cinco identificadores y el código de equipo. Las propiedades requeridas y la cardinalidad de las relaciones se comprueban con consultas Cypher. El índice `idx_partido_inicio` se utiliza en el filtro por rango de fechas de Q09.
 
-## Carga idempotente e integridad
+El CRUD trabaja con la incidencia temporal `CRUD-G13-EVT-001` para mostrar creación, lectura, actualización y eliminación. Al finalizar, elimina esa incidencia y mantiene los datos de prueba.
 
-La carga utiliza `UNWIND` y `range` para construir la muestra. `MERGE` busca o crea cada nodo por su identificador y cada relación por su tipo y extremos. `SET` asigna las propiedades. La carga se ejecuta en una única transacción.
+## 6. Alternativas consideradas
 
-Repetirla sobre el ambiente preparado mantiene nodos, relaciones y propiedades, sin duplicados. La [ejecución final](evidencia/20260910T010744736Z/00_resumen.json) comprobó la igualdad del contenido entre cargas y después del reinicio.
-
-El CRUD utiliza una incidencia temporal para demostrar creación, lectura, actualización y eliminación. La actualización registra el motivo `CORRECCION_DE_PLANILLA`. Al terminar, elimina esa incidencia y conserva el conjunto de prueba.
-
-Se definen seis restricciones de unicidad: los cinco identificadores y el código de equipo. Se crean con `IF NOT EXISTS`. Las propiedades requeridas y las cardinalidades se comprueban mediante consultas de integridad.
-
-El índice `idx_partido_inicio` acompaña el filtro por rango de fechas de Q09. El plan registrado muestra su uso. Las restricciones e índices ocupan espacio y deben mantenerse al escribir, a cambio de proteger identidades y facilitar búsquedas.
-
-## Alternativas y trade-offs
-
-| Decisión | Alternativa | Elección y consecuencia |
+| Decisión | Alternativa | Motivo de la elección |
 |---|---|---|
-| Evento deportivo | Guardarlo como propiedad o lista del partido | Un nodo propio permite identificar cada incidencia y vincular sus participantes; agrega nodos y relaciones |
-| Pertenencia al equipo | Repetir una lista de jugadores en cada equipo | `PERTENECE_A` evita esa duplicación y permite guardar la camiseta del plantel |
-| Participación en partidos | Usar relaciones separadas para LOCAL y VISITANTE | `DISPUTA` con una propiedad de rol permite consultar ambos casos con el mismo patrón; los roles se verifican por partido |
-| Estadio | Guardar su nombre en cada partido | Un nodo `Estadio` reúne la programación de una sede mediante un recorrido adicional |
-| Rivales y agenda del jugador | Guardar relaciones directas para cada resultado | Se derivan a través de equipos y partidos; requieren varios saltos, pero evitan actualizar información repetida |
-| Carga | Importar archivos CSV | Cypher define una muestra pequeña y reproducible sin archivos externos; modificar los datos requiere editar la carga |
-| Análisis | Agregar una extensión de algoritmos | Las funciones nativas de camino mínimo resuelven la pregunta planteada sin dependencias adicionales |
-| Persistencia | Guardar los datos solo en el contenedor | Los volúmenes nombrados conservan datos y logs entre reinicios |
+| Evento como nodo | Guardarlo en una lista del partido | Permite identificar cada incidencia y conectar sus participantes, aunque agrega nodos y relaciones |
+| Pertenencia mediante `PERTENECE_A` | Guardar una lista de jugadores en el equipo | Evita repetir el plantel y permite asociar la camiseta a la pertenencia |
+| `DISPUTA` con propiedad `rol` | Usar relaciones distintas para LOCAL y VISITANTE | Permite consultar ambos roles con el mismo patrón |
+| Estadio como nodo | Guardar su nombre en cada partido | Reúne los encuentros de una sede mediante una relación |
+| Rivales y agenda mediante recorridos | Guardar relaciones directas adicionales | Evita mantener datos repetidos, a cambio de recorrer varias relaciones |
+| Datos definidos en Cypher | Importar archivos CSV | Permite cargar la muestra sin archivos externos, aunque cambiarla requiere editar la carga |
+| Camino mínimo nativo de Neo4j | Agregar una extensión de algoritmos | Resuelve el análisis planteado sin dependencias adicionales |
+| Volúmenes para datos y logs | Guardarlos solo en el contenedor | Conserva la información entre reinicios |
 
-## Análisis de relaciones
+## 7. Análisis de relaciones
 
-A01 busca una cadena mínima de encuentros entre EQ-001 y EQ-004. Recorre únicamente `DISPUTA`, en ambos sentidos, con un máximo de seis relaciones. Si hay varios caminos mínimos, el orden por identificadores permite elegir uno de forma estable.
+A01 busca un camino mínimo entre EQ-001 y EQ-004 mediante `DISPUTA`, en ambos sentidos y con un máximo de seis relaciones. El resultado tiene cuatro relaciones: EQ-001 → PAR-001 → EQ-002 → PAR-034 → EQ-004. Si hay más de un camino mínimo, el orden de los identificadores permite elegir uno de forma estable.
 
-El resultado tiene cuatro relaciones: EQ-001 → PAR-001 → EQ-002 → PAR-034 → EQ-004. A02 consulta EQ-001 y EQ-005 y devuelve que no están conectados mediante encuentros en esta muestra. Compartir estadio no se considera un enfrentamiento.
+A02 consulta la conexión entre EQ-001 y EQ-005 y devuelve `FALSE`. Pertenecen a grupos distintos que no tienen encuentros entre sí en esta muestra. Compartir estadio no se considera un enfrentamiento.
 
-Estos resultados describen conexiones entre equipos y partidos. No miden rendimiento deportivo ni distancias geográficas. El [catálogo](catalogo_consultas.md) incluye las consultas y sus resultados.
+El análisis describe conexiones entre equipos y partidos. No mide rendimiento deportivo ni distancias geográficas. Los resultados están en el [catálogo de consultas](catalogo_consultas.md).
 
-## Ambiente y limitaciones
+## 8. Alcance y limitaciones
 
-El ambiente utiliza `neo4j:latest`, con volúmenes nombrados para datos y logs, HTTP en el puerto 7474 y Bolt en el 7687, publicados localmente. La versión registrada en la ejecución final es Neo4j 2026.07.1 Community.
-
-- Se utiliza un único servicio local; no se evalúa disponibilidad de un sistema en producción.
-- La muestra cubre dos jornadas y sustituciones de ejemplo. No incluye historia de planteles, alineaciones ni otros tipos de incidencia.
-- Las restricciones de unicidad protegen identificadores; las cardinalidades se revisan con Cypher.
+- El módulo usa un servicio local de Neo4j. La prueba registrada se realizó con Neo4j 2026.07.1 Community y la imagen `neo4j:latest`.
+- La muestra cubre dos jornadas y sustituciones de ejemplo. No incluye historia de planteles, alineaciones, marcadores ni estadísticas acumuladas.
+- Pertenecer al plantel no demuestra que un jugador haya participado en un partido.
 - Repetir la carga restablece sus valores definidos, pero no elimina datos agregados por fuera de ella.
-- Las credenciales de ejemplo corresponden al laboratorio. Cambiar `.env` no modifica la contraseña de una base ya inicializada.
-- La etiqueta `latest` puede cambiar; una actualización requiere comprobar nuevamente la compatibilidad.
+- Los datos se conservan en volúmenes de Docker. La imagen `latest` puede cambiar, por lo que una actualización requiere volver a comprobar el funcionamiento.
