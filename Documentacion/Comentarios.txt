@@ -1,0 +1,12 @@
+Instrucciones (a) y Comentarios/Feedback (b) del Profesor:
+Hito 1:
+a) El objetivo es que el grupo desarrolle pensamiento crítico sobre arquitectura de datos y comprenda cuándo y por qué usar NoSQL en lugar de SQL.
+b) Deben ajustar el alcance al contenido visto en Clase 1: aparecen particionamiento, réplicas, quorum, TTL, caché, sorted sets, observabilidad con Prometheus/Grafana y detalles específicos de Cassandra, InfluxDB e IRIS que aún no fueron desarrollados. Para el próximo hito conviene fundamentar solo con volumen, velocidad, acceso, esquema, escalabilidad, ACID/BASE y tipos generales de NoSQL.
+Hito 2:
+a) El objetivo es que el grupo pueda fundamentar decisiones de arquitectura de datos a partir de requisitos de volumen, variedad, relaciones, patrones de acceso, velocidad de generación, consistencia y escalabilidad. Las decisiones deberán ser propias, trazables al diagnóstico inicial y revisables en los próximos hitos de implementación.
+b) Deben revisar algunas agrupaciones de la matriz: Usuarios y sesiones, Pronósticos y ranking y Partidos y eventos tienen patrones de acceso y necesidades de persistencia diferentes, por lo que una única selección puede ocultar trade-offs relevantes. Para el próximo hito conviene separar estas responsabilidades cuando el comportamiento del dato lo justifique y mantener la trazabilidad individual.
+Hito 3:
+a) El objetivo no es configurar ni implementar la infraestructura. El objetivo es producir un diseño técnico razonado que pueda orientar los hitos de implementación posteriores.
+b) Deben ajustar el uso de N/R/W: los aplican como parámetros comunes a bloques que combinan MongoDB, Neo4j y Redis, cuando en Clase 3 se presentan principalmente para sistemas donde ese modelo de quórum corresponde. Para el próximo hito conviene expresar en esos motores mayoría, réplica y consistencia de forma conceptual, reservando N/R/W explícito para Cassandra. El resto del diseño y el diagrama están bien alineados con lo visto.
+Hito 4:
+a) El hito busca evaluar la capacidad de llevar un diseño conceptual a un módulo documental operativo. La estructura concreta de las colecciones, la decisión de embedding o referencias, las validaciones, los índices y las consultas deben ser definidos por el grupo. 
