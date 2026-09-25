@@ -1,0 +1,14 @@
+{
+  "comentarios_logicos": 1000100,
+  "filas_previstas_dos_tablas": 2000200,
+  "estados": {
+    "visible": 800080,
+    "pendiente": 150015,
+    "oculto": 50005
+  },
+  "particiones_principal": 30720,
+  "max_filas_particion_principal": 63,
+  "particiones_secundaria": 40000,
+  "max_filas_particion_secundaria": 26,
+  "bytes_csv": 146244629
+}

@@ -1,0 +1,26 @@
+name: grupo13-hito6
+
+services:
+  cassandra:
+    image: cassandra:latest
+    environment:
+      CASSANDRA_CLUSTER_NAME: Fixture2030_Comentarios
+      CASSANDRA_DC: datacenter1
+      CASSANDRA_RACK: rack1
+      CASSANDRA_ENDPOINT_SNITCH: GossipingPropertyFileSnitch
+      MAX_HEAP_SIZE: 2G
+      HEAP_NEWSIZE: 512M
+    ports:
+      - "127.0.0.1:9042:9042"
+    volumes:
+      # Compose toma el directorio personal de la variable de entorno USERPROFILE.
+      - type: bind
+        source: ${USERPROFILE:?Definir USERPROFILE}/docker/data/cassandra
+        target: /var/lib/cassandra
+      - type: bind
+        source: ./scripts
+        target: /scripts
+        read_only: true
+      - type: bind
+        source: ./data
+        target: /data

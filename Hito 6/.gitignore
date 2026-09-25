@@ -1,0 +1,6 @@
+/data/generados/
+/data/*.err*
+/data/*.log
+__pycache__/
+*.pyc
+.env

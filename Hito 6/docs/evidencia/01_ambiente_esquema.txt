@@ -1,0 +1,58 @@
+Fecha UTC: 2026-09-25T00:04:05.206616+00:00
+
+Compose validado y servicio iniciado mediante docker compose up -d.
+
+Imagen declarada: cassandra:latest. Puerto: 127.0.0.1:9042.
+
+Comprobaci?n de rutas: Compose y docker inspect coinciden con USERPROFILE/docker/data/cassandra.
+
+No se fija una ruta personal en los archivos entregables.
+
+Docker Compose version v5.5.0
+
+NAME                        IMAGE              COMMAND                  SERVICE     CREATED         STATUS         PORTS
+grupo13-hito6-cassandra-1   cassandra:latest   "docker-entrypoint.s…"   cassandra   4 minutes ago   Up 4 minutes   127.0.0.1:9042->9042/tcp
+
+Datacenter: datacenter1
+=======================
+Status=Up/Down
+|/ State=Normal/Leaving/Joining/Moving
+--  Address     Load        Tokens  Owns (effective)  Host ID                               Rack 
+UN  172.20.0.2  114.66 KiB  16      100.0%            86d51795-eef7-425a-8ad2-76628d7e9acf  rack1
+
+[cqlsh 6.2.0 | Cassandra 5.0.9 | CQL spec 3.4.7 | Native protocol v5]
+
+Esquema ejecutado una segunda vez con IF NOT EXISTS:
+
+
+
+keyspace_name           | replication
+-------------------------+-------------------------------------------------------------------------------------
+ fixture2030_comentarios | {'class': 'org.apache.cassandra.locator.SimpleStrategy', 'replication_factor': '1'}
+
+(1 rows)
+
+ table_name              | column_name   | kind          | position | type      | clustering_order
+-------------------------+---------------+---------------+----------+-----------+------------------
+ comentarios_por_partido | comentario_id |    clustering |        1 |      text |              asc
+ comentarios_por_partido |     contenido |       regular |       -1 |      text |             none
+ comentarios_por_partido |     creado_en |    clustering |        0 | timestamp |             desc
+ comentarios_por_partido |           dia |       regular |       -1 |      date |             none
+ comentarios_por_partido |        estado |       regular |       -1 |      text |             none
+ comentarios_por_partido |         likes |       regular |       -1 |       int |             none
+ comentarios_por_partido |        minuto | partition_key |        1 | timestamp |             none
+ comentarios_por_partido |    partido_id | partition_key |        0 |      text |             none
+ comentarios_por_partido |      segmento | partition_key |        2 |   tinyint |             none
+ comentarios_por_partido |    usuario_id |       regular |       -1 |      text |             none
+ comentarios_por_usuario | comentario_id |    clustering |        1 |      text |              asc
+ comentarios_por_usuario |     contenido |       regular |       -1 |      text |             none
+ comentarios_por_usuario |     creado_en |    clustering |        0 | timestamp |             desc
+ comentarios_por_usuario |           dia | partition_key |        1 |      date |             none
+ comentarios_por_usuario |        estado |       regular |       -1 |      text |             none
+ comentarios_por_usuario |         likes |       regular |       -1 |       int |             none
+ comentarios_por_usuario |        minuto |       regular |       -1 | timestamp |             none
+ comentarios_por_usuario |    partido_id |       regular |       -1 |      text |             none
+ comentarios_por_usuario |      segmento |       regular |       -1 |   tinyint |             none
+ comentarios_por_usuario |    usuario_id | partition_key |        0 |      text |             none
+
+(20 rows)

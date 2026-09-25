@@ -1,0 +1,128 @@
+Fecha UTC: 2026-09-25T00:04:28.456145+00:00
+
+Primera carga correcta
+
+Consistency level set to ONE.
+
+filas
+-------
+    12
+
+(1 rows)
+
+Warnings :
+Aggregation query used without partition key
+
+
+ filas
+-------
+    12
+
+(1 rows)
+
+Warnings :
+Aggregation query used without partition key
+
+Segunda carga de las mismas claves
+
+Consistency level set to ONE.
+
+filas
+-------
+    12
+
+(1 rows)
+
+Warnings :
+Aggregation query used without partition key
+
+
+ filas
+-------
+    12
+
+(1 rows)
+
+Warnings :
+Aggregation query used without partition key
+
+CRUD de PRUEBA-CRUD-001 en las dos tablas:
+
+Consistency level set to ONE.
+
+ comentario_id   | contenido            | estado    | likes
+-----------------+----------------------+-----------+-------
+ PRUEBA-CRUD-001 | Comentario de prueba | pendiente |     0
+
+(1 rows)
+
+ comentario_id   | contenido            | estado    | likes
+-----------------+----------------------+-----------+-------
+ PRUEBA-CRUD-001 | Comentario de prueba | pendiente |     0
+
+(1 rows)
+
+ comentario_id   | contenido          | estado  | likes
+-----------------+--------------------+---------+-------
+ PRUEBA-CRUD-001 | Comentario editado | visible |     3
+
+(1 rows)
+
+ comentario_id   | contenido          | estado  | likes
+-----------------+--------------------+---------+-------
+ PRUEBA-CRUD-001 | Comentario editado | visible |     3
+
+(1 rows)
+
+ comentario_id
+---------------
+
+
+(0 rows)
+
+ comentario_id
+---------------
+
+
+(0 rows)
+
+Q1, Q2 y Q3 sobre la muestra:
+
+Consistency level set to ONE.
+PAGING set to OFF
+
+ creado_en                       | comentario_id | usuario_id | contenido                 | estado    | likes
+---------------------------------+---------------+------------+---------------------------+-----------+-------
+ 2030-06-10 18:01:59.000000+0000 |   MUESTRA-008 |  USR-00001 |    Se termina este minuto |   visible |     1
+ 2030-06-10 18:01:45.000000+0000 |   MUESTRA-007 |  USR-00003 |    Comentario en revision | pendiente |     0
+ 2030-06-10 18:01:20.000000+0000 |   MUESTRA-005 |  USR-00001 |               Buen remate |   visible |     5
+ 2030-06-10 18:01:20.000000+0000 |   MUESTRA-006 |  USR-00002 |        Atajada importante |   visible |     3
+ 2030-06-10 18:01:05.000000+0000 |   MUESTRA-004 |  USR-00003 | Mensaje oculto de muestra |    oculto |     0
+
+(5 rows)
+
+ creado_en                       | comentario_id | usuario_id | contenido                 | estado    | likes
+---------------------------------+---------------+------------+---------------------------+-----------+-------
+ 2030-06-10 18:02:05.000000+0000 |   MUESTRA-009 |  USR-00002 |          Sigue el partido |   visible |     1
+ 2030-06-10 18:01:59.000000+0000 |   MUESTRA-008 |  USR-00001 |    Se termina este minuto |   visible |     1
+ 2030-06-10 18:01:45.000000+0000 |   MUESTRA-007 |  USR-00003 |    Comentario en revision | pendiente |     0
+ 2030-06-10 18:01:20.000000+0000 |   MUESTRA-005 |  USR-00001 |               Buen remate |   visible |     5
+ 2030-06-10 18:01:20.000000+0000 |   MUESTRA-006 |  USR-00002 |        Atajada importante |   visible |     3
+ 2030-06-10 18:01:05.000000+0000 |   MUESTRA-004 |  USR-00003 | Mensaje oculto de muestra |    oculto |     0
+ 2030-06-10 18:00:55.000000+0000 |   MUESTRA-003 |  USR-00001 |         Gran pase al area |   visible |     4
+ 2030-06-10 18:00:30.000000+0000 |   MUESTRA-002 |  USR-00002 |       Revisar esta jugada | pendiente |     0
+
+(8 rows)
+
+ creado_en                       | comentario_id | partido_id | contenido                       | estado  | likes
+---------------------------------+---------------+------------+---------------------------------+---------+-------
+ 2030-06-10 18:02:10.000000+0000 |   MUESTRA-010 |    PAR-001 | Fuera del limite superior de Q2 | visible |     0
+ 2030-06-10 18:01:59.000000+0000 |   MUESTRA-008 |    PAR-001 |          Se termina este minuto | visible |     1
+ 2030-06-10 18:01:20.000000+0000 |   MUESTRA-005 |    PAR-001 |                     Buen remate | visible |     5
+ 2030-06-10 18:01:10.000000+0000 |   MUESTRA-011 |    PAR-002 |      Comentario en otro partido | visible |     2
+ 2030-06-10 18:00:55.000000+0000 |   MUESTRA-003 |    PAR-001 |               Gran pase al area | visible |     4
+ 2030-06-10 18:00:20.000000+0000 |   MUESTRA-001 |    PAR-001 |                   Buen comienzo | visible |     2
+
+(6 rows)
+PAGING set to ON
+Page size: 100

@@ -1,0 +1,48 @@
+{
+  "fecha_utc": "2026-09-25T00:09:12.530528+00:00",
+  "version": "[cqlsh 6.2.0 | Cassandra 5.0.9 | CQL spec 3.4.7 | Native protocol v5]",
+  "docker_cpus": 24,
+  "docker_memoria_bytes": 16558764032,
+  "procesos_copy": 4,
+  "consistencia": "ONE",
+  "cantidad_solicitada": 20000,
+  "distribucion": {
+    "comentarios_logicos": 20000,
+    "filas_previstas_dos_tablas": 40000,
+    "estados": {
+      "visible": 16000,
+      "pendiente": 3000,
+      "oculto": 1000
+    },
+    "particiones_principal": 1536,
+    "max_filas_particion_principal": 22,
+    "particiones_secundaria": 20000,
+    "max_filas_particion_secundaria": 1,
+    "bytes_csv": 2895802
+  },
+  "tablas": {
+    "comentarios_por_partido": {
+      "filas_confirmadas": 20000,
+      "completa_sin_errores": true,
+      "codigo_salida": 0
+    },
+    "comentarios_por_usuario": {
+      "filas_confirmadas": 20000,
+      "completa_sin_errores": true,
+      "codigo_salida": 0
+    }
+  },
+  "duracion_segundos": 3.107136,
+  "escrituras_fisicas_confirmadas": 40000,
+  "comentarios_logicos_confirmados": 20000,
+  "filas_sin_confirmar": 0,
+  "errores": 0,
+  "primer_y_ultimo_comentario_verificados": true,
+  "comentarios_logicos_por_segundo": 6436.8,
+  "escrituras_fisicas_por_segundo": 12873.59,
+  "resumenes_copy": {
+    "comentarios_por_partido": "20000 rows imported from 1 files in 0 day, 0 hour, 0 minute, and 1.096 seconds (0 skipped).",
+    "comentarios_por_usuario": "20000 rows imported from 1 files in 0 day, 0 hour, 0 minute, and 1.031 seconds (0 skipped)."
+  },
+  "verificacion_orden_limites": "Q1 top 20 y Q2 top 50 coinciden con el conjunto generado y la muestra"
+}

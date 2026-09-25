@@ -1,0 +1,63 @@
+Fecha UTC: 2026-09-25T00:10:14.247316+00:00
+
+Antes del reinicio, dos comentarios en ambas tablas:
+comentario_id | contenido     | likes
+---------------+---------------+-------
+   MUESTRA-001 | Buen comienzo |     2
+
+(1 rows)
+
+ comentario_id | contenido     | likes
+---------------+---------------+-------
+   MUESTRA-001 | Buen comienzo |     2
+
+(1 rows)
+
+ comentario_id       | instante_ms   | likes
+---------------------+---------------+-------
+ MASIVO-000000020000 | 1907604311064 |     1
+
+(1 rows)
+
+ comentario_id       | instante_ms   | likes
+---------------------+---------------+-------
+ MASIVO-000000020000 | 1907604311064 |     1
+
+(1 rows)
+
+Comando ejecutado: docker compose restart cassandra
+Comprobacion posterior UTC: 2026-09-25T00:12:12.626828+00:00
+
+Datacenter: datacenter1
+=======================
+Status=Up/Down
+|/ State=Normal/Leaving/Joining/Moving
+--  Address     Load      Tokens  Owns (effective)  Host ID                               Rack 
+UN  172.20.0.2  2.99 MiB  16      100.0%            86d51795-eef7-425a-8ad2-76628d7e9acf  rack1
+
+Despues del reinicio, sin recargar datos:
+comentario_id | contenido     | likes
+---------------+---------------+-------
+   MUESTRA-001 | Buen comienzo |     2
+
+(1 rows)
+
+ comentario_id | contenido     | likes
+---------------+---------------+-------
+   MUESTRA-001 | Buen comienzo |     2
+
+(1 rows)
+
+ comentario_id       | instante_ms   | likes
+---------------------+---------------+-------
+ MASIVO-000000020000 | 1907604311064 |     1
+
+(1 rows)
+
+ comentario_id       | instante_ms   | likes
+---------------------+---------------+-------
+ MASIVO-000000020000 | 1907604311064 |     1
+
+(1 rows)
+
+Resultado: coinciden ambas lecturas puntuales en las dos tablas.
