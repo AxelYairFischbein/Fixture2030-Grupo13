@@ -1,0 +1,8 @@
+# Contadores globales del servidor, no la tasa exclusiva de la cache de equipos.
+INFO memory
+INFO stats
+INFO commandstats
+INFO keyspace
+INFO persistence
+# Primera pagina. Continuar con el cursor devuelto hasta llegar a 0.
+SCAN 0 MATCH fixture2030:h7:demo:* COUNT 10

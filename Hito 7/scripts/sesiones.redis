@@ -1,0 +1,14 @@
+# Recuperacion por ID de sesion.
+HGETALL fixture2030:h7:demo:sesion:SES-DEMO-01
+TTL fixture2030:h7:demo:sesion:SES-DEMO-01
+# Actividad valida: comprobar estado y TTL, actualizar y renovar como una unidad.
+# No se recrea una sesion ausente, vencida ni sin vencimiento configurado.
+EVAL "if redis.call('TTL',KEYS[1])<=0 or redis.call('HGET',KEYS[1],'estado')~='activa' then return 0 end; redis.call('HSET',KEYS[1],'ultima_actividad',redis.call('TIME')[1]); redis.call('EXPIRE',KEYS[1],1800); return 1" 1 fixture2030:h7:demo:sesion:SES-DEMO-01
+HGETALL fixture2030:h7:demo:sesion:SES-DEMO-01
+TTL fixture2030:h7:demo:sesion:SES-DEMO-01
+# Cierre explicito. Una segunda eliminacion devuelve 0 y sigue cerrada.
+DEL fixture2030:h7:demo:sesion:SES-DEMO-02
+HGETALL fixture2030:h7:demo:sesion:SES-DEMO-02
+TTL fixture2030:h7:demo:sesion:SES-DEMO-02
+# Sesion exclusivamente de prueba. El auxiliar espera su vencimiento nativo.
+EVAL "local t=redis.call('TIME')[1]; redis.call('HSET',KEYS[1],'sesion_id','SES-CORTA','usuario_id','USR-00001','ultima_actividad',t,'estado','activa','rol','lector'); redis.call('EXPIRE',KEYS[1],3); return redis.call('TTL',KEYS[1])" 1 fixture2030:h7:demo:sesion:SES-CORTA

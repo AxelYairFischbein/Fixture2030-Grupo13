@@ -1,0 +1,185 @@
+﻿Hito 7 - Ambiente y montaje
+2026-09-30T23:45:12.9382409Z
+Metodo: Compose, redis-cli, docker inspect y recursos del equipo
+Cliente=29.7.2 Servidor=29.7.2
+Docker Compose version v5.5.0
+name: grupo13-hito7
+services:
+  redis:
+    cpus: 1
+    command:
+      - redis-server
+      - --appendonly
+      - 'yes'
+      - --appendfsync
+      - everysec
+      - --save
+      - ""
+      - --maxmemory
+      - 64mb
+      - --maxmemory-policy
+      - noeviction
+    healthcheck:
+      test:
+        - CMD
+        - redis-cli
+        - ping
+      timeout: 3s
+      interval: 5s
+      retries: 10
+    image: redis:latest
+    mem_limit: "268435456"
+    networks:
+      default: null
+    ports:
+      - mode: ingress
+        host_ip: 127.0.0.1
+        target: 6379
+        published: "16379"
+        protocol: tcp
+    stop_grace_period: 30s
+    volumes:
+      - type: volume
+        source: redis_data
+        target: /data
+        volume: {}
+      - type: bind
+        source: C:\Users\<usuario>\Documents\GitHub\Fixture\Hito 7\scripts
+        target: /scripts
+        read_only: true
+        bind: {}
+networks:
+  default:
+    name: grupo13-hito7_default
+volumes:
+  redis_data:
+    name: grupo13_hito7_redis_data
+NAME                    IMAGE          COMMAND                  SERVICE   CREATED         STATUS                   PORTS
+grupo13-hito7-redis-1   redis:latest   "docker-entrypoint.s…"   redis     5 minutes ago   Up 5 minutes (healthy)   127.0.0.1:16379->6379/tcp
+Fecha UTC: 2026-09-30T23:45:13.473962+00:00
+redis_version:8.10.2
+inicializacion.redis (comandos en orden, comentarios filtrados):
+"PONG"
+# Server
+redis_version:8.10.2
+redis_git_sha1:00000000
+redis_git_dirty:1
+redis_build_id:fbc5ac9ab55dc180
+redis_mode:standalone
+os:Linux 6.18.33.2-microsoft-standard-WSL2 x86_64
+arch_bits:64
+monotonic_clock:POSIX clock_gettime
+multiplexing_api:epoll
+atomicvar_api:c11-builtin
+gcc_version:14.2.0
+process_id:1
+process_supervised:no
+run_id:1ef0a6e991e586342ba44f85c0417fecc62ef15b
+tcp_port:6379
+server_time_usec:1790811913812584
+uptime_in_seconds:356
+uptime_in_days:0
+hz:10
+configured_hz:10
+lru_clock:12427017
+executable:/data/redis-server
+config_file:
+io_threads_active:0
+listener0:name=tcp,bind=*,bind=-::*,port=6379
+{"maxmemory":"67108864","appendonly":"yes","dir":"/data","maxmemory-policy":"noeviction","appendfsync":"everysec","save":""}
+# Persistence
+loading:0
+async_loading:0
+current_cow_peak:0
+current_cow_size:0
+current_cow_size_age:0
+current_fork_perc:0.00
+current_save_keys_processed:0
+current_save_keys_total:0
+rdb_changes_since_last_save:428
+rdb_bgsave_in_progress:0
+rdb_last_save_time:1790811557
+rdb_last_bgsave_status:ok
+rdb_last_bgsave_time_sec:-1
+rdb_current_bgsave_time_sec:-1
+rdb_saves:0
+rdb_saves_consecutive_failures:0
+rdb_last_cow_size:0
+rdb_last_load_keys_expired:0
+rdb_last_load_keys_loaded:0
+aof_enabled:1
+aof_rewrite_in_progress:0
+aof_rewrite_scheduled:0
+aof_last_rewrite_time_sec:-1
+aof_current_rewrite_time_sec:-1
+aof_last_bgrewrite_status:ok
+aof_rewrites:0
+aof_rewrites_consecutive_failures:0
+aof_last_write_status:ok
+aof_last_cow_size:0
+backup_in_progress:0
+module_fork_in_progress:0
+module_fork_last_cow_size:0
+aof_current_size:36968
+aof_base_size:0
+aof_pending_rewrite:0
+aof_buffer_length:0
+aof_pending_bio_fsync:0
+aof_delayed_fsync:0
+Montajes efectivos
+[
+    {
+        "Type":  "volume",
+        "Name":  "grupo13_hito7_redis_data",
+        "Source":  "/var/lib/docker/volumes/grupo13_hito7_redis_data/_data",
+        "Destination":  "/data",
+        "Driver":  "local",
+        "Mode":  "rw",
+        "RW":  true,
+        "Propagation":  ""
+    },
+    {
+        "Type":  "bind",
+        "Source":  "/run/desktop/mnt/host/c/Users/<usuario>/Documents/GitHub/Fixture/Hito 7/scripts",
+        "Destination":  "/scripts",
+        "Mode":  "ro",
+        "RW":  false,
+        "Propagation":  "rprivate"
+    }
+]
+OK: /data es volume grupo13_hito7_redis_data
+Limites efectivos del contenedor
+{
+    "Memory":  268435456,
+    "NanoCpus":  1000000000,
+    "PortBindings":  {
+                         "6379/tcp":  [
+                                          {
+                                              "HostIp":  "127.0.0.1",
+                                              "HostPort":  "16379"
+                                          }
+                                      ]
+                     }
+}
+Imagen observada
+ID=sha256:718f745deb7dfefeac6eed7041fc7ec9476b50e61b247932682457c41adafa0e Digests=["redis@sha256:718f745deb7dfefeac6eed7041fc7ec9476b50e61b247932682457c41adafa0e"]
+Recursos del host Windows
+
+
+Name                      : Intel(R) Core(TM) i7-14650HX
+NumberOfCores             : 16
+NumberOfLogicalProcessors : 24
+
+
+
+
+
+Caption                : Microsoft Windows 11 Home
+Version                : 10.0.26300
+TotalVisibleMemorySize : 33147576
+FreePhysicalMemory     : 11629956
+
+
+
+Memoria del host expresada en KiB
+Motor: CPU=24 RAM_bytes=16558764032 SO=Docker Desktop

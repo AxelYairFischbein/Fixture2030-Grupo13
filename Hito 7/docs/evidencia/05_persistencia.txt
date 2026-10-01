@@ -1,0 +1,201 @@
+﻿Hito 7 - Persistencia AOF en volumen nombrado
+2026-09-30T23:46:35.1613580Z
+Metodo: comparar una sesion con TTL vigente, reiniciar y recrear sin borrar el volumen
+# Server
+redis_version:8.10.2
+redis_git_sha1:00000000
+redis_git_dirty:1
+redis_build_id:fbc5ac9ab55dc180
+redis_mode:standalone
+os:Linux 6.18.33.2-microsoft-standard-WSL2 x86_64
+arch_bits:64
+monotonic_clock:POSIX clock_gettime
+multiplexing_api:epoll
+atomicvar_api:c11-builtin
+gcc_version:14.2.0
+process_id:1
+process_supervised:no
+run_id:1ef0a6e991e586342ba44f85c0417fecc62ef15b
+tcp_port:6379
+server_time_usec:1790811995366004
+uptime_in_seconds:438
+uptime_in_days:0
+hz:10
+configured_hz:10
+lru_clock:12427099
+executable:/data/redis-server
+config_file:
+io_threads_active:0
+listener0:name=tcp,bind=*,bind=-::*,port=6379
+appendonly
+yes
+dir
+/data
+save
+
+appendfsync
+everysec
+ANTES
+{"sesion_id":"SES-DEMO-01","usuario_id":"USR-00001","ultima_actividad":"1790811918","estado":"activa","rol":"lector"}
+TTL=1723
+# Persistence
+loading:0
+async_loading:0
+current_cow_peak:0
+current_cow_size:0
+current_cow_size_age:0
+current_fork_perc:0.00
+current_save_keys_processed:0
+current_save_keys_total:0
+rdb_changes_since_last_save:859
+rdb_bgsave_in_progress:0
+rdb_last_save_time:1790811557
+rdb_last_bgsave_status:ok
+rdb_last_bgsave_time_sec:-1
+rdb_current_bgsave_time_sec:-1
+rdb_saves:0
+rdb_saves_consecutive_failures:0
+rdb_last_cow_size:0
+rdb_last_load_keys_expired:0
+rdb_last_load_keys_loaded:0
+aof_enabled:1
+aof_rewrite_in_progress:0
+aof_rewrite_scheduled:0
+aof_last_rewrite_time_sec:-1
+aof_current_rewrite_time_sec:-1
+aof_last_bgrewrite_status:ok
+aof_rewrites:0
+aof_rewrites_consecutive_failures:0
+aof_last_write_status:ok
+aof_last_cow_size:0
+backup_in_progress:0
+module_fork_in_progress:0
+module_fork_last_cow_size:0
+aof_current_size:74155
+aof_base_size:0
+aof_pending_rewrite:0
+aof_buffer_length:0
+aof_pending_bio_fsync:0
+aof_delayed_fsync:0
+COMANDO: docker compose restart redis
+ Container grupo13-hito7-redis-1 Restarting 
+ Container grupo13-hito7-redis-1 Started 
+ Container grupo13-hito7-redis-1 Running 
+ Container grupo13-hito7-redis-1 Waiting 
+ Container grupo13-hito7-redis-1 Healthy 
+DESPUES DE REINICIO
+{"sesion_id":"SES-DEMO-01","usuario_id":"USR-00001","ultima_actividad":"1790811918","estado":"activa","rol":"lector"}
+TTL=1716
+OK: mismos atributos, TTL positivo y sin renovacion
+# Server
+redis_version:8.10.2
+redis_git_sha1:00000000
+redis_git_dirty:1
+redis_build_id:fbc5ac9ab55dc180
+redis_mode:standalone
+os:Linux 6.18.33.2-microsoft-standard-WSL2 x86_64
+arch_bits:64
+monotonic_clock:POSIX clock_gettime
+multiplexing_api:epoll
+atomicvar_api:c11-builtin
+gcc_version:14.2.0
+process_id:1
+process_supervised:no
+run_id:3736e2ccb38ef832c013483652ec641ef099d908
+tcp_port:6379
+server_time_usec:1790812003805168
+uptime_in_seconds:7
+uptime_in_days:0
+hz:10
+configured_hz:10
+lru_clock:12427107
+executable:/data/redis-server
+config_file:
+io_threads_active:0
+listener0:name=tcp,bind=*,bind=-::*,port=6379
+COMANDOS: docker compose down y docker compose up -d --wait
+ Container grupo13-hito7-redis-1 Stopping 
+ Container grupo13-hito7-redis-1 Stopped 
+ Container grupo13-hito7-redis-1 Removing 
+ Container grupo13-hito7-redis-1 Removed 
+ Network grupo13-hito7_default Removing 
+ Network grupo13-hito7_default Removed 
+ Network grupo13-hito7_default Creating 
+ Network grupo13-hito7_default Creating 
+ Network grupo13-hito7_default Created 
+ Network grupo13-hito7_default Created 
+ Container grupo13-hito7-redis-1 Creating 
+ Container grupo13-hito7-redis-1 Created 
+ Container grupo13-hito7-redis-1 Starting 
+ Container grupo13-hito7-redis-1 Started 
+ Container grupo13-hito7-redis-1 Waiting 
+ Container grupo13-hito7-redis-1 Healthy 
+Contenedor antes=68ea6664315282a15446b2747aa35ff6d56caf9c52345179a15bb9d42df7c010
+Contenedor despues=71b4f301f6c0f9e2f35e9ae49487debadfc7836434dc3c2f06888b718a1e2fc6
+DESPUES DE RECREAR
+{"sesion_id":"SES-DEMO-01","usuario_id":"USR-00001","ultima_actividad":"1790811918","estado":"activa","rol":"lector"}
+TTL=1707
+OK: nuevo contenedor, mismos atributos y TTL vigente
+OK: las sesiones cerrada y vencida siguen ausentes
+[{"Type":"volume","Name":"grupo13_hito7_redis_data","Source":"/var/lib/docker/volumes/grupo13_hito7_redis_data/_data","Destination":"/data","Driver":"local","Mode":"rw","RW":true,"Propagation":""},{"Type":"bind","Source":"/run/desktop/mnt/host/c/Users/<usuario>/Documents/GitHub/Fixture/Hito 7/scripts","Destination":"/scripts","Mode":"ro","RW":false,"Propagation":"rprivate"}]
+# Persistence
+loading:0
+async_loading:0
+current_cow_peak:0
+current_cow_size:0
+current_cow_size_age:0
+current_fork_perc:0.00
+current_save_keys_processed:0
+current_save_keys_total:0
+rdb_changes_since_last_save:861
+rdb_bgsave_in_progress:0
+rdb_last_save_time:1790812005
+rdb_last_bgsave_status:ok
+rdb_last_bgsave_time_sec:-1
+rdb_current_bgsave_time_sec:-1
+rdb_saves:0
+rdb_saves_consecutive_failures:0
+rdb_last_cow_size:0
+rdb_last_load_keys_expired:0
+rdb_last_load_keys_loaded:0
+aof_enabled:1
+aof_rewrite_in_progress:0
+aof_rewrite_scheduled:0
+aof_last_rewrite_time_sec:-1
+aof_current_rewrite_time_sec:-1
+aof_last_bgrewrite_status:ok
+aof_rewrites:0
+aof_rewrites_consecutive_failures:0
+aof_last_write_status:ok
+aof_last_cow_size:0
+backup_in_progress:0
+module_fork_in_progress:0
+module_fork_last_cow_size:0
+aof_current_size:74244
+aof_base_size:89
+aof_pending_rewrite:0
+aof_buffer_length:0
+aof_pending_bio_fsync:0
+aof_delayed_fsync:0
+total 84
+-rw------- 1 redis redis    89 Sep 30 23:39 appendonly.aof.1.base.rdb
+-rw------- 1 redis redis 74155 Sep 30 23:45 appendonly.aof.1.incr.aof
+-rw------- 1 redis redis   102 Sep 30 23:46 appendonly.aof.manifest
+redis-1  | 1:M 30 Sep 2026 23:46:45.880 * Module 'ReJSON' loaded from /usr/local/lib/redis/modules//rejson.so
+redis-1  | 1:M 30 Sep 2026 23:46:45.880 * <search> Acquired RedisJSON_V8 API
+redis-1  | 1:M 30 Sep 2026 23:46:45.880 * Server initialized
+redis-1  | 1:M 30 Sep 2026 23:46:45.880 * <search> LOAD start source=AOF sst=false disk=rebuild-from-keyspace
+redis-1  | 1:M 30 Sep 2026 23:46:45.881 * Reading RDB base file on AOF loading...
+redis-1  | 1:M 30 Sep 2026 23:46:45.881 * Loading RDB produced by version 8.10.2
+redis-1  | 1:M 30 Sep 2026 23:46:45.881 * RDB age 448 seconds
+redis-1  | 1:M 30 Sep 2026 23:46:45.881 * RDB memory usage when created 1.32 Mb
+redis-1  | 1:M 30 Sep 2026 23:46:45.881 * RDB is base AOF
+redis-1  | 1:M 30 Sep 2026 23:46:45.881 * Done loading RDB, keys loaded: 0, keys expired: 0.
+redis-1  | 1:M 30 Sep 2026 23:46:45.881 * <search> Draining workers thread pool with threshold 100
+redis-1  | 1:M 30 Sep 2026 23:46:45.882 * DB loaded from base file appendonly.aof.1.base.rdb: 0.002 seconds
+redis-1  | 1:M 30 Sep 2026 23:46:45.883 * DB loaded from incr file appendonly.aof.1.incr.aof: 0.001 seconds
+redis-1  | 1:M 30 Sep 2026 23:46:45.883 * <search> LOAD end disk=rebuild-from-keyspace ok=true
+redis-1  | 1:M 30 Sep 2026 23:46:45.883 * DB loaded from append only file: 0.003 seconds
+redis-1  | 1:M 30 Sep 2026 23:46:45.889 * Opening AOF incr file appendonly.aof.1.incr.aof on server start
+redis-1  | 1:M 30 Sep 2026 23:46:45.889 * Ready to accept connections tcp
+redis-1  | 1:M 30 Sep 2026 23:46:45.889 # WARNING: Redis does not require authentication and is not protected by network restrictions. Redis will accept connections from any IP address on any network interface.

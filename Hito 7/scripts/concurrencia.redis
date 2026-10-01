@@ -1,0 +1,7 @@
+# Una visita a PAR-001. El auxiliar repite ESTA operacion desde cuatro clientes.
+# ZINCRBY evita perder incrementos. EXPIRE NX fija una hora desde la primera visita.
+# EVAL evita dejar el ranking sin TTL si el cliente se desconecta entre comandos.
+EVAL "local n=redis.call('ZINCRBY',KEYS[1],1,ARGV[1]); redis.call('EXPIRE',KEYS[1],3600,'NX'); return n" 1 fixture2030:h7:demo:ranking:visitas:ventana PAR-001
+# Top 3 acotado, orden descendente. No hay estadisticas deportivas.
+ZRANGE fixture2030:h7:demo:ranking:visitas:ventana 0 2 REV WITHSCORES
+TTL fixture2030:h7:demo:ranking:visitas:ventana

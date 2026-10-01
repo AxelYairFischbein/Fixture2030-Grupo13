@@ -1,0 +1,223 @@
+﻿Fecha UTC: 2026-09-30T23:45:27.608858+00:00
+redis_version:8.10.2
+Sistema cliente: Windows-11-10.0.26300-SP0 Python: 3.13.7
+Recursos del motor Docker: CPU=24 RAM_bytes=16558764032 SO=Docker Desktop
+Limites del contenedor: 1 CPU, 256 MiB. Redis maxmemory: 64 MiB, noeviction, AOF everysec
+Metodo: 4 redis-cli, 100 visitas cada uno, pausa de 10 ms por cliente entre visitas
+Tiempo incluye creacion de clientes, llamadas Docker, pausas y lectura de respuestas
+OK: 100 respuestas por cliente
+OK: Puntajes devueltos 1 a 400, sin duplicados ni saltos
+Rangos de puntajes por cliente: [(5.0, 398.0), (3.0, 400.0), (1.0, 394.0), (6.0, 399.0)]
+OK: Clientes intercalados
+OK: Resultado final 400, esperado 400
+OK: La ventana no se renueva por cada visita
+Operaciones medidas=400, concurrencia=4, segundos=1.358341, visitas/s=294.48
+Tres visitas de preparacion y consultas de verificacion fuera del intervalo
+Top 3: [['PAR-001', 400], ['PAR-002', 2], ['PAR-003', 1]]
+TTL: 3597
+CPU=0.11% RAM=10.26MiB / 256MiB
+metricas.redis (comandos en orden, comentarios filtrados):
+# Memory
+used_memory:1854344
+used_memory_human:1.77M
+used_memory_rss:25899008
+used_memory_rss_human:24.70M
+used_memory_peak:1915688
+used_memory_peak_human:1.83M
+used_memory_peak_time:1790811929
+used_memory_peak_perc:96.80%
+used_memory_overhead:1461792
+used_memory_startup:1381872
+used_memory_dataset:392552
+used_memory_dataset_perc:83.08%
+allocator_allocated:4394760
+allocator_active:4636672
+allocator_resident:11026432
+allocator_muzzy:0
+total_system_memory:16558764032
+total_system_memory_human:15.42G
+used_memory_lua:40960
+used_memory_vm_eval:40960
+used_memory_lua_human:40.00K
+used_memory_scripts_eval:1768
+number_of_cached_scripts:5
+number_of_functions:0
+number_of_libraries:0
+used_memory_vm_functions:34816
+used_memory_vm_total:75776
+used_memory_vm_total_human:74.00K
+used_memory_functions:192
+used_memory_hash_templates:72
+used_memory_scripts:1960
+used_memory_scripts_human:1.91K
+maxmemory:67108864
+maxmemory_human:64.00M
+maxmemory_policy:noeviction
+allocator_frag_ratio:1.09
+allocator_frag_bytes:225976
+allocator_rss_ratio:2.38
+allocator_rss_bytes:6389760
+rss_overhead_ratio:2.35
+rss_overhead_bytes:14872576
+mem_fragmentation_ratio:14.11
+mem_fragmentation_bytes:24062936
+mem_not_counted_for_evict:1280
+mem_replication_backlog:0
+mem_total_replication_buffers:0
+mem_replica_full_sync_buffer:0
+mem_clients_slaves:0
+mem_clients_normal:0
+mem_clients_normal_shared:0
+mem_clients_normal_unshared:0
+mem_cluster_slot_migration_output_buffer:0
+mem_cluster_slot_migration_input_buffer:0
+mem_cluster_slot_migration_input_buffer_peak:0
+mem_cluster_links:0
+mem_aof_buffer:1280
+mem_allocator:jemalloc-5.3.0
+mem_overhead_db_hashtable_rehashing:0
+active_defrag_running:0
+lazyfree_pending_objects:0
+lazyfreed_objects:0
+# Stats
+total_connections_received:167
+total_commands_processed:2746
+instantaneous_ops_per_sec:1
+total_net_input_bytes:164814
+total_net_output_bytes:94532
+total_net_repl_input_bytes:0
+total_net_repl_output_bytes:0
+instantaneous_input_kbps:0.05
+instantaneous_output_kbps:0.42
+instantaneous_input_repl_kbps:0.00
+instantaneous_output_repl_kbps:0.00
+rejected_connections:0
+sync_full:0
+sync_partial_ok:0
+sync_partial_err:0
+expired_subkeys:0
+expired_subkeys_active:0
+expired_keys:2
+expired_keys_active:2
+expired_stale_perc:0.01
+expired_time_cap_reached_count:0
+expire_cycle_cpu_milliseconds:9
+evicted_keys:0
+evicted_clients:0
+evicted_scripts:0
+total_eviction_exceeded_time:0
+current_eviction_exceeded_time:0
+keyspace_hits:46
+keyspace_misses:32
+pubsub_channels:0
+pubsub_patterns:0
+pubsubshard_channels:0
+latest_fork_usec:0
+total_forks:0
+migrate_cached_sockets:0
+slave_expires_tracked_keys:0
+active_defrag_hits:0
+active_defrag_misses:0
+active_defrag_key_hits:0
+active_defrag_key_misses:0
+total_active_defrag_time:0
+current_active_defrag_time:0
+tracking_total_keys:0
+tracking_total_items:0
+tracking_total_prefixes:0
+unexpected_error_replies:0
+total_error_replies:0
+dump_payload_sanitizations:0
+total_reads_processed:1255
+total_writes_processed:1088
+io_threaded_reads_processed:0
+io_threaded_writes_processed:0
+io_threaded_total_prefetch_batches:0
+io_threaded_total_prefetch_entries:0
+client_query_buffer_limit_disconnections:0
+client_output_buffer_limit_disconnections:0
+reply_buffer_shrinks:8
+reply_buffer_expands:0
+eventloop_cycles:4884
+eventloop_duration_sum:531679
+eventloop_duration_cmd_sum:14166
+instantaneous_eventloop_cycles_per_sec:11
+instantaneous_eventloop_duration_usec:112
+eventloop_cycles_with_clients_processing:815
+total_client_processing_events:1089
+avg_pipeline_length_sum:1089
+avg_pipeline_length_cnt:1089
+avg_pipeline_length:1.00
+slowlog_commands_count:0
+slowlog_commands_time_ms_max:0.00
+slowlog_commands_time_ms_sum:0.00
+hash_templates:0
+hash_template_keys:0
+acl_access_denied_auth:0
+acl_access_denied_cmd:0
+acl_access_denied_key:0
+acl_access_denied_channel:0
+acl_access_denied_tls_cert:0
+# Commandstats
+cmdstat_zrange:calls=2,usec=17,usec_per_call=8.50,rejected_calls=0,failed_calls=0
+cmdstat_eval:calls=818,usec=12751,usec_per_call=15.59,rejected_calls=0,failed_calls=0
+cmdstat_time:calls=8,usec=5,usec_per_call=0.62,rejected_calls=0,failed_calls=0
+cmdstat_ping:calls=76,usec=80,usec_per_call=1.05,rejected_calls=0,failed_calls=0
+cmdstat_expire:calls=814,usec=476,usec_per_call=0.58,rejected_calls=0,failed_calls=0
+cmdstat_hello:calls=93,usec=648,usec_per_call=6.97,rejected_calls=0,failed_calls=0
+cmdstat_ttl:calls=36,usec=57,usec_per_call=1.58,rejected_calls=0,failed_calls=0
+cmdstat_hgetall:calls=14,usec=36,usec_per_call=2.57,rejected_calls=0,failed_calls=0
+cmdstat_hset:calls=8,usec=43,usec_per_call=5.38,rejected_calls=0,failed_calls=0
+cmdstat_scan:calls=2,usec=8,usec_per_call=4.00,rejected_calls=0,failed_calls=0
+cmdstat_get:calls=10,usec=22,usec_per_call=2.20,rejected_calls=0,failed_calls=0
+cmdstat_zscore:calls=2,usec=7,usec_per_call=3.50,rejected_calls=0,failed_calls=0
+cmdstat_info:calls=26,usec=493,usec_per_call=18.96,rejected_calls=0,failed_calls=0
+cmdstat_del:calls=10,usec=46,usec_per_call=4.60,rejected_calls=0,failed_calls=0
+cmdstat_config|get:calls=4,usec=19,usec_per_call=4.75,rejected_calls=0,failed_calls=0
+cmdstat_exists:calls=8,usec=11,usec_per_call=1.38,rejected_calls=0,failed_calls=0
+cmdstat_hget:calls=6,usec=18,usec_per_call=3.00,rejected_calls=0,failed_calls=0
+cmdstat_zincrby:calls=806,usec=3215,usec_per_call=3.99,rejected_calls=0,failed_calls=0
+cmdstat_set:calls=4,usec=33,usec_per_call=8.25,rejected_calls=0,failed_calls=0
+# Keyspace
+db0:keys=3,expires=3,avg_ttl=1659234,subexpiry=0
+# Persistence
+loading:0
+async_loading:0
+current_cow_peak:0
+current_cow_size:0
+current_cow_size_age:0
+current_fork_perc:0.00
+current_save_keys_processed:0
+current_save_keys_total:0
+rdb_changes_since_last_save:859
+rdb_bgsave_in_progress:0
+rdb_last_save_time:1790811557
+rdb_last_bgsave_status:ok
+rdb_last_bgsave_time_sec:-1
+rdb_current_bgsave_time_sec:-1
+rdb_saves:0
+rdb_saves_consecutive_failures:0
+rdb_last_cow_size:0
+rdb_last_load_keys_expired:0
+rdb_last_load_keys_loaded:0
+aof_enabled:1
+aof_rewrite_in_progress:0
+aof_rewrite_scheduled:0
+aof_last_rewrite_time_sec:-1
+aof_current_rewrite_time_sec:-1
+aof_last_bgrewrite_status:ok
+aof_rewrites:0
+aof_rewrites_consecutive_failures:0
+aof_last_write_status:ok
+aof_last_cow_size:0
+backup_in_progress:0
+module_fork_in_progress:0
+module_fork_last_cow_size:0
+aof_current_size:74155
+aof_base_size:0
+aof_pending_rewrite:0
+aof_buffer_length:0
+aof_pending_bio_fsync:0
+aof_delayed_fsync:0
+["0",["fixture2030:h7:demo:ranking:visitas:ventana","fixture2030:h7:demo:cache:equipo:EQ-001","fixture2030:h7:demo:sesion:SES-DEMO-01"]]
+SCAN cursor: 0 claves: ['fixture2030:h7:demo:ranking:visitas:ventana', 'fixture2030:h7:demo:cache:equipo:EQ-001', 'fixture2030:h7:demo:sesion:SES-DEMO-01']
