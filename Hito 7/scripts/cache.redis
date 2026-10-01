@@ -1,0 +1,5 @@
+# Inspeccion de la copia. null significa miss y TTL -2 significa clave ausente.
+# El flujo con origen externo, SET EX e invalidacion esta en demo.py cache.
+# Estos comandos no inventan un valor cuando falta la clave.
+GET fixture2030:h7:demo:cache:equipo:EQ-001
+TTL fixture2030:h7:demo:cache:equipo:EQ-001

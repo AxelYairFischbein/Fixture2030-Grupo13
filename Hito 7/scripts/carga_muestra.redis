@@ -1,0 +1,9 @@
+# Reiniciar solamente las cinco claves conocidas de esta demostracion.
+DEL fixture2030:h7:demo:sesion:SES-DEMO-01 fixture2030:h7:demo:sesion:SES-DEMO-02 fixture2030:h7:demo:sesion:SES-CORTA fixture2030:h7:demo:cache:equipo:EQ-001 fixture2030:h7:demo:ranking:visitas:ventana
+# Crear cada sesion y su TTL sin que otro cliente observe una creacion parcial.
+# TIME devuelve segundos Unix del servidor. Los IDs son sinteticos y no son tokens.
+EVAL "local t=redis.call('TIME')[1]; redis.call('HSET',KEYS[1],'sesion_id','SES-DEMO-01','usuario_id','USR-00001','ultima_actividad',t,'estado','activa','rol','lector'); redis.call('EXPIRE',KEYS[1],1800); return redis.call('HGETALL',KEYS[1])" 1 fixture2030:h7:demo:sesion:SES-DEMO-01
+EVAL "local t=redis.call('TIME')[1]; redis.call('HSET',KEYS[1],'sesion_id','SES-DEMO-02','usuario_id','USR-00002','ultima_actividad',t,'estado','activa','rol','lector'); redis.call('EXPIRE',KEYS[1],1800); return redis.call('HGETALL',KEYS[1])" 1 fixture2030:h7:demo:sesion:SES-DEMO-02
+TTL fixture2030:h7:demo:sesion:SES-DEMO-01
+# La cache y el ranking se crean cuando se usan, no se precargan.
+EXISTS fixture2030:h7:demo:cache:equipo:EQ-001

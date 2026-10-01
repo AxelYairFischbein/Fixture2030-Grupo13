@@ -1,0 +1,22 @@
+﻿Fecha UTC: 2026-09-30T23:45:25.237671+00:00
+redis_version:8.10.2
+OK: Una respuesta por comando, sin comentarios enviados
+> GET fixture2030:h7:demo:cache:equipo:EQ-001
+null
+> TTL fixture2030:h7:demo:cache:equipo:EQ-001
+-2
+OK: Inicio sin copia en Redis
+MISS. Lectura de la fuente simulada externa: {'equipoId': 'EQ-001', 'codigo': 'F01', 'nombre': 'Seleccion Sintetica 01', 'confederacion': 'AFC'}
+OK: Copia guardada con TTL de 5 minutos
+HIT: {"equipoId": "EQ-001", "codigo": "F01", "nombre": "Seleccion Sintetica 01", "confederacion": "AFC"}
+OK: Segunda lectura desde cache
+Cambio confirmado en la fuente simulada: {'equipoId': 'EQ-001', 'codigo': 'F01', 'nombre': 'Seleccion Sintetica 01 - ficha actualizada', 'confederacion': 'AFC'}
+OK: Invalidacion despues del cambio de origen
+MISS. Lectura de la fuente simulada externa: {'equipoId': 'EQ-001', 'codigo': 'F01', 'nombre': 'Seleccion Sintetica 01 - ficha actualizada', 'confederacion': 'AFC'}
+OK: La lectura siguiente recupera el dato nuevo
+Intervalo: tres llamadas a leer. Hits=1, misses=2, porcentaje=33.33%
+OK: Una respuesta por comando, sin comentarios enviados
+> GET fixture2030:h7:demo:cache:equipo:EQ-001
+"{\"equipoId\": \"EQ-001\", \"codigo\": \"F01\", \"nombre\": \"Seleccion Sintetica 01 - ficha actualizada\", \"confederacion\": \"AFC\"}"
+> TTL fixture2030:h7:demo:cache:equipo:EQ-001
+300

@@ -1,0 +1,5 @@
+# No hace falta crear un esquema. La configuracion se declara en Compose.
+PING
+INFO server
+CONFIG GET appendonly appendfsync save dir maxmemory maxmemory-policy
+INFO persistence
