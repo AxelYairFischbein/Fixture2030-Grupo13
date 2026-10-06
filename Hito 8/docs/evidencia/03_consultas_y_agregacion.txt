@@ -1,0 +1,356 @@
+Consultas reales contra InfluxDB 3 Core 3.12.0. Recursos en 01_ambiente_y_retencion.txt.
+
+Metodo: una ejecucion por consulta, Python HTTP local. Tiempo incluye HTTP y decodificacion JSON, sin Docker CLI ni inicio del proceso.
+
+Comando: python -X utf8 scripts/consultas_temporales.py
+{
+  "fecha_utc": "2026-10-05T17:48:32.815183+00:00",
+  "consulta": "ultimas_muestras_equipo",
+  "sql": "SELECT time, equipo_id, estadio_id,\n          posesion_pct, pases_acumulados, tiros_intervalo FROM estadisticas_equipo\n          WHERE time >= TIMESTAMP '2026-10-05T17:43:00Z' AND time < TIMESTAMP '2026-10-05T17:44:00Z'\n            AND partido_id = 'PAR-001' AND equipo_id = 'EQ-001'\n          ORDER BY time DESC LIMIT 5",
+  "segundos_http_y_json": 0.023206,
+  "filas": [
+    {
+      "time": "2026-10-05T17:43:59",
+      "equipo_id": "EQ-001",
+      "estadio_id": "EST-01",
+      "posesion_pct": 46.5,
+      "pases_acumulados": 539,
+      "tiros_intervalo": 0
+    },
+    {
+      "time": "2026-10-05T17:43:58",
+      "equipo_id": "EQ-001",
+      "estadio_id": "EST-01",
+      "posesion_pct": 46.0,
+      "pases_acumulados": 539,
+      "tiros_intervalo": 0
+    },
+    {
+      "time": "2026-10-05T17:43:57",
+      "equipo_id": "EQ-001",
+      "estadio_id": "EST-01",
+      "posesion_pct": 45.5,
+      "pases_acumulados": 539,
+      "tiros_intervalo": 0
+    },
+    {
+      "time": "2026-10-05T17:43:56",
+      "equipo_id": "EQ-001",
+      "estadio_id": "EST-01",
+      "posesion_pct": 45.0,
+      "pases_acumulados": 539,
+      "tiros_intervalo": 0
+    },
+    {
+      "time": "2026-10-05T17:43:55",
+      "equipo_id": "EQ-001",
+      "estadio_id": "EST-01",
+      "posesion_pct": 55.0,
+      "pases_acumulados": 539,
+      "tiros_intervalo": 0
+    }
+  ]
+}
+{
+  "fecha_utc": "2026-10-05T17:48:32.822480+00:00",
+  "consulta": "comparacion_cinco_minutos",
+  "sql": "WITH diferencias AS (\n      SELECT time, equipo_id, posesion_pct, tiros_intervalo,\n        pases_acumulados - LAG(pases_acumulados) OVER (\n          PARTITION BY partido_id, equipo_id, estadio_id ORDER BY time\n        ) AS pases_nuevos,\n        time - LAG(time) OVER (\n          PARTITION BY partido_id, equipo_id, estadio_id ORDER BY time\n        ) AS separacion\n      FROM estadisticas_equipo\n      WHERE time >= TIMESTAMP '2026-10-05T17:38:59Z' AND time < TIMESTAMP '2026-10-05T17:44:00Z' AND partido_id = 'PAR-001'\n    ), ventana AS (\n      SELECT * FROM diferencias WHERE time >= TIMESTAMP '2026-10-05T17:39:00Z' AND time < TIMESTAMP '2026-10-05T17:44:00Z'\n    )\n          SELECT equipo_id, COUNT(*) AS muestras,\n            ROUND(AVG(posesion_pct), 3) AS posesion_media,\n            SUM(pases_nuevos) AS pases_ventana, SUM(tiros_intervalo) AS tiros_ventana,\n            SUM(CASE WHEN separacion = INTERVAL '1 seconds'\n              AND pases_nuevos >= 0 THEN 0 ELSE 1 END) AS intervalos_invalidos\n          FROM ventana GROUP BY equipo_id ORDER BY equipo_id",
+  "segundos_http_y_json": 0.007233,
+  "filas": [
+    {
+      "equipo_id": "EQ-001",
+      "muestras": 300,
+      "posesion_media": 49.975,
+      "pases_ventana": 30,
+      "tiros_ventana": 1,
+      "intervalos_invalidos": 0
+    },
+    {
+      "equipo_id": "EQ-002",
+      "muestras": 300,
+      "posesion_media": 50.025,
+      "pases_ventana": 25,
+      "tiros_ventana": 1,
+      "intervalos_invalidos": 0
+    }
+  ]
+}
+
+Comando: python -X utf8 scripts/agregaciones.py
+{
+  "fecha_utc": "2026-10-05T17:48:32.941821+00:00",
+  "sql": "WITH diferencias AS (\n      SELECT time, equipo_id, posesion_pct, tiros_intervalo,\n        pases_acumulados - LAG(pases_acumulados) OVER (\n          PARTITION BY partido_id, equipo_id, estadio_id ORDER BY time\n        ) AS pases_nuevos,\n        time - LAG(time) OVER (\n          PARTITION BY partido_id, equipo_id, estadio_id ORDER BY time\n        ) AS separacion\n      FROM estadisticas_equipo\n      WHERE time >= TIMESTAMP '2026-10-05T17:38:59Z' AND time < TIMESTAMP '2026-10-05T17:44:00Z' AND partido_id = 'PAR-001'\n    ), ventana AS (\n      SELECT * FROM diferencias WHERE time >= TIMESTAMP '2026-10-05T17:39:00Z' AND time < TIMESTAMP '2026-10-05T17:44:00Z'\n    )\n      SELECT DATE_BIN(INTERVAL '1 minute', time) AS minuto, equipo_id,\n        COUNT(*) AS muestras, ROUND(AVG(posesion_pct), 3) AS posesion_media,\n        SUM(pases_nuevos) AS pases_minuto, SUM(tiros_intervalo) AS tiros_minuto,\n        SUM(CASE WHEN separacion = INTERVAL '1 seconds'\n          AND pases_nuevos >= 0 THEN 0 ELSE 1 END) AS intervalos_invalidos\n      FROM ventana GROUP BY minuto, equipo_id ORDER BY minuto, equipo_id",
+  "segundos_http_y_json": 0.03503,
+  "filas": [
+    {
+      "minuto": "2026-10-05T17:39:00",
+      "equipo_id": "EQ-001",
+      "muestras": 60,
+      "posesion_media": 49.825,
+      "pases_minuto": 6,
+      "tiros_minuto": 0,
+      "intervalos_invalidos": 0
+    },
+    {
+      "minuto": "2026-10-05T17:39:00",
+      "equipo_id": "EQ-002",
+      "muestras": 60,
+      "posesion_media": 50.175,
+      "pases_minuto": 5,
+      "tiros_minuto": 0,
+      "intervalos_invalidos": 0
+    },
+    {
+      "minuto": "2026-10-05T17:40:00",
+      "equipo_id": "EQ-001",
+      "muestras": 60,
+      "posesion_media": 49.9,
+      "pases_minuto": 6,
+      "tiros_minuto": 0,
+      "intervalos_invalidos": 0
+    },
+    {
+      "minuto": "2026-10-05T17:40:00",
+      "equipo_id": "EQ-002",
+      "muestras": 60,
+      "posesion_media": 50.1,
+      "pases_minuto": 5,
+      "tiros_minuto": 0,
+      "intervalos_invalidos": 0
+    },
+    {
+      "minuto": "2026-10-05T17:41:00",
+      "equipo_id": "EQ-001",
+      "muestras": 60,
+      "posesion_media": 49.975,
+      "pases_minuto": 6,
+      "tiros_minuto": 1,
+      "intervalos_invalidos": 0
+    },
+    {
+      "minuto": "2026-10-05T17:41:00",
+      "equipo_id": "EQ-002",
+      "muestras": 60,
+      "posesion_media": 50.025,
+      "pases_minuto": 5,
+      "tiros_minuto": 0,
+      "intervalos_invalidos": 0
+    },
+    {
+      "minuto": "2026-10-05T17:42:00",
+      "equipo_id": "EQ-001",
+      "muestras": 60,
+      "posesion_media": 50.05,
+      "pases_minuto": 6,
+      "tiros_minuto": 0,
+      "intervalos_invalidos": 0
+    },
+    {
+      "minuto": "2026-10-05T17:42:00",
+      "equipo_id": "EQ-002",
+      "muestras": 60,
+      "posesion_media": 49.95,
+      "pases_minuto": 5,
+      "tiros_minuto": 1,
+      "intervalos_invalidos": 0
+    },
+    {
+      "minuto": "2026-10-05T17:43:00",
+      "equipo_id": "EQ-001",
+      "muestras": 60,
+      "posesion_media": 50.125,
+      "pases_minuto": 6,
+      "tiros_minuto": 0,
+      "intervalos_invalidos": 0
+    },
+    {
+      "minuto": "2026-10-05T17:43:00",
+      "equipo_id": "EQ-002",
+      "muestras": 60,
+      "posesion_media": 49.875,
+      "pases_minuto": 5,
+      "tiros_minuto": 0,
+      "intervalos_invalidos": 0
+    }
+  ]
+}
+
+
+Revision posterior - 2026-10-06T00:08:18.545039+00:00
+Ejecucion nueva, separada de los registros anteriores. Misma muestra y timestamps.
+Comandos: consultas_temporales.py y agregaciones.py. Se conserva el SQL de los scripts, sin cambios.
+Metodo: una ejecucion por consulta, tras los reenvios. Tiempo de HTTP y decodificacion JSON, sin Docker CLI ni arranque del cliente. No es una prueba de cache fria.
+{
+  "fecha_inicio_revision_utc": "2026-10-06T00:08:18.545039+00:00",
+  "version": "influxdb3 InfluxDB 3 Core, 3.12.0, revision 3ba97c65f1ee4e1f127a8266517d4d2083b7ea39",
+  "recursos": "01_ambiente_y_retencion.txt, bloque de esta revision",
+  "volumen_almacenado": 21600,
+  "consultas": [
+    {
+      "fecha_utc": "2026-10-06T00:09:38.965509+00:00",
+      "consulta": "ultimas_muestras_equipo",
+      "segundos_http_y_json": 0.026523,
+      "filas": [
+        {
+          "time": "2026-10-05T17:43:59",
+          "equipo_id": "EQ-001",
+          "estadio_id": "EST-01",
+          "posesion_pct": 46.5,
+          "pases_acumulados": 539,
+          "tiros_intervalo": 0
+        },
+        {
+          "time": "2026-10-05T17:43:58",
+          "equipo_id": "EQ-001",
+          "estadio_id": "EST-01",
+          "posesion_pct": 46.0,
+          "pases_acumulados": 539,
+          "tiros_intervalo": 0
+        },
+        {
+          "time": "2026-10-05T17:43:57",
+          "equipo_id": "EQ-001",
+          "estadio_id": "EST-01",
+          "posesion_pct": 45.5,
+          "pases_acumulados": 539,
+          "tiros_intervalo": 0
+        },
+        {
+          "time": "2026-10-05T17:43:56",
+          "equipo_id": "EQ-001",
+          "estadio_id": "EST-01",
+          "posesion_pct": 45.0,
+          "pases_acumulados": 539,
+          "tiros_intervalo": 0
+        },
+        {
+          "time": "2026-10-05T17:43:55",
+          "equipo_id": "EQ-001",
+          "estadio_id": "EST-01",
+          "posesion_pct": 55.0,
+          "pases_acumulados": 539,
+          "tiros_intervalo": 0
+        }
+      ]
+    },
+    {
+      "fecha_utc": "2026-10-06T00:09:38.989003+00:00",
+      "consulta": "comparacion_cinco_minutos",
+      "segundos_http_y_json": 0.02345,
+      "filas": [
+        {
+          "equipo_id": "EQ-001",
+          "muestras": 300,
+          "posesion_media": 49.975,
+          "pases_ventana": 30,
+          "tiros_ventana": 1,
+          "intervalos_invalidos": 0
+        },
+        {
+          "equipo_id": "EQ-002",
+          "muestras": 300,
+          "posesion_media": 50.025,
+          "pases_ventana": 25,
+          "tiros_ventana": 1,
+          "intervalos_invalidos": 0
+        }
+      ]
+    }
+  ],
+  "agregacion": {
+    "fecha_utc": "2026-10-06T00:09:39.096369+00:00",
+    "segundos_http_y_json": 0.029133,
+    "filas": [
+      {
+        "minuto": "2026-10-05T17:39:00",
+        "equipo_id": "EQ-001",
+        "muestras": 60,
+        "posesion_media": 49.825,
+        "pases_minuto": 6,
+        "tiros_minuto": 0,
+        "intervalos_invalidos": 0
+      },
+      {
+        "minuto": "2026-10-05T17:39:00",
+        "equipo_id": "EQ-002",
+        "muestras": 60,
+        "posesion_media": 50.175,
+        "pases_minuto": 5,
+        "tiros_minuto": 0,
+        "intervalos_invalidos": 0
+      },
+      {
+        "minuto": "2026-10-05T17:40:00",
+        "equipo_id": "EQ-001",
+        "muestras": 60,
+        "posesion_media": 49.9,
+        "pases_minuto": 6,
+        "tiros_minuto": 0,
+        "intervalos_invalidos": 0
+      },
+      {
+        "minuto": "2026-10-05T17:40:00",
+        "equipo_id": "EQ-002",
+        "muestras": 60,
+        "posesion_media": 50.1,
+        "pases_minuto": 5,
+        "tiros_minuto": 0,
+        "intervalos_invalidos": 0
+      },
+      {
+        "minuto": "2026-10-05T17:41:00",
+        "equipo_id": "EQ-001",
+        "muestras": 60,
+        "posesion_media": 49.975,
+        "pases_minuto": 6,
+        "tiros_minuto": 1,
+        "intervalos_invalidos": 0
+      },
+      {
+        "minuto": "2026-10-05T17:41:00",
+        "equipo_id": "EQ-002",
+        "muestras": 60,
+        "posesion_media": 50.025,
+        "pases_minuto": 5,
+        "tiros_minuto": 0,
+        "intervalos_invalidos": 0
+      },
+      {
+        "minuto": "2026-10-05T17:42:00",
+        "equipo_id": "EQ-001",
+        "muestras": 60,
+        "posesion_media": 50.05,
+        "pases_minuto": 6,
+        "tiros_minuto": 0,
+        "intervalos_invalidos": 0
+      },
+      {
+        "minuto": "2026-10-05T17:42:00",
+        "equipo_id": "EQ-002",
+        "muestras": 60,
+        "posesion_media": 49.95,
+        "pases_minuto": 5,
+        "tiros_minuto": 1,
+        "intervalos_invalidos": 0
+      },
+      {
+        "minuto": "2026-10-05T17:43:00",
+        "equipo_id": "EQ-001",
+        "muestras": 60,
+        "posesion_media": 50.125,
+        "pases_minuto": 6,
+        "tiros_minuto": 0,
+        "intervalos_invalidos": 0
+      },
+      {
+        "minuto": "2026-10-05T17:43:00",
+        "equipo_id": "EQ-002",
+        "muestras": 60,
+        "posesion_media": 49.875,
+        "pases_minuto": 5,
+        "tiros_minuto": 0,
+        "intervalos_invalidos": 0
+      }
+    ]
+  }
+}

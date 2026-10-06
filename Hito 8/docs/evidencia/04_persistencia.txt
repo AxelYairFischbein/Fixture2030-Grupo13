@@ -1,0 +1,208 @@
+{
+  "fecha_inicio_utc": "2026-10-05T17:49:54.784469+00:00",
+  "version": "InfluxDB 3 Core 3.12.0",
+  "metodo": "validacion.py antes y despues de cada operacion, sin repetir la carga",
+  "antes": {
+    "puntos": 21600,
+    "muestra": [
+      {
+        "equipo_id": "EQ-001",
+        "estadio_id": "EST-01",
+        "partido_id": "PAR-001",
+        "pases_acumulados": 0,
+        "posesion_pct": 45.5,
+        "time": "2026-10-05T16:14:00",
+        "tiros_intervalo": 0
+      }
+    ]
+  },
+  "operaciones": [
+    {
+      "comando": "docker compose restart influxdb",
+      "fecha_utc": "2026-10-05T17:49:57.197606+00:00",
+      "codigo_salida": 0,
+      "disponibilidad_y_retencion": "{\n  \"fecha_utc\": \"2026-10-05T17:49:56.681805+00:00\",\n  \"bases_desde_cli_contenedor\": [\n    {\n      \"iox::database\": \"_internal\"\n    },\n    {\n      \"iox::database\": \"fixture2030_h8\"\n    }\n  ]\n}\n{\n  \"retencion\": [\n    {\n      \"database_name\": \"fixture2030_h8\",\n      \"retention_period\": \"7.0000d\"\n    }\n  ]\n}\n",
+      "puntos": 21600,
+      "muestra": [
+        {
+          "equipo_id": "EQ-001",
+          "estadio_id": "EST-01",
+          "partido_id": "PAR-001",
+          "pases_acumulados": 0,
+          "posesion_pct": 45.5,
+          "time": "2026-10-05T16:14:00",
+          "tiros_intervalo": 0
+        }
+      ],
+      "igualdad_de_distribucion_muestra_y_tipos": true
+    },
+    {
+      "comando": "docker compose up -d --force-recreate influxdb",
+      "fecha_utc": "2026-10-05T17:50:01.803135+00:00",
+      "codigo_salida": 0,
+      "disponibilidad_y_retencion": "{\n  \"fecha_utc\": \"2026-10-05T17:50:01.237372+00:00\",\n  \"bases_desde_cli_contenedor\": [\n    {\n      \"iox::database\": \"_internal\"\n    },\n    {\n      \"iox::database\": \"fixture2030_h8\"\n    }\n  ]\n}\n{\n  \"retencion\": [\n    {\n      \"database_name\": \"fixture2030_h8\",\n      \"retention_period\": \"7.0000d\"\n    }\n  ]\n}\n",
+      "puntos": 21600,
+      "muestra": [
+        {
+          "equipo_id": "EQ-001",
+          "estadio_id": "EST-01",
+          "partido_id": "PAR-001",
+          "pases_acumulados": 0,
+          "posesion_pct": 45.5,
+          "time": "2026-10-05T16:14:00",
+          "tiros_intervalo": 0
+        }
+      ],
+      "igualdad_de_distribucion_muestra_y_tipos": true
+    },
+    {
+      "comando": "docker compose stop influxdb seguido de docker compose start influxdb",
+      "fecha_utc": "2026-10-05T17:56:26.002762+00:00",
+      "codigo_salida": 0,
+      "disponibilidad_y_retencion": "{\n  \"fecha_utc\": \"2026-10-05T17:56:25.469262+00:00\",\n  \"bases_desde_cli_contenedor\": [\n    {\n      \"iox::database\": \"_internal\"\n    },\n    {\n      \"iox::database\": \"fixture2030_h8\"\n    }\n  ]\n}\n{\n  \"retencion\": [\n    {\n      \"database_name\": \"fixture2030_h8\",\n      \"retention_period\": \"7.0000d\"\n    }\n  ]\n}\n",
+      "puntos": 21600,
+      "muestra": [
+        {
+          "equipo_id": "EQ-001",
+          "estadio_id": "EST-01",
+          "partido_id": "PAR-001",
+          "pases_acumulados": 0,
+          "posesion_pct": 45.5,
+          "time": "2026-10-05T16:14:00",
+          "tiros_intervalo": 0
+        }
+      ],
+      "igualdad_de_distribucion_muestra_y_tipos": true
+    }
+  ],
+  "montajes_despues_de_recrear": [
+    {
+      "Type": "bind",
+      "Source": "<USERPROFILE>/docker/data/influxdb",
+      "Destination": "/var/lib/influxdb3/data",
+      "Mode": "rw",
+      "RW": true,
+      "Propagation": "rprivate"
+    }
+  ],
+  "fecha_fin_utc": "2026-10-05T17:56:26.002773+00:00",
+  "revision_posterior": {
+    "fecha_inicio_utc": "2026-10-06T00:09:39.284149+00:00",
+    "fecha_fin_utc": "2026-10-06T00:09:46.307823+00:00",
+    "version": "influxdb3 InfluxDB 3 Core, 3.12.0, revision 3ba97c65f1ee4e1f127a8266517d4d2083b7ea39",
+    "metodo": "validacion.py antes y despues de reiniciar y recrear solamente influxdb. Sin cargar entre esas operaciones",
+    "antes": {
+      "fecha_utc": "2026-10-06T00:09:39.276093+00:00",
+      "puntos_almacenados": 21600,
+      "muestra": [
+        {
+          "equipo_id": "EQ-001",
+          "estadio_id": "EST-01",
+          "partido_id": "PAR-001",
+          "pases_acumulados": 0,
+          "posesion_pct": 45.5,
+          "time": "2026-10-05T16:14:00",
+          "tiros_intervalo": 0
+        }
+      ]
+    },
+    "operaciones": [
+      {
+        "comando": "docker compose restart influxdb",
+        "inicio_utc": "2026-10-06T00:09:39.284149+00:00",
+        "fin_utc": "2026-10-06T00:09:41.689030+00:00",
+        "inicializacion": [
+          {
+            "fecha_utc": "2026-10-06T00:09:41.140103+00:00",
+            "bases_desde_cli_contenedor": [
+              {
+                "iox::database": "_internal"
+              },
+              {
+                "iox::database": "fixture2030_h8"
+              }
+            ]
+          },
+          {
+            "retencion": [
+              {
+                "database_name": "fixture2030_h8",
+                "retention_period": "7.0000d"
+              }
+            ]
+          }
+        ],
+        "igualdad_distribucion_muestra_y_tipos": true,
+        "validacion": {
+          "fecha_utc": "2026-10-06T00:09:41.681032+00:00",
+          "validacion": "OK",
+          "puntos_almacenados": 21600,
+          "muestra": [
+            {
+              "equipo_id": "EQ-001",
+              "estadio_id": "EST-01",
+              "partido_id": "PAR-001",
+              "pases_acumulados": 0,
+              "posesion_pct": 45.5,
+              "time": "2026-10-05T16:14:00",
+              "tiros_intervalo": 0
+            }
+          ]
+        }
+      },
+      {
+        "comando": "docker compose up -d --force-recreate influxdb",
+        "inicio_utc": "2026-10-06T00:09:41.689043+00:00",
+        "fin_utc": "2026-10-06T00:09:46.307823+00:00",
+        "inicializacion": [
+          {
+            "fecha_utc": "2026-10-06T00:09:45.749586+00:00",
+            "bases_desde_cli_contenedor": [
+              {
+                "iox::database": "_internal"
+              },
+              {
+                "iox::database": "fixture2030_h8"
+              }
+            ]
+          },
+          {
+            "retencion": [
+              {
+                "database_name": "fixture2030_h8",
+                "retention_period": "7.0000d"
+              }
+            ]
+          }
+        ],
+        "igualdad_distribucion_muestra_y_tipos": true,
+        "validacion": {
+          "fecha_utc": "2026-10-06T00:09:46.298601+00:00",
+          "validacion": "OK",
+          "puntos_almacenados": 21600,
+          "muestra": [
+            {
+              "equipo_id": "EQ-001",
+              "estadio_id": "EST-01",
+              "partido_id": "PAR-001",
+              "pases_acumulados": 0,
+              "posesion_pct": 45.5,
+              "time": "2026-10-05T16:14:00",
+              "tiros_intervalo": 0
+            }
+          ]
+        }
+      }
+    ],
+    "montajes_finales": [
+      {
+        "Type": "bind",
+        "Source": "<USERPROFILE>/docker/data/influxdb",
+        "Destination": "/var/lib/influxdb3/data",
+        "Mode": "rw",
+        "RW": true,
+        "Propagation": "rprivate"
+      }
+    ]
+  }
+}

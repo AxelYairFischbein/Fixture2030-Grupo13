@@ -1,0 +1,82 @@
+Fecha UTC: 2026-10-05T17:47:30.483773+00:00
+Metodo: comandos ejecutados contra el contenedor del Hito 8 y Docker Desktop.
+Validacion Compose: 0
+Python: 3.13.7
+Docker: 29.7.2
+Recursos Docker: CPU=24 RAM_bytes=16558776320
+Equipo: Intel(R) Core(TM) i7-14650HX, 16 nucleos, 24 procesadores logicos, RAM 33943117824 bytes.
+NAME                       IMAGE             COMMAND                  SERVICE    CREATED         STATUS         PORTS
+grupo13-hito8-influxdb-1   influxdb:3-core   "/usr/bin/entrypoint…"   influxdb   4 minutes ago   Up 4 minutes   127.0.0.1:8181->8181/tcp
+influxdb3 InfluxDB 3 Core, 3.12.0, revision 3ba97c65f1ee4e1f127a8266517d4d2083b7ea39
+Montajes reales, prefijo personal anonimizado: [
+  {
+    "Type": "bind",
+    "Source": "<USERPROFILE>/docker/data/influxdb",
+    "Destination": "/var/lib/influxdb3/data",
+    "Mode": "rw",
+    "RW": true,
+    "Propagation": "rprivate"
+  }
+]
+Limites efectivos: {"Memory": 2147483648, "NanoCpus": 2000000000, "PortBindings": {"8181/tcp": [{"HostIp": "127.0.0.1", "HostPort": "8181"}]}}
+CLI autenticado dentro del contenedor: [{"iox::database":"_internal"},{"iox::database":"fixture2030_h8"}]
+Retencion efectiva: [{"database_name":"fixture2030_h8","retention_period":"7.0000d"}]
+GET /health sin credencial, HTTP: 401
+Consumo puntual posterior a carga, no es un pico: grupo13-hito8-influxdb-1 | 0.26% | 28.78MiB / 2GiB
+La retencion se verifico por configuracion. No se observo una expiracion de siete dias.
+El equipo comparte recursos con otros contenedores. No se detuvieron para medir.
+
+
+Revision posterior - 2026-10-06T00:08:18.545039+00:00
+Ejecucion nueva, separada de los registros anteriores. Misma muestra y timestamps.
+{
+  "fecha_inicio_utc": "2026-10-06T00:08:18.545039+00:00",
+  "fecha_fin_utc": "2026-10-06T00:09:47.563793+00:00",
+  "version": "influxdb3 InfluxDB 3 Core, 3.12.0, revision 3ba97c65f1ee4e1f127a8266517d4d2083b7ea39",
+  "python": "3.13.7",
+  "docker": {
+    "version": "29.7.2",
+    "cpus": 24,
+    "ram_bytes": 16558776320
+  },
+  "limites": {
+    "Memory": 2147483648,
+    "NanoCpus": 2000000000,
+    "PortBindings": {
+      "8181/tcp": [
+        {
+          "HostIp": "127.0.0.1",
+          "HostPort": "8181"
+        }
+      ]
+    }
+  },
+  "montajes": [
+    {
+      "Type": "bind",
+      "Source": "<USERPROFILE>/docker/data/influxdb",
+      "Destination": "/var/lib/influxdb3/data",
+      "Mode": "rw",
+      "RW": true,
+      "Propagation": "rprivate"
+    }
+  ],
+  "retencion": [
+    {
+      "database_name": "fixture2030_h8",
+      "retention_period": "7.0000d"
+    }
+  ],
+  "http_sin_credencial": "401",
+  "consumo_puntual_final": "grupo13-hito8-influxdb-1 | 0.24% | 48.48MiB / 2GiB",
+  "equipo": {
+    "procesador": "Intel(R) Core(TM) i7-14650HX",
+    "nucleos": 16,
+    "procesadores_logicos": 24,
+    "ram_bytes": 33943117824
+  },
+  "metodo": "Compose config, inicio del servicio, CLI autenticado en contenedor, inspect, HTTP sin token y stats puntual al finalizar",
+  "compose_valido": true,
+  "estado_servicio": "NAME                       STATE     STATUS         PORTS\ngrupo13-hito8-influxdb-1   running   Up 4 seconds   127.0.0.1:8181->8181/tcp"
+}
+El consumo puntual no representa un pico. La retencion se comprobo por configuracion, sin observar vencimiento.
