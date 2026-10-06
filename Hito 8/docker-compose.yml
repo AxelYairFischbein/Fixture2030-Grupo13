@@ -1,0 +1,21 @@
+name: grupo13-hito8
+
+services:
+  influxdb:
+    image: influxdb:3-core
+    command:
+      - influxdb3
+      - serve
+      - --node-id=grupo13-hito8
+      - --object-store=file
+      - --data-dir=/var/lib/influxdb3/data
+      - --http-bind=0.0.0.0:8181
+    ports:
+      - "127.0.0.1:8181:8181"
+    volumes:
+      - type: bind
+        source: ${USERPROFILE:?Definir USERPROFILE}/docker/data/influxdb
+        target: /var/lib/influxdb3/data
+    mem_limit: 2g
+    cpus: 2.0
+    stop_grace_period: 45s

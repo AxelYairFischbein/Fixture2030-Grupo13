@@ -1,0 +1,277 @@
+Primera carga real, 2026-10-05, InfluxDB 3 Core 3.12.0
+Entorno y recursos: 01_ambiente_y_retencion.txt
+Método: Python 3.13.7, biblioteca estándar, HTTP local, WAL sincronizado.
+Comandos desde Hito 8:
+python -X utf8 scripts/generacion_puntos.py
+python -X utf8 scripts/carga_lotes.py
+python -X utf8 scripts/validacion.py
+
+Generación finalizada: 2026-10-05T17:44:00.325589+00:00
+2 partidos, 2 equipos por partido, 90 minutos, paso de 1 segundo.
+Ventana de timestamps: [2026-10-05T16:14:00Z, 2026-10-05T17:44:00Z)
+Puntos generados: 21600. Tamaño del line protocol: 3105560 bytes.
+Tiempo de generación del line protocol, incluida escritura: 0.038803 segundos.
+
+Carga finalizada: 2026-10-05T17:44:22.290095+00:00
+Clientes concurrentes: 1. Tamaño de lote: 1000 puntos.
+Puntos enviados contando reintentos: 21600.
+Puntos con respuesta exitosa: 21600.
+Peticiones: 22. Lotes aceptados: 22. Reintentos: 0.
+Puntos almacenados consultados: 21600.
+Duración de carga: 21.841943 segundos.
+Puntos confirmados por segundo: 988.92.
+El tiempo incluye lectura del archivo, HTTP y espera de confirmación del WAL.
+Excluye generación, inicio del proceso, inicio de Docker y consulta final de recuento.
+
+Validación inicial: OK a las 2026-10-05T17:44:22.601516+00:00.
+PAR-001 / EQ-001 / EST-01: 5400 puntos, pases finales 539, tiros totales 17.
+PAR-001 / EQ-002 / EST-01: 5400 puntos, pases finales 449, tiros totales 16.
+PAR-002 / EQ-003 / EST-02: 5400 puntos, pases finales 539, tiros totales 16.
+PAR-002 / EQ-004 / EST-02: 5400 puntos, pases finales 449, tiros totales 15.
+
+Repetición real de la generación y de la carga, con el mismo origen y contenido:
+{
+  "fecha_utc": "2026-10-05T17:47:33.050382+00:00",
+  "parametros": {
+    "partidos": 2,
+    "minutos": 90,
+    "paso": 1
+  },
+  "inicio_utc": "2026-10-05T16:14:00Z",
+  "fin_exclusivo_utc": "2026-10-05T17:44:00Z",
+  "puntos_generados": 21600,
+  "bytes_lp": 3105560,
+  "generacion_segundos": 0.031158
+}
+{
+  "fecha_utc": "2026-10-05T17:47:54.485142+00:00",
+  "metodo": "HTTP local con WAL sincronizado",
+  "clientes_concurrentes": 1,
+  "tamano_lote": 1000,
+  "puntos_generados_segun_metadatos": 21600,
+  "puntos_enviados_incluyendo_reintentos": 21600,
+  "puntos_con_respuesta_exitosa": 21600,
+  "lotes_aceptados": 22,
+  "peticiones": 22,
+  "puntos_almacenados_en_ventana": 21600,
+  "carga_segundos": 21.335979,
+  "puntos_confirmados_por_segundo": 1012.37
+}
+{
+  "fecha_utc": "2026-10-05T17:47:54.651279+00:00",
+  "validacion": "OK",
+  "puntos_esperados": 21600,
+  "puntos_almacenados": 21600,
+  "inicio_utc": "2026-10-05T16:14:00Z",
+  "distribucion": [
+    {
+      "partido_id": "PAR-001",
+      "equipo_id": "EQ-001",
+      "estadio_id": "EST-01",
+      "puntos": 5400,
+      "primero": "2026-10-05T16:14:00",
+      "ultimo": "2026-10-05T17:43:59",
+      "posesion_min": 45.0,
+      "posesion_max": 55.0,
+      "pases_finales": 539,
+      "tiros_totales": 17
+    },
+    {
+      "partido_id": "PAR-001",
+      "equipo_id": "EQ-002",
+      "estadio_id": "EST-01",
+      "puntos": 5400,
+      "primero": "2026-10-05T16:14:00",
+      "ultimo": "2026-10-05T17:43:59",
+      "posesion_min": 45.0,
+      "posesion_max": 55.0,
+      "pases_finales": 449,
+      "tiros_totales": 16
+    },
+    {
+      "partido_id": "PAR-002",
+      "equipo_id": "EQ-003",
+      "estadio_id": "EST-02",
+      "puntos": 5400,
+      "primero": "2026-10-05T16:14:00",
+      "ultimo": "2026-10-05T17:43:59",
+      "posesion_min": 45.0,
+      "posesion_max": 55.0,
+      "pases_finales": 539,
+      "tiros_totales": 16
+    },
+    {
+      "partido_id": "PAR-002",
+      "equipo_id": "EQ-004",
+      "estadio_id": "EST-02",
+      "puntos": 5400,
+      "primero": "2026-10-05T16:14:00",
+      "ultimo": "2026-10-05T17:43:59",
+      "posesion_min": 45.0,
+      "posesion_max": 55.0,
+      "pases_finales": 449,
+      "tiros_totales": 15
+    }
+  ],
+  "muestra": [
+    {
+      "equipo_id": "EQ-001",
+      "estadio_id": "EST-01",
+      "partido_id": "PAR-001",
+      "pases_acumulados": 0,
+      "posesion_pct": 45.5,
+      "time": "2026-10-05T16:14:00",
+      "tiros_intervalo": 0
+    }
+  ],
+  "tipos": [
+    {
+      "column_name": "equipo_id",
+      "data_type": "Dictionary(Int32, Utf8)"
+    },
+    {
+      "column_name": "estadio_id",
+      "data_type": "Dictionary(Int32, Utf8)"
+    },
+    {
+      "column_name": "partido_id",
+      "data_type": "Dictionary(Int32, Utf8)"
+    },
+    {
+      "column_name": "pases_acumulados",
+      "data_type": "Int64"
+    },
+    {
+      "column_name": "posesion_pct",
+      "data_type": "Float64"
+    },
+    {
+      "column_name": "time",
+      "data_type": "Timestamp(ns)"
+    },
+    {
+      "column_name": "tiros_intervalo",
+      "data_type": "Int64"
+    }
+  ]
+}
+
+
+Revision posterior - 2026-10-06T00:08:18.545039+00:00
+Ejecucion nueva, separada de los registros anteriores. Misma muestra y timestamps.
+Comandos: generacion_puntos.py con los parametros guardados, carga_lotes.py --lote 1000 y validacion.py despues de cada envio.
+Ambas cargas son reescrituras de puntos existentes. No se midio una primera insercion nueva.
+Generacion: escritura del line protocol. Carga: lectura, HTTP local y confirmacion del WAL, sin generacion, inicio de Docker ni recuento posterior.
+{
+  "fecha_inicio_utc": "2026-10-06T00:08:18.545039+00:00",
+  "fecha_fin_utc": "2026-10-06T00:09:07.114766+00:00",
+  "version": "influxdb3 InfluxDB 3 Core, 3.12.0, revision 3ba97c65f1ee4e1f127a8266517d4d2083b7ea39",
+  "recursos": "01_ambiente_y_retencion.txt, bloque de esta revision",
+  "parametros": {
+    "partidos": 2,
+    "minutos": 90,
+    "paso": 1,
+    "inicio": 1791216840,
+    "fin": 1791222240,
+    "puntos": 21600
+  },
+  "generacion": {
+    "fecha_utc": "2026-10-06T00:08:23.009654+00:00",
+    "parametros": {
+      "partidos": 2,
+      "minutos": 90,
+      "paso": 1
+    },
+    "inicio_utc": "2026-10-05T16:14:00Z",
+    "fin_exclusivo_utc": "2026-10-05T17:44:00Z",
+    "puntos_generados": 21600,
+    "bytes_lp": 3105560,
+    "generacion_segundos": 0.032639
+  },
+  "archivo_identico_byte_a_byte": true,
+  "puntos_antes_de_los_reenvios": 21600,
+  "reenvios": [
+    {
+      "numero": 1,
+      "fecha_utc": "2026-10-06T00:08:44.887629+00:00",
+      "metodo": "HTTP local con WAL sincronizado",
+      "clientes_concurrentes": 1,
+      "tamano_lote": 1000,
+      "puntos_generados_segun_metadatos": 21600,
+      "puntos_enviados_incluyendo_reintentos": 21600,
+      "puntos_con_respuesta_exitosa": 21600,
+      "lotes_aceptados": 22,
+      "peticiones": 22,
+      "puntos_almacenados_en_ventana": 21600,
+      "carga_segundos": 21.707682,
+      "puntos_confirmados_por_segundo": 995.04,
+      "validacion": "OK"
+    },
+    {
+      "numero": 2,
+      "fecha_utc": "2026-10-06T00:09:06.883408+00:00",
+      "metodo": "HTTP local con WAL sincronizado",
+      "clientes_concurrentes": 1,
+      "tamano_lote": 1000,
+      "puntos_generados_segun_metadatos": 21600,
+      "puntos_enviados_incluyendo_reintentos": 21600,
+      "puntos_con_respuesta_exitosa": 21600,
+      "lotes_aceptados": 22,
+      "peticiones": 22,
+      "puntos_almacenados_en_ventana": 21600,
+      "carga_segundos": 21.668193,
+      "puntos_confirmados_por_segundo": 996.85,
+      "validacion": "OK"
+    }
+  ],
+  "distribucion_despues_de_cada_reenvio": [
+    {
+      "partido_id": "PAR-001",
+      "equipo_id": "EQ-001",
+      "estadio_id": "EST-01",
+      "puntos": 5400,
+      "primero": "2026-10-05T16:14:00",
+      "ultimo": "2026-10-05T17:43:59",
+      "posesion_min": 45.0,
+      "posesion_max": 55.0,
+      "pases_finales": 539,
+      "tiros_totales": 17
+    },
+    {
+      "partido_id": "PAR-001",
+      "equipo_id": "EQ-002",
+      "estadio_id": "EST-01",
+      "puntos": 5400,
+      "primero": "2026-10-05T16:14:00",
+      "ultimo": "2026-10-05T17:43:59",
+      "posesion_min": 45.0,
+      "posesion_max": 55.0,
+      "pases_finales": 449,
+      "tiros_totales": 16
+    },
+    {
+      "partido_id": "PAR-002",
+      "equipo_id": "EQ-003",
+      "estadio_id": "EST-02",
+      "puntos": 5400,
+      "primero": "2026-10-05T16:14:00",
+      "ultimo": "2026-10-05T17:43:59",
+      "posesion_min": 45.0,
+      "posesion_max": 55.0,
+      "pases_finales": 539,
+      "tiros_totales": 16
+    },
+    {
+      "partido_id": "PAR-002",
+      "equipo_id": "EQ-004",
+      "estadio_id": "EST-02",
+      "puntos": 5400,
+      "primero": "2026-10-05T16:14:00",
+      "ultimo": "2026-10-05T17:43:59",
+      "posesion_min": 45.0,
+      "posesion_max": 55.0,
+      "pases_finales": 449,
+      "tiros_totales": 15
+    }
+  ]
+}
