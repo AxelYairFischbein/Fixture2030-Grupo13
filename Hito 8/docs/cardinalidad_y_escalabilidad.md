@@ -10,7 +10,7 @@ Un tag con UUID por punto haría crecer las series junto con cada observación. 
 
 ## Generación y carga implementadas
 
-El generador guarda el origen temporal una vez y escribe line protocol en orden temporal sin conservar toda la muestra en memoria. Los parámetros y el archivo generado quedan en `datos/`. La carga toma hasta 1.000 líneas por lote y usa **un cliente secuencial**, suficiente para la demostración y sencillo de explicar. Mantiene en memoria solamente el lote actual.
+El generador guarda el origen temporal una vez y escribe line protocol en orden temporal sin conservar toda la muestra en memoria. Los parámetros y el archivo generado quedan en `datos/`. La prueba utiliza lotes de 1.000 puntos y un cliente secuencial. Esta configuración es suficiente para la demostración y sencilla de explicar. El cargador mantiene en memoria solamente el lote actual.
 
 Se utiliza `POST /api/v3/write_lp`, precisión de segundos, `accept_partial=false` y `no_sync=false`. Los datos de un lote inválido no se aceptan parcialmente. Una respuesta exitosa confirma la escritura sincronizada en el WAL, no que ya exista un archivo Parquet final. El recuento posterior comprueba los puntos lógicos consultables.
 

@@ -73,7 +73,7 @@ python -X utf8 scripts/consultas_temporales.py
 python -X utf8 scripts/agregaciones.py
 ```
 
-Se imprimen el SQL ejecutado, el resultado y el tiempo observado. Las consultas toman el final de la muestra, no el reloj actual, para que la repetición conserve la misma ventana mientras los datos sigan retenidos. Se espera una lectura de hasta cinco filas, una comparación con dos equipos y diez filas de resumen por minuto. La interpretación está en [patrones de acceso](docs/patrones_de_acceso.md).
+Se imprimen el SQL ejecutado, el resultado y el tiempo observado. Las consultas toman el final de la muestra, no el reloj actual, para que la repetición conserve la misma ventana mientras los datos sigan retenidos. Se espera una lectura de hasta cinco filas, una comparación con dos equipos y diez filas de resumen en total, correspondientes a cinco minutos para cada uno de los dos equipos. La interpretación está en [patrones de acceso](docs/patrones_de_acceso.md).
 
 ## 4. Comprobar persistencia y detener
 
