@@ -1,0 +1,106 @@
+Hito 9 - Evidencia real de ejecucion
+Validacion funcional: 2026-10-09, 13:42-13:45 UTC (10:42-10:45 Argentina).
+Metodo: Docker Compose y Terminal IRIS en USER, con las clases de scripts/.
+Se omitieron las líneas que solo muestran el indicador del Terminal, sin comandos ni resultados. Los extractos conservan los resultados.
+
+1. Entorno y preparacion
+Docker Engine: 29.7.2. Imagen: intersystems/iris-community:latest-cd.
+docker compose config --quiet: codigo de salida 0.
+IRIS for UNIX (Ubuntu Server LTS for x86-64 Containers) 2026.2 (Build 221U) Fri Jun 26 2026 09:58:52 EDT
+Montaje de datos: Type=bind, Source=<USERPROFILE>/docker/data/iris, Destination=/durable, RW=true.
+Montaje de scripts: Type=bind, Source=<REPOSITORIO>/Hito 9/scripts, Destination=/scripts, RW=false.
+ISC_DATA_DIRECTORY=/durable. Puertos: 127.0.0.1:1972 y 127.0.0.1:52773.
+
+En la preparacion inicial del 2026-10-09 UTC, el directorio nuevo pertenecia a root.
+Error observado: Error executing chown irisowner:irisowner /durable/: Error:1:
+Se ejecuto unicamente sobre el montaje del Hito 9:
+docker compose exec -T --user root iris chown 51773:51773 /durable
+docker compose restart iris
+Comprobacion posterior como usuario habitual:
+uid=51773(irisowner) gid=51773(irisowner) groups=51773(irisowner)
+51773:51773 700 /durable
+DIRECTORIO_DURABLE_ESCRIBIBLE
+Estado final: running, healthy. Fecha de inspeccion UTC: 2026-10-09T13:44:48.213607+00:00
+
+2. Importacion y compilacion
+Set sc = $System.OBJ.LoadDir("/scripts", "ck", .errores)
+Inicio observado: 2026-10-09 13:42:33 UTC.
+Compiling 6 classes
+FixtureH9.Persona, FixtureH9.Jugador, FixtureH9.Arbitro,
+FixtureH9.Partido, FixtureH9.Evento y FixtureH9.Demo.
+Load finished successfully.
+COMPILACION OK
+
+3. Primera demostracion
+Set sc = ##class(FixtureH9.Demo).Ejecutar()
+Hito 9 | 2026-10-09 13:42:45 | namespace USER
+IRIS for UNIX (Ubuntu Server LTS for x86-64 Containers) 2026.2 (Build 221U) Fri Jun 26 2026 09:58:52 EDT
+Un %Save del padre: Partido ID=1, eventos=2
+OBJ Partido ID=1 | PAR-001 | EST-01 | PENDIENTE
+OBJ Arbitro ID=1 | ARB-001 | Arbitro Sintetico 01 | LIC-DEMO-001
+OBJ Evento ID=1||1 | TARJETA | minuto=15 | inversa Partido=1
+OBJ Evento ID=1||2 | CAMBIO | minuto=75 | inversa Partido=1
+OBJ Jugador ID=2 | JUG-0001 | Nombre0001 Apellido0001 | ARQUERO
+SQL Partido ID=1 | PAR-001 | PENDIENTE
+SQL Evento ID=1||1 | Partido=1 | TARJETA | minuto=15
+SQL Evento ID=1||2 | Partido=1 | CAMBIO | minuto=75
+SQL Persona ID=2 | JUG-0001 | Nombre0001 Apellido0001
+SQL Persona ID=1 | ARB-001 | Arbitro Sintetico 01
+VERIFICACION OK: 1 partido, 2 eventos, 1 jugador y 1 arbitro. Objetos = SQL.
+RECHAZO ESPERADO: hijo sin Tipo obligatorio. ERROR #5659: Property 'FixtureH9.Evento::Tipo(20@FixtureH9.Evento,ID=)' required
+ERROR #7205: Datatype value '' not in VALUELIST ',GOL,TARJETA,CAMBIO'
+  > ERROR #5802: Datatype validation failed on property 'FixtureH9.Evento:Tipo', with value equal to ""
+ATOMICIDAD OK: padre invalido ausente, eventos antes=2, despues=2. Ningun hijo nuevo.
+TRANSICIONES OK: PENDIENTE -> EN_JUEGO -> FINALIZADO.
+RECHAZO ESPERADO: ERROR #5001: Transicion no permitida: FINALIZADO -> EN_JUEGO
+SQL estado posterior al rechazo: FINALIZADO
+BORRADO OK: padre temporal y sus 2 hijos ausentes. Muestra y personas conservadas.
+DEMO OK: muestra conservada, validaciones y borrado comprobados.
+STATUS_DEMO=1
+
+4. Repeticion de la misma demostracion
+Extracto de la segunda ejecucion, con los mismos IDs y atributos de la muestra:
+Hito 9 | 2026-10-09 13:43:12 | namespace USER
+Muestra existente: no se vuelve a cargar.
+VERIFICACION OK: 1 partido, 2 eventos, 1 jugador y 1 arbitro. Objetos = SQL.
+ATOMICIDAD OK: padre invalido ausente, eventos antes=2, despues=2. Ningun hijo nuevo.
+TRANSICIONES OK: PENDIENTE -> EN_JUEGO -> FINALIZADO.
+BORRADO OK: padre temporal y sus 2 hijos ausentes. Muestra y personas conservadas.
+DEMO OK: muestra conservada, validaciones y borrado comprobados.
+STATUS_REPETICION=1
+
+5. Persistencia despues de recrear
+Antes de recrear se ejecuto FixtureH9.Demo.Verificar(), con STATUS_VERIFICACION=1.
+Se ejecuto docker compose up -d --force-recreate iris y se espero health=healthy.
+No se importaron clases ni se cargaron datos entre las dos verificaciones.
+Salida posterior de FixtureH9.Demo.Verificar():
+USER
+IRIS for UNIX (Ubuntu Server LTS for x86-64 Containers) 2026.2 (Build 221U) Fri Jun 26 2026 09:58:52 EDT
+OBJ Partido ID=1 | PAR-001 | EST-01 | PENDIENTE
+OBJ Arbitro ID=1 | ARB-001 | Arbitro Sintetico 01 | LIC-DEMO-001
+OBJ Evento ID=1||1 | TARJETA | minuto=15 | inversa Partido=1
+OBJ Evento ID=1||2 | CAMBIO | minuto=75 | inversa Partido=1
+OBJ Jugador ID=2 | JUG-0001 | Nombre0001 Apellido0001 | ARQUERO
+SQL Partido ID=1 | PAR-001 | PENDIENTE
+SQL Evento ID=1||1 | Partido=1 | TARJETA | minuto=15
+SQL Evento ID=1||2 | Partido=1 | CAMBIO | minuto=75
+SQL Persona ID=2 | JUG-0001 | Nombre0001 Apellido0001
+SQL Persona ID=1 | ARB-001 | Arbitro Sintetico 01
+VERIFICACION OK: 1 partido, 2 eventos, 1 jugador y 1 arbitro. Objetos = SQL.
+STATUS_VERIFICACION=1
+Comparacion de las lineas OBJ, SQL y VERIFICACION antes/despues: identicas.
+Recuentos finales con SELECT COUNT(*) sobre las tablas FixtureH9:
+SQLCODE=0
+Partido=1
+Evento=2
+Persona=2
+Jugador=1
+Arbitro=1
+
+6. Evidencia visual
+Se comprobo tambien $System.OBJ.Compile("FixtureH9.*", "ck") a las 13:46:44 UTC,
+despues de completar la prueba de persistencia: COMPILACION OK.
+01_entorno.png registra el servicio saludable y la compilacion correcta del mismo dia a las 15:22:32 UTC.
+02_integridad.png registra una repeticion correcta de la demo del mismo dia a las 15:26:29 UTC, con STATUS_DEMO=1.
+Las pruebas funcionales anteriores estan ejecutadas. No se midio rendimiento.
+El servicio del Hito 9 queda activo.
