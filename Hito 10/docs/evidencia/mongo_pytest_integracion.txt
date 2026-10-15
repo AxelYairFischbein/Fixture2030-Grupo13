@@ -1,0 +1,27 @@
+﻿# MongoDB (Fase 2) · pytest -m integration
+# Generado: 2026-10-15T04:47:42Z
+
+============================= test session starts =============================
+platform win32 -- Python 3.13.4, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\moham\Repositorios\Fixture2030-Grupo13\Hito 10\.venv\Scripts\python.exe
+rootdir: C:\Users\moham\Repositorios\Fixture2030-Grupo13\Hito 10
+configfile: pytest.ini
+testpaths: tests
+plugins: anyio-4.15.1
+collecting ... collected 79 items / 71 deselected / 8 selected
+
+tests/integracion/test_mongo.py::test_salud_informa_mongodb_disponible PASSED [ 12%]
+tests/integracion/test_mongo.py::test_cu01_ficha_de_equipo PASSED        [ 25%]
+tests/integracion/test_mongo.py::test_cu01_equipo_inexistente PASSED     [ 37%]
+tests/integracion/test_mongo.py::test_cu02_conmebol_ranking_50_igual_que_q03 PASSED [ 50%]
+tests/integracion/test_mongo.py::test_cu03_eq002_tiene_24_jugadores PASSED [ 62%]
+tests/integracion/test_mongo.py::test_cu03_pagina_2_de_eq001_coincide_con_q06 PASSED [ 75%]
+tests/integracion/test_mongo.py::test_cu04_ficha_de_jugador_sin_huerfanos PASSED [ 87%]
+tests/integracion/test_mongo.py::test_cu04_jugador_inexistente PASSED    [100%]
+
+============================== warnings summary ===============================
+.venv\Lib\site-packages\fastapi\testclient.py:1
+  C:\Users\moham\Repositorios\Fixture2030-Grupo13\Hito 10\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+================= 8 passed, 71 deselected, 1 warning in 0.22s =================

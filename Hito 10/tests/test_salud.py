@@ -5,16 +5,24 @@ import pytest
 from app.config.settings import Settings, cargar_settings
 
 
-def test_salud_informa_todas_no_configuradas(client):
+SIN_ADAPTADOR = ("neo4j", "cassandra", "redis", "influxdb", "iris")
+
+
+def test_salud_con_mongodb_disponible(client):
     respuesta = client.get("/api/v1/salud")
     assert respuesta.status_code == 200
     assert respuesta.json() == {
         "estado": "ok",
-        "dependencias": {
-            nombre: "no_configurada"
-            for nombre in ("mongodb", "neo4j", "cassandra", "redis", "influxdb", "iris")
-        },
+        "dependencias": {"mongodb": "disponible"} | {n: "no_configurada" for n in SIN_ADAPTADOR},
     }
+
+
+def test_salud_con_mongodb_caido_es_degradado_pero_200(client, mongo_falso):
+    mongo_falso.falla = RuntimeError("caído")
+    respuesta = client.get("/api/v1/salud")
+    assert respuesta.status_code == 200
+    assert respuesta.json()["estado"] == "degradado"
+    assert respuesta.json()["dependencias"]["mongodb"] == "no_disponible"
 
 
 def test_falta_una_contrasena_nombra_la_variable(monkeypatch):

@@ -17,3 +17,16 @@ class ErrorCuerpo(BaseModel):
 
 class RespuestaError(BaseModel):
     error: ErrorCuerpo
+
+
+DESCRIPCIONES_ERROR = {
+    400: "VALIDACION: parámetro ausente, con formato inválido o fuera de rango.",
+    404: "El recurso principal no existe.",
+    503: "DEPENDENCIA_NO_DISPONIBLE: la fuente de datos no está disponible.",
+    504: "DEPENDENCIA_TIMEOUT: la fuente de datos no respondió a tiempo.",
+}
+
+
+def respuestas_error(*codigos: int) -> dict[int, dict]:
+    """Bloque responses= de una ruta con los errores que puede devolver (formato §6.1)."""
+    return {c: {"model": RespuestaError, "description": DESCRIPCIONES_ERROR[c]} for c in codigos}

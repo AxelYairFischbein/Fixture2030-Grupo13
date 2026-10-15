@@ -30,7 +30,9 @@ from app.errors import (  # noqa: E402
     DependenciaTimeout,
     NoEncontrado,
 )
+from app.dependencias import obtener_adaptador_mongo  # noqa: E402
 from app.main import create_app  # noqa: E402
+from tests.falsos import MongoFalso  # noqa: E402
 
 
 def _router_de_prueba() -> APIRouter:
@@ -72,9 +74,15 @@ def _router_de_prueba() -> APIRouter:
 
 
 @pytest.fixture
-def app():
+def mongo_falso() -> MongoFalso:
+    return MongoFalso()
+
+
+@pytest.fixture
+def app(mongo_falso):
     aplicacion = create_app(Settings(_env_file=None))
     aplicacion.include_router(_router_de_prueba())
+    aplicacion.dependency_overrides[obtener_adaptador_mongo] = lambda: mongo_falso
     return aplicacion
 
 

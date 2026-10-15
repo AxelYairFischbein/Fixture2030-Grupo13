@@ -1,0 +1,187 @@
+﻿# MongoDB (Fase 2) · Lista de control (plan_de_implementacion.md)
+# Generado: 2026-10-15T04:47:42Z · API en http://127.0.0.1:8010 · respuestas crudas de curl.exe -i
+
+### Salud con MongoDB arriba
+GET /api/v1/salud
+HTTP/1.1 200 OK
+date: Thu, 15 Oct 2026 04:47:45 GMT
+server: uvicorn
+content-length: 186
+content-type: application/json
+x-request-id: e41c1ddb-10d5-4933-95fd-466d5e7206e7
+
+{"estado":"ok","dependencias":{"mongodb":"disponible","neo4j":"no_configurada","cassandra":"no_configurada","redis":"no_configurada","influxdb":"no_configurada","iris":"no_configurada"}}
+(tiempo_total_s=0.008407)
+
+### CU-01 · EQ-001 -> 200
+GET /api/v1/equipos/EQ-001
+HTTP/1.1 200 OK
+date: Thu, 15 Oct 2026 04:47:45 GMT
+server: uvicorn
+content-length: 287
+content-type: application/json
+x-request-id: 15c232f6-fd59-440a-a25d-116b1ddd0320
+
+{"equipoId":"EQ-001","codigo":"F01","nombre":"Seleccion Sintetica 01","confederacion":"AFC","region":"ASIA_PACIFICO","rankingReferencia":1,"sedeBase":{"ciudad":"Ciudad Sintetica 01","pais":"Pais Sintetico 01"},"participacionesMundiales":1,"titulosMundiales":0,"estado":"PRESELECCIONADO"}
+(tiempo_total_s=0.013836)
+
+### CU-01 · EQ-999 -> 404 EQUIPO_NO_ENCONTRADO
+GET /api/v1/equipos/EQ-999
+HTTP/1.1 404 Not Found
+date: Thu, 15 Oct 2026 04:47:45 GMT
+server: uvicorn
+x-request-id: c86c8498-4e8d-44a9-99d5-52565a0c525c
+content-length: 221
+content-type: application/json
+
+{"error":{"codigo":"EQUIPO_NO_ENCONTRADO","mensaje":"No existe un equipo con el identificador indicado.","requestId":"c86c8498-4e8d-44a9-99d5-52565a0c525c","detalles":[{"campo":"equipoId","problema":"EQ-999 no existe"}]}}
+(tiempo_total_s=0.010251)
+
+### CU-01 · EQ-1 -> 400 VALIDACION
+GET /api/v1/equipos/EQ-1
+HTTP/1.1 400 Bad Request
+date: Thu, 15 Oct 2026 04:47:45 GMT
+server: uvicorn
+x-request-id: 6c27826f-6011-44da-a915-258bde6f5f28
+content-length: 213
+content-type: application/json
+
+{"error":{"codigo":"VALIDACION","mensaje":"La solicitud tiene datos inválidos.","requestId":"6c27826f-6011-44da-a915-258bde6f5f28","detalles":[{"campo":"equipoId","problema":"no cumple el formato ^EQ-\\d{3}$"}]}}
+(tiempo_total_s=0.007935)
+
+### CU-02 · CONMEBOL rankingMax=50 -> 8 equipos (Q03)
+GET /api/v1/equipos?confederacion=CONMEBOL&rankingMax=50
+HTTP/1.1 200 OK
+date: Thu, 15 Oct 2026 04:47:45 GMT
+server: uvicorn
+content-length: 782
+content-type: application/json
+x-request-id: faef8486-317b-4167-8ca4-49958838b135
+
+{"items":[{"equipoId":"EQ-004","codigo":"F04","nombre":"Seleccion Sintetica 04","rankingReferencia":4},{"equipoId":"EQ-010","codigo":"F10","nombre":"Argentina","rankingReferencia":10},{"equipoId":"EQ-016","codigo":"F16","nombre":"Seleccion Sintetica 16","rankingReferencia":16},{"equipoId":"EQ-022","codigo":"F22","nombre":"Seleccion Sintetica 22","rankingReferencia":22},{"equipoId":"EQ-028","codigo":"F28","nombre":"Seleccion Sintetica 28","rankingReferencia":28},{"equipoId":"EQ-034","codigo":"F34","nombre":"Seleccion Sintetica 34","rankingReferencia":34},{"equipoId":"EQ-040","codigo":"F40","nombre":"Seleccion Sintetica 40","rankingReferencia":40},{"equipoId":"EQ-046","codigo":"F46","nombre":"Seleccion Sintetica 46","rankingReferencia":46}],"pagina":1,"limite":20,"total":8}
+(tiempo_total_s=0.012796)
+
+### CU-02 · confederación fuera del enum -> 400
+GET /api/v1/equipos?confederacion=FIFA
+HTTP/1.1 400 Bad Request
+date: Thu, 15 Oct 2026 04:47:45 GMT
+server: uvicorn
+x-request-id: 2d864a47-8049-46c5-b3c9-5a54a96b19c8
+content-length: 256
+content-type: application/json
+
+{"error":{"codigo":"VALIDACION","mensaje":"La solicitud tiene datos inválidos.","requestId":"2d864a47-8049-46c5-b3c9-5a54a96b19c8","detalles":[{"campo":"confederacion","problema":"debe ser uno de: 'AFC', 'CAF', 'CONCACAF', 'CONMEBOL', 'OFC' or 'UEFA'"}]}}
+(tiempo_total_s=0.005953)
+
+### CU-03 · EQ-002 -> 24 jugadores (Q07)
+GET /api/v1/equipos/EQ-002/jugadores
+HTTP/1.1 200 OK
+date: Thu, 15 Oct 2026 04:47:45 GMT
+server: uvicorn
+content-length: 3530
+content-type: application/json
+x-request-id: e9ba66a6-a9e4-415b-bb56-8fb52be85f6a
+
+{"equipoId":"EQ-002","items":[{"jugadorId":"JUG-0025","nombre":"Nombre0025","apellido":"Apellido0025","posicion":"ARQUERO","numeroCamiseta":1,"estadoPlantel":"CONVOCADO"},{"jugadorId":"JUG-0026","nombre":"Nombre0026","apellido":"Apellido0026","posicion":"ARQUERO","numeroCamiseta":2,"estadoPlantel":"CONVOCADO"},{"jugadorId":"JUG-0027","nombre":"Nombre0027","apellido":"Apellido0027","posicion":"ARQUERO","numeroCamiseta":3,"estadoPlantel":"CONVOCADO"},{"jugadorId":"JUG-0028","nombre":"Nombre0028","apellido":"Apellido0028","posicion":"DEFENSOR","numeroCamiseta":4,"estadoPlantel":"CONVOCADO"},{"jugadorId":"JUG-0029","nombre":"Nombre0029","apellido":"Apellido0029","posicion":"DEFENSOR","numeroCamiseta":5,"estadoPlantel":"CONVOCADO"},{"jugadorId":"JUG-0030","nombre":"Nombre0030","apellido":"Apellido0030","posicion":"DEFENSOR","numeroCamiseta":6,"estadoPlantel":"CONVOCADO"},{"jugadorId":"JUG-0031","nombre":"Nombre0031","apellido":"Apellido0031","posicion":"DEFENSOR","numeroCamiseta":7,"estadoPlantel":"CONVOCADO"},{"jugadorId":"JUG-0032","nombre":"Nombre0032","apellido":"Apellido0032","posicion":"DEFENSOR","numeroCamiseta":8,"estadoPlantel":"CONVOCADO"},{"jugadorId":"JUG-0033","nombre":"Nombre0033","apellido":"Apellido0033","posicion":"DEFENSOR","numeroCamiseta":9,"estadoPlantel":"CONVOCADO"},{"jugadorId":"JUG-0034","nombre":"Nombre0034","apellido":"Apellido0034","posicion":"DEFENSOR","numeroCamiseta":10,"estadoPlantel":"CONVOCADO"},{"jugadorId":"JUG-0035","nombre":"Nombre0035","apellido":"Apellido0035","posicion":"DEFENSOR","numeroCamiseta":11,"estadoPlantel":"CONVOCADO"},{"jugadorId":"JUG-0036","nombre":"Nombre0036","apellido":"Apellido0036","posicion":"MEDIOCAMPISTA","numeroCamiseta":12,"estadoPlantel":"CONVOCADO"},{"jugadorId":"JUG-0037","nombre":"Nombre0037","apellido":"Apellido0037","posicion":"MEDIOCAMPISTA","numeroCamiseta":13,"estadoPlantel":"CONVOCADO"},{"jugadorId":"JUG-0038","nombre":"Nombre0038","apellido":"Apellido0038","posicion":"MEDIOCAMPISTA","numeroCamiseta":14,"estadoPlantel":"CONVOCADO"},{"jugadorId":"JUG-0039","nombre":"Nombre0039","apellido":"Apellido0039","posicion":"MEDIOCAMPISTA","numeroCamiseta":15,"estadoPlantel":"CONVOCADO"},{"jugadorId":"JUG-0040","nombre":"Nombre0040","apellido":"Apellido0040","posicion":"MEDIOCAMPISTA","numeroCamiseta":16,"estadoPlantel":"CONVOCADO"},{"jugadorId":"JUG-0041","nombre":"Nombre0041","apellido":"Apellido0041","posicion":"MEDIOCAMPISTA","numeroCamiseta":17,"estadoPlantel":"CONVOCADO"},{"jugadorId":"JUG-0042","nombre":"Nombre0042","apellido":"Apellido0042","posicion":"MEDIOCAMPISTA","numeroCamiseta":18,"estadoPlantel":"CONVOCADO"},{"jugadorId":"JUG-0043","nombre":"Nombre0043","apellido":"Apellido0043","posicion":"MEDIOCAMPISTA","numeroCamiseta":19,"estadoPlantel":"CONVOCADO"},{"jugadorId":"JUG-0044","nombre":"Nombre0044","apellido":"Apellido0044","posicion":"DELANTERO","numeroCamiseta":20,"estadoPlantel":"CONVOCADO"},{"jugadorId":"JUG-0045","nombre":"Nombre0045","apellido":"Apellido0045","posicion":"DELANTERO","numeroCamiseta":21,"estadoPlantel":"CONVOCADO"},{"jugadorId":"JUG-0046","nombre":"Nombre0046","apellido":"Apellido0046","posicion":"DELANTERO","numeroCamiseta":22,"estadoPlantel":"CONVOCADO"},{"jugadorId":"JUG-0047","nombre":"Nombre0047","apellido":"Apellido0047","posicion":"DELANTERO","numeroCamiseta":23,"estadoPlantel":"CONVOCADO"},{"jugadorId":"JUG-0048","nombre":"Nombre0048","apellido":"Apellido0048","posicion":"DELANTERO","numeroCamiseta":24,"estadoPlantel":"CONVOCADO"}],"pagina":1,"limite":24,"total":24}
+(tiempo_total_s=0.011960)
+
+### CU-03 · EQ-001 limite=5 pagina=2 -> JUG-0006..JUG-0010 (Q06)
+GET /api/v1/equipos/EQ-001/jugadores?limite=5&pagina=2
+HTTP/1.1 200 OK
+date: Thu, 15 Oct 2026 04:47:45 GMT
+server: uvicorn
+content-length: 775
+content-type: application/json
+x-request-id: 38b1c1d5-36c6-40c0-8fc8-7c1a776f0587
+
+{"equipoId":"EQ-001","items":[{"jugadorId":"JUG-0006","nombre":"Nombre0006","apellido":"Apellido0006","posicion":"DEFENSOR","numeroCamiseta":6,"estadoPlantel":"CONVOCADO"},{"jugadorId":"JUG-0007","nombre":"Nombre0007","apellido":"Apellido0007","posicion":"DEFENSOR","numeroCamiseta":7,"estadoPlantel":"CONVOCADO"},{"jugadorId":"JUG-0008","nombre":"Nombre0008","apellido":"Apellido0008","posicion":"DEFENSOR","numeroCamiseta":8,"estadoPlantel":"CONVOCADO"},{"jugadorId":"JUG-0009","nombre":"Nombre0009","apellido":"Apellido0009","posicion":"DEFENSOR","numeroCamiseta":9,"estadoPlantel":"CONVOCADO"},{"jugadorId":"JUG-0010","nombre":"Nombre0010","apellido":"Apellido0010","posicion":"DEFENSOR","numeroCamiseta":10,"estadoPlantel":"CONVOCADO"}],"pagina":2,"limite":5,"total":24}
+(tiempo_total_s=0.011916)
+
+### CU-03 · EQ-999 -> 404 (no plantel vacío)
+GET /api/v1/equipos/EQ-999/jugadores
+HTTP/1.1 404 Not Found
+date: Thu, 15 Oct 2026 04:47:45 GMT
+server: uvicorn
+x-request-id: 90e9caa3-8fc2-4818-bbb4-2ec560a2a615
+content-length: 221
+content-type: application/json
+
+{"error":{"codigo":"EQUIPO_NO_ENCONTRADO","mensaje":"No existe un equipo con el identificador indicado.","requestId":"90e9caa3-8fc2-4818-bbb4-2ec560a2a615","detalles":[{"campo":"equipoId","problema":"EQ-999 no existe"}]}}
+(tiempo_total_s=0.006677)
+
+### CU-04 · JUG-0313 -> 200
+GET /api/v1/jugadores/JUG-0313
+HTTP/1.1 200 OK
+date: Thu, 15 Oct 2026 04:47:45 GMT
+server: uvicorn
+content-length: 308
+content-type: application/json
+x-request-id: e587f018-932e-45c5-824e-d12901148a58
+
+{"jugadorId":"JUG-0313","equipoId":"EQ-014","nombre":"Nombre0313","apellido":"Apellido0313","fechaNacimiento":"2004-01-26","nacionalidadCodigo":"F14","posicion":"ARQUERO","numeroCamiseta":1,"pieHabil":"DERECHO","alturaCm":187,"partidosInternacionales":19,"golesInternacionales":1,"estadoPlantel":"CONVOCADO"}
+(tiempo_total_s=0.007906)
+
+### CU-04 · JUG-9999 -> 404 JUGADOR_NO_ENCONTRADO
+GET /api/v1/jugadores/JUG-9999
+HTTP/1.1 404 Not Found
+date: Thu, 15 Oct 2026 04:47:45 GMT
+server: uvicorn
+x-request-id: 74adf8ec-5786-470a-8a74-d4423dbcf2e3
+content-length: 226
+content-type: application/json
+
+{"error":{"codigo":"JUGADOR_NO_ENCONTRADO","mensaje":"No existe un jugador con el identificador indicado.","requestId":"74adf8ec-5786-470a-8a74-d4423dbcf2e3","detalles":[{"campo":"jugadorId","problema":"JUG-9999 no existe"}]}}
+(tiempo_total_s=0.006899)
+
+## MongoDB detenido (docker compose stop mongodb en Hito 4)
+
+### CU-01 con MongoDB detenido -> 503 en menos de ~3 s
+GET /api/v1/equipos/EQ-001
+HTTP/1.1 503 Service Unavailable
+date: Thu, 15 Oct 2026 04:48:16 GMT
+server: uvicorn
+x-request-id: 47e52bae-a7d2-4e8e-bf0b-4a9b485869e0
+content-length: 176
+content-type: application/json
+
+{"error":{"codigo":"DEPENDENCIA_NO_DISPONIBLE","mensaje":"Una fuente de datos necesaria no está disponible.","requestId":"47e52bae-a7d2-4e8e-bf0b-4a9b485869e0","detalles":[]}}
+(tiempo_total_s=2.056987)
+
+### CU-03 con MongoDB detenido -> 503, nunca 200 vacío
+GET /api/v1/equipos/EQ-002/jugadores
+HTTP/1.1 503 Service Unavailable
+date: Thu, 15 Oct 2026 04:48:18 GMT
+server: uvicorn
+x-request-id: 9645a627-7705-406a-a9a2-d3c872691098
+content-length: 176
+content-type: application/json
+
+{"error":{"codigo":"DEPENDENCIA_NO_DISPONIBLE","mensaje":"Una fuente de datos necesaria no está disponible.","requestId":"9645a627-7705-406a-a9a2-d3c872691098","detalles":[]}}
+(tiempo_total_s=2.076476)
+
+### Salud con MongoDB detenido -> 200 degradado
+GET /api/v1/salud
+HTTP/1.1 200 OK
+date: Thu, 15 Oct 2026 04:48:20 GMT
+server: uvicorn
+content-length: 196
+content-type: application/json
+x-request-id: 63b12107-7d25-4f13-afd0-1c248873af63
+
+{"estado":"degradado","dependencias":{"mongodb":"no_disponible","neo4j":"no_configurada","cassandra":"no_configurada","redis":"no_configurada","influxdb":"no_configurada","iris":"no_configurada"}}
+(tiempo_total_s=2.498915)
+
+### CU-01 después de volver a levantar MongoDB -> 200
+GET /api/v1/equipos/EQ-001
+HTTP/1.1 200 OK
+date: Thu, 15 Oct 2026 04:48:28 GMT
+server: uvicorn
+content-length: 287
+content-type: application/json
+x-request-id: 5b29f7a0-8d02-438e-81e3-f08e09fc479a
+
+{"equipoId":"EQ-001","codigo":"F01","nombre":"Seleccion Sintetica 01","confederacion":"AFC","region":"ASIA_PACIFICO","rankingReferencia":1,"sedeBase":{"ciudad":"Ciudad Sintetica 01","pais":"Pais Sintetico 01"},"participacionesMundiales":1,"titulosMundiales":0,"estado":"PRESELECCIONADO"}
+(tiempo_total_s=0.012334)
+
+### Ningún archivo de app/routes ni app/services importa pymongo
+Sin coincidencias de 'pymongo|bson' en app/routes ni app/services.
