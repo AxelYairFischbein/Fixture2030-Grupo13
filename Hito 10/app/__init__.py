@@ -1,0 +1,1 @@
+"""API REST integrada del Fixture 2030 (Hito 10, Grupo 13)."""

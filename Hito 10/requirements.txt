@@ -1,0 +1,7 @@
+# Fase 1: API base y pruebas. Los drivers de cada fuente se agregan en su fase.
+fastapi==0.143.1
+pydantic==2.14.1
+pydantic-settings==2.16.0
+uvicorn[standard]==0.54.0
+httpx==0.28.1
+pytest==9.1.1
