@@ -5,15 +5,16 @@ import pytest
 from app.config.settings import Settings, cargar_settings
 
 
-SIN_ADAPTADOR = ("neo4j", "cassandra", "redis", "influxdb", "iris")
+SIN_ADAPTADOR = ("neo4j", "cassandra", "influxdb", "iris")
 
 
-def test_salud_con_mongodb_disponible(client):
+def test_salud_con_mongodb_y_redis_disponibles(client):
     respuesta = client.get("/api/v1/salud")
     assert respuesta.status_code == 200
     assert respuesta.json() == {
         "estado": "ok",
-        "dependencias": {"mongodb": "disponible"} | {n: "no_configurada" for n in SIN_ADAPTADOR},
+        "dependencias": {"mongodb": "disponible", "redis": "disponible"}
+                        | {n: "no_configurada" for n in SIN_ADAPTADOR},
     }
 
 
@@ -23,6 +24,14 @@ def test_salud_con_mongodb_caido_es_degradado_pero_200(client, mongo_falso):
     assert respuesta.status_code == 200
     assert respuesta.json()["estado"] == "degradado"
     assert respuesta.json()["dependencias"]["mongodb"] == "no_disponible"
+
+
+def test_salud_con_redis_caido_es_degradado_pero_200(client, redis_falso):
+    redis_falso.falla = RuntimeError("caído")
+    respuesta = client.get("/api/v1/salud")
+    assert respuesta.status_code == 200
+    assert respuesta.json()["estado"] == "degradado"
+    assert respuesta.json()["dependencias"]["redis"] == "no_disponible"
 
 
 def test_falta_una_contrasena_nombra_la_variable(monkeypatch):

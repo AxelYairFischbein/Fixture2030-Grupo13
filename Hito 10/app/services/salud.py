@@ -10,7 +10,7 @@ from typing import Annotated
 
 from fastapi import Depends
 
-from app.dependencias import obtener_adaptador_mongo
+from app.dependencias import obtener_adaptador_mongo, obtener_adaptador_redis
 from app.schemas.salud import Dependencias, EstadoDependencia, RespuestaSalud
 
 DEPENDENCIAS = ("mongodb", "neo4j", "cassandra", "redis", "influxdb", "iris")
@@ -39,5 +39,6 @@ class ServicioSalud:
 
 def obtener_servicio_salud(
     adaptador_mongo: Annotated[object, Depends(obtener_adaptador_mongo)],
+    adaptador_redis: Annotated[object, Depends(obtener_adaptador_redis)],
 ) -> ServicioSalud:
-    return ServicioSalud({"mongodb": adaptador_mongo.ping})
+    return ServicioSalud({"mongodb": adaptador_mongo.ping, "redis": adaptador_redis.ping})

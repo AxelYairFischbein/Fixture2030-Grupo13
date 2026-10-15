@@ -10,3 +10,7 @@ from fastapi import Request
 
 def obtener_adaptador_mongo(request: Request):
     return request.app.state.adaptador_mongo
+
+
+def obtener_adaptador_redis(request: Request):
+    return request.app.state.adaptador_redis

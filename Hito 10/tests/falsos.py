@@ -90,3 +90,73 @@ class MongoFalso:
 
     def cerrar(self) -> None:
         pass
+
+
+class RedisFalso:
+    """Imita el contrato de AdaptadorRedis (sesiones y ficha cacheada) en memoria.
+
+    `sesiones` guarda los campos del Hash del Hito 7 más "ttl" (segundos; -1 = sin
+    vencimiento). `falla` hace fallar cualquier operación (Redis caído) y
+    `falla_guardar` solo el SET de la ficha. `llamadas` registra cada operación.
+    """
+
+    def __init__(self) -> None:
+        self.sesiones: dict[str, dict] = {}
+        self.fichas: dict[str, dict] = {}
+        self.falla: Exception | None = None
+        self.falla_guardar: Exception | None = None
+        self.llamadas: list[str] = []
+
+    def crear_sesion(self, sesion_id: str, usuario_id: str = "USR-00001", rol: str = "lector",
+                     ttl: int = 1800, estado: str = "activa") -> None:
+        self.sesiones[sesion_id] = {
+            "sesion_id": sesion_id, "usuario_id": usuario_id, "ultima_actividad": "1900000000",
+            "estado": estado, "rol": rol, "ttl": ttl,
+        }
+
+    def _registrar(self, operacion: str) -> None:
+        self.llamadas.append(operacion)
+        if self.falla is not None:
+            raise self.falla
+
+    def leer_sesion(self, sesion_id):
+        self._registrar("leer_sesion")
+        sesion = self.sesiones.get(sesion_id)
+        return dict(sesion) if sesion else None
+
+    def renovar_sesion(self, sesion_id, rol_requerido=None):
+        self._registrar("renovar_sesion")
+        sesion = self.sesiones.get(sesion_id)
+        if sesion is None or sesion["ttl"] <= 0 or sesion["estado"] != "activa":
+            return {"resultado": "no_vigente"}
+        if rol_requerido and sesion["rol"] != rol_requerido:
+            return {"resultado": "rol_no_autorizado"}
+        sesion["ttl"] = 1800
+        sesion["ultima_actividad"] = str(int(sesion["ultima_actividad"]) + 1)
+        return {"resultado": "ok", "usuario_id": sesion["usuario_id"], "rol": sesion["rol"],
+                "ttl": sesion["ttl"]}
+
+    def cerrar_sesion(self, sesion_id):
+        self._registrar("cerrar_sesion")
+        self.sesiones.pop(sesion_id, None)
+
+    def leer_ficha_cacheada(self, equipo_id):
+        self._registrar("leer_ficha_cacheada")
+        ficha = self.fichas.get(equipo_id)
+        return dict(ficha) if ficha else None
+
+    def guardar_ficha_cacheada(self, equipo_id, ficha):
+        self._registrar("guardar_ficha_cacheada")
+        if self.falla_guardar is not None:
+            raise self.falla_guardar
+        self.fichas[equipo_id] = dict(ficha)
+
+    def invalidar_ficha_cacheada(self, equipo_id):
+        self._registrar("invalidar_ficha_cacheada")
+        self.fichas.pop(equipo_id, None)
+
+    def ping(self) -> bool:
+        return self.falla is None
+
+    def cerrar(self) -> None:
+        pass

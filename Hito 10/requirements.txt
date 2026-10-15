@@ -7,3 +7,5 @@ httpx==0.28.1
 pytest==9.1.1
 # Fase 2: MongoDB (Hito 4)
 pymongo==4.19.0
+# Fase 3: Redis (Hito 7)
+redis==8.1.0

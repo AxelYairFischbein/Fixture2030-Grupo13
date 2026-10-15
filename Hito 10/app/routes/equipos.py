@@ -1,8 +1,8 @@
-"""Rutas de equipos: CU-01, CU-02 y CU-03 (fuente MongoDB, Hito 4)."""
+"""Rutas de equipos: CU-01 (Redis + MongoDB), CU-02 y CU-03 (MongoDB, Hito 4)."""
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Path, Query
+from fastapi import APIRouter, Depends, Path, Query, Response
 
 from app.schemas.equipos import PATRON_EQUIPO, Confederacion, FichaEquipo, PaginaEquipos
 from app.schemas.errores import respuestas_error
@@ -14,6 +14,14 @@ router = APIRouter(prefix="/api/v1/equipos", tags=["equipos"])
 Servicio = Annotated[ServicioEquipos, Depends(obtener_servicio_equipos)]
 EquipoId = Annotated[str, Path(pattern=PATRON_EQUIPO, examples=["EQ-001"])]
 Pagina = Annotated[int, Query(ge=1, description="Número de página, desde 1.")]
+
+ENCABEZADO_CACHE = {
+    "X-Cache": {
+        "description": "HIT: copia de Redis. MISS: leída de MongoDB y guardada por 300 s. "
+                       "BYPASS: Redis no disponible, leída de MongoDB sin caché.",
+        "schema": {"type": "string", "enum": ["HIT", "MISS", "BYPASS"]},
+    }
+}
 
 
 @router.get(
@@ -37,10 +45,14 @@ def listar_equipos(
     "/{equipoId}",
     response_model=FichaEquipo,
     summary="CU-01 · Ver ficha de un equipo",
-    responses=respuestas_error(400, 404, 503, 504),
+    description="Cache-aside: Redis (copia por 300 s) delante de MongoDB. Con Redis caído "
+                "responde igual desde MongoDB con X-Cache: BYPASS.",
+    responses={200: {"headers": ENCABEZADO_CACHE}} | respuestas_error(400, 404, 503, 504),
 )
-def ver_equipo(equipoId: EquipoId, servicio: Servicio) -> FichaEquipo:
-    return servicio.ficha(equipoId)
+def ver_equipo(equipoId: EquipoId, servicio: Servicio, response: Response) -> FichaEquipo:
+    ficha, estado_cache = servicio.ficha(equipoId)
+    response.headers["X-Cache"] = estado_cache
+    return ficha
 
 
 @router.get(

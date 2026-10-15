@@ -1,0 +1,295 @@
+﻿# Redis (Fase 3) · Lista de control (plan_de_implementacion.md)
+# Generado: 2026-10-15T18:43:04Z · API en http://127.0.0.1:8011 · respuestas crudas de curl.exe -i
+# Sesiones creadas con scripts/crear_sesiones_prueba.ps1; los IDs se muestran enmascarados.
+
+(Se eliminó la copia fixture2030:h7:demo:cache:equipo:EQ-001 para empezar sin caché.)
+
+### Salud con Redis arriba
+GET /api/v1/salud
+HTTP/1.1 200 OK
+date: Thu, 15 Oct 2026 18:43:18 GMT
+server: uvicorn
+content-length: 182
+content-type: application/json
+x-request-id: f1ad69be-9055-4cc4-aa22-3e7e1114e1c1
+
+{"estado":"ok","dependencias":{"mongodb":"disponible","neo4j":"no_configurada","cassandra":"no_configurada","redis":"disponible","influxdb":"no_configurada","iris":"no_configurada"}}
+(tiempo_total_s=0.022324)
+
+### CU-01 · primera lectura de EQ-001 -> 200 X-Cache: MISS
+GET /api/v1/equipos/EQ-001
+HTTP/1.1 200 OK
+date: Thu, 15 Oct 2026 18:43:18 GMT
+server: uvicorn
+content-length: 287
+content-type: application/json
+x-cache: MISS
+x-request-id: 444f3678-8e82-4786-bb5e-372061b979e0
+
+{"equipoId":"EQ-001","codigo":"F01","nombre":"Seleccion Sintetica 01","confederacion":"AFC","region":"ASIA_PACIFICO","rankingReferencia":1,"sedeBase":{"ciudad":"Ciudad Sintetica 01","pais":"Pais Sintetico 01"},"participacionesMundiales":1,"titulosMundiales":0,"estado":"PRESELECCIONADO"}
+(tiempo_total_s=0.045725)
+
+### CU-01 · segunda lectura de EQ-001 -> 200 X-Cache: HIT
+GET /api/v1/equipos/EQ-001
+HTTP/1.1 200 OK
+date: Thu, 15 Oct 2026 18:43:19 GMT
+server: uvicorn
+content-length: 287
+content-type: application/json
+x-cache: HIT
+x-request-id: de2bf43a-fcff-4178-9d23-45931d794ac9
+
+{"equipoId":"EQ-001","codigo":"F01","nombre":"Seleccion Sintetica 01","confederacion":"AFC","region":"ASIA_PACIFICO","rankingReferencia":1,"sedeBase":{"ciudad":"Ciudad Sintetica 01","pais":"Pais Sintetico 01"},"participacionesMundiales":1,"titulosMundiales":0,"estado":"PRESELECCIONADO"}
+(tiempo_total_s=0.022116)
+
+### CU-11 · sin X-Session-Id -> 401 SESION_REQUERIDA
+GET /api/v1/sesiones/actual
+HTTP/1.1 401 Unauthorized
+date: Thu, 15 Oct 2026 18:43:19 GMT
+server: uvicorn
+x-request-id: 2beea6d2-00e8-4a77-a93b-330400c4b760
+content-length: 167
+content-type: application/json
+
+{"error":{"codigo":"SESION_REQUERIDA","mensaje":"La operación requiere el encabezado X-Session-Id.","requestId":"2beea6d2-00e8-4a77-a93b-330400c4b760","detalles":[]}}
+(tiempo_total_s=0.016337)
+
+### CU-11 · formato inválido -> 400 VALIDACION (sin consultar Redis)
+GET /api/v1/sesiones/actual  [X-Session-Id: corta]
+HTTP/1.1 400 Bad Request
+date: Thu, 15 Oct 2026 18:43:19 GMT
+server: uvicorn
+x-request-id: 2bbe5308-28eb-4fdc-b779-280297aa62d9
+content-length: 226
+content-type: application/json
+
+{"error":{"codigo":"VALIDACION","mensaje":"La solicitud tiene datos inválidos.","requestId":"2bbe5308-28eb-4fdc-b779-280297aa62d9","detalles":[{"campo":"X-Session-Id","problema":"no cumple el formato ^[A-Za-z0-9-]{8,64}$"}]}}
+(tiempo_total_s=0.005840)
+
+### CU-11 · sesión inexistente -> 401 SESION_NO_VIGENTE
+GET /api/v1/sesiones/actual  [X-Session-Id: SES-PRUEBA-inexistente]
+HTTP/1.1 401 Unauthorized
+date: Thu, 15 Oct 2026 18:43:19 GMT
+server: uvicorn
+x-request-id: 21c239b4-6d46-40c9-96a0-926b1ec277ea
+content-length: 166
+content-type: application/json
+
+{"error":{"codigo":"SESION_NO_VIGENTE","mensaje":"La sesión no existe, venció o no está activa.","requestId":"21c239b4-6d46-40c9-96a0-926b1ec277ea","detalles":[]}}
+(tiempo_total_s=0.031279)
+
+### CU-11 · sesión lector -> 200 sin ID ni ultima_actividad
+GET /api/v1/sesiones/actual  [X-Session-Id: SES-PRUEBA-88ab…]
+HTTP/1.1 200 OK
+date: Thu, 15 Oct 2026 18:43:19 GMT
+server: uvicorn
+content-length: 82
+content-type: application/json
+x-request-id: 3a6f6b17-c0ae-47cd-b516-87e3c67122cc
+
+{"usuarioId":"USR-00001","rol":"lector","estado":"activa","expiraEnSegundos":1797}
+(tiempo_total_s=0.033930)
+
+### CU-12 · actividad del lector -> 200 expiraEnSegundos 1800
+POST /api/v1/sesiones/actual/actividad  [X-Session-Id: SES-PRUEBA-88ab…]
+HTTP/1.1 200 OK
+date: Thu, 15 Oct 2026 18:43:19 GMT
+server: uvicorn
+content-length: 25
+content-type: application/json
+x-request-id: fd871561-27e4-4f2e-9500-e8e18e76f6bc
+
+{"expiraEnSegundos":1800}
+(tiempo_total_s=0.028534)
+
+### CU-14 · lector -> 403 ROL_NO_AUTORIZADO
+DELETE /api/v1/cache/equipos/EQ-001  [X-Session-Id: SES-PRUEBA-88ab…]
+HTTP/1.1 403 Forbidden
+date: Thu, 15 Oct 2026 18:43:19 GMT
+server: uvicorn
+x-request-id: 276b9e28-7a4d-4ddc-a76f-d407caebbb2e
+content-length: 235
+content-type: application/json
+
+{"error":{"codigo":"ROL_NO_AUTORIZADO","mensaje":"La sesión no tiene el rol necesario para esta operación.","requestId":"276b9e28-7a4d-4ddc-a76f-d407caebbb2e","detalles":[{"campo":"X-Session-Id","problema":"requiere rol operador"}]}}
+(tiempo_total_s=0.015096)
+
+### CU-14 · operador con EQ-1 -> 400 VALIDACION
+DELETE /api/v1/cache/equipos/EQ-1  [X-Session-Id: SES-PRUEBA-cb4b…]
+HTTP/1.1 400 Bad Request
+date: Thu, 15 Oct 2026 18:43:19 GMT
+server: uvicorn
+x-request-id: 002ad36b-6dc1-45ee-9c7b-dac518763832
+content-length: 213
+content-type: application/json
+
+{"error":{"codigo":"VALIDACION","mensaje":"La solicitud tiene datos inválidos.","requestId":"002ad36b-6dc1-45ee-9c7b-dac518763832","detalles":[{"campo":"equipoId","problema":"no cumple el formato ^EQ-\\d{3}$"}]}}
+(tiempo_total_s=0.005335)
+
+### CU-14 · operador -> 204
+DELETE /api/v1/cache/equipos/EQ-001  [X-Session-Id: SES-PRUEBA-cb4b…]
+HTTP/1.1 204 No Content
+date: Thu, 15 Oct 2026 18:43:19 GMT
+server: uvicorn
+x-request-id: e1f9b21d-a893-456f-a5a2-c815a901146b
+
+
+(tiempo_total_s=0.035270)
+
+### CU-14 · repetido -> 204 (no había copia)
+DELETE /api/v1/cache/equipos/EQ-001  [X-Session-Id: SES-PRUEBA-cb4b…]
+HTTP/1.1 204 No Content
+date: Thu, 15 Oct 2026 18:43:19 GMT
+server: uvicorn
+x-request-id: 9272d1b4-d99d-42cf-aa9d-eb9a4b3ea5fe
+
+
+(tiempo_total_s=0.049122)
+
+### CU-01 · después de invalidar -> 200 X-Cache: MISS
+GET /api/v1/equipos/EQ-001
+HTTP/1.1 200 OK
+date: Thu, 15 Oct 2026 18:43:19 GMT
+server: uvicorn
+content-length: 287
+content-type: application/json
+x-cache: MISS
+x-request-id: a19ed6ba-2ce1-487d-8f48-fb75d42480d1
+
+{"equipoId":"EQ-001","codigo":"F01","nombre":"Seleccion Sintetica 01","confederacion":"AFC","region":"ASIA_PACIFICO","rankingReferencia":1,"sedeBase":{"ciudad":"Ciudad Sintetica 01","pais":"Pais Sintetico 01"},"participacionesMundiales":1,"titulosMundiales":0,"estado":"PRESELECCIONADO"}
+(tiempo_total_s=0.028900)
+
+### CU-13 · cerrar la sesión del moderador -> 204
+DELETE /api/v1/sesiones/actual  [X-Session-Id: SES-PRUEBA-0714…]
+HTTP/1.1 204 No Content
+date: Thu, 15 Oct 2026 18:43:19 GMT
+server: uvicorn
+x-request-id: e550f1b0-2314-469c-b58e-3d40f4548486
+
+
+(tiempo_total_s=0.006097)
+
+### CU-13 · cierre repetido -> 204
+DELETE /api/v1/sesiones/actual  [X-Session-Id: SES-PRUEBA-0714…]
+HTTP/1.1 204 No Content
+date: Thu, 15 Oct 2026 18:43:19 GMT
+server: uvicorn
+x-request-id: a0273dd2-5c0d-4ab1-ad25-fcf3f18e4dd5
+
+
+(tiempo_total_s=0.009403)
+
+### CU-11 · sesión cerrada -> 401 SESION_NO_VIGENTE
+GET /api/v1/sesiones/actual  [X-Session-Id: SES-PRUEBA-0714…]
+HTTP/1.1 401 Unauthorized
+date: Thu, 15 Oct 2026 18:43:19 GMT
+server: uvicorn
+x-request-id: c560fef3-2a58-47c0-ba4a-aec86aeeaf64
+content-length: 166
+content-type: application/json
+
+{"error":{"codigo":"SESION_NO_VIGENTE","mensaje":"La sesión no existe, venció o no está activa.","requestId":"c560fef3-2a58-47c0-ba4a-aec86aeeaf64","detalles":[]}}
+(tiempo_total_s=0.025018)
+
+### CU-12 · actividad de la sesión cerrada -> 401 (no se recrea)
+POST /api/v1/sesiones/actual/actividad  [X-Session-Id: SES-PRUEBA-0714…]
+HTTP/1.1 401 Unauthorized
+date: Thu, 15 Oct 2026 18:43:19 GMT
+server: uvicorn
+x-request-id: 8ddface0-4100-4b16-9874-7ccc32baaf16
+content-length: 166
+content-type: application/json
+
+{"error":{"codigo":"SESION_NO_VIGENTE","mensaje":"La sesión no existe, venció o no está activa.","requestId":"8ddface0-4100-4b16-9874-7ccc32baaf16","detalles":[]}}
+(tiempo_total_s=0.006162)
+
+## Redis detenido (docker compose stop redis en Hito 7)
+
+### CU-01 con Redis detenido -> 200 X-Cache: BYPASS (desde MongoDB)
+GET /api/v1/equipos/EQ-001
+HTTP/1.1 200 OK
+date: Thu, 15 Oct 2026 18:43:20 GMT
+server: uvicorn
+content-length: 287
+content-type: application/json
+x-cache: BYPASS
+x-request-id: 3a9bcedb-9dae-4335-af06-b38d6c40f45d
+
+{"equipoId":"EQ-001","codigo":"F01","nombre":"Seleccion Sintetica 01","confederacion":"AFC","region":"ASIA_PACIFICO","rankingReferencia":1,"sedeBase":{"ciudad":"Ciudad Sintetica 01","pais":"Pais Sintetico 01"},"participacionesMundiales":1,"titulosMundiales":0,"estado":"PRESELECCIONADO"}
+(tiempo_total_s=0.545832)
+
+### CU-11 con Redis detenido -> 503, no 401
+GET /api/v1/sesiones/actual  [X-Session-Id: SES-PRUEBA-88ab…]
+HTTP/1.1 503 Service Unavailable
+date: Thu, 15 Oct 2026 18:43:21 GMT
+server: uvicorn
+x-request-id: 12819697-d537-44cf-9660-498b40f17d09
+content-length: 176
+content-type: application/json
+
+{"error":{"codigo":"DEPENDENCIA_NO_DISPONIBLE","mensaje":"Una fuente de datos necesaria no está disponible.","requestId":"12819697-d537-44cf-9660-498b40f17d09","detalles":[]}}
+(tiempo_total_s=0.553849)
+
+### CU-13 con Redis detenido -> 503, no 204
+DELETE /api/v1/sesiones/actual  [X-Session-Id: SES-PRUEBA-88ab…]
+HTTP/1.1 503 Service Unavailable
+date: Thu, 15 Oct 2026 18:43:21 GMT
+server: uvicorn
+x-request-id: e94ed683-eae9-4d6a-9296-241ebd37c891
+content-length: 176
+content-type: application/json
+
+{"error":{"codigo":"DEPENDENCIA_NO_DISPONIBLE","mensaje":"Una fuente de datos necesaria no está disponible.","requestId":"e94ed683-eae9-4d6a-9296-241ebd37c891","detalles":[]}}
+(tiempo_total_s=0.547556)
+
+### CU-14 con Redis detenido -> 503
+DELETE /api/v1/cache/equipos/EQ-001  [X-Session-Id: SES-PRUEBA-cb4b…]
+HTTP/1.1 503 Service Unavailable
+date: Thu, 15 Oct 2026 18:43:22 GMT
+server: uvicorn
+x-request-id: 71210764-a4a3-4081-b383-fe2409eac8b0
+content-length: 176
+content-type: application/json
+
+{"error":{"codigo":"DEPENDENCIA_NO_DISPONIBLE","mensaje":"Una fuente de datos necesaria no está disponible.","requestId":"71210764-a4a3-4081-b383-fe2409eac8b0","detalles":[]}}
+(tiempo_total_s=0.548643)
+
+### Salud con Redis detenido -> 200 degradado
+GET /api/v1/salud
+HTTP/1.1 200 OK
+date: Thu, 15 Oct 2026 18:43:22 GMT
+server: uvicorn
+content-length: 192
+content-type: application/json
+x-request-id: dc17a7bf-ba00-4a65-8d18-5369667822a7
+
+{"estado":"degradado","dependencias":{"mongodb":"disponible","neo4j":"no_configurada","cassandra":"no_configurada","redis":"no_disponible","influxdb":"no_configurada","iris":"no_configurada"}}
+(tiempo_total_s=0.593906)
+
+### CU-11 después de volver a levantar Redis -> 200 (AOF conserva la sesión)
+GET /api/v1/sesiones/actual  [X-Session-Id: SES-PRUEBA-88ab…]
+HTTP/1.1 200 OK
+date: Thu, 15 Oct 2026 18:43:30 GMT
+server: uvicorn
+content-length: 82
+content-type: application/json
+x-request-id: cefa5fc6-f93f-4e81-8204-16e2f194e76e
+
+{"usuarioId":"USR-00001","rol":"lector","estado":"activa","expiraEnSegundos":1789}
+(tiempo_total_s=0.116535)
+
+### CU-01 después de volver a levantar Redis -> 200 MISS o HIT
+GET /api/v1/equipos/EQ-001
+HTTP/1.1 200 OK
+date: Thu, 15 Oct 2026 18:43:30 GMT
+server: uvicorn
+content-length: 287
+content-type: application/json
+x-cache: HIT
+x-request-id: cb995d4d-7fdc-4219-8ead-27a2029d9efb
+
+{"equipoId":"EQ-001","codigo":"F01","nombre":"Seleccion Sintetica 01","confederacion":"AFC","region":"ASIA_PACIFICO","rankingReferencia":1,"sedeBase":{"ciudad":"Ciudad Sintetica 01","pais":"Pais Sintetico 01"},"participacionesMundiales":1,"titulosMundiales":0,"estado":"PRESELECCIONADO"}
+(tiempo_total_s=0.036284)
+
+### Ningún archivo de app/routes ni app/services importa redis
+Sin coincidencias de 'import redis' / 'from redis' en app/routes ni app/services.

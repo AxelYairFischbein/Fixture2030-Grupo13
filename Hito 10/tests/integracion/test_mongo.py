@@ -1,29 +1,15 @@
 """Integración con el contenedor MongoDB del Hito 4 (fixture2030-mongodb).
 
-Settings se arma desde Hito 10/.env de forma explícita: el conftest reemplaza
-las variables de entorno por valores ficticios para las pruebas unitarias.
+settings_reales (tests/integracion/conftest.py) lee Hito 10/.env.
 """
 
 import pytest
-from dotenv import dotenv_values
 from fastapi.testclient import TestClient
 from pymongo import ASCENDING, MongoClient
 
-from app.config.settings import RAIZ_HITO10, Settings
 from app.main import create_app
 
 pytestmark = pytest.mark.integration
-
-
-@pytest.fixture(scope="module")
-def settings_reales() -> Settings:
-    archivo = RAIZ_HITO10 / ".env"
-    if not archivo.exists():
-        pytest.skip("Falta Hito 10/.env con las credenciales locales de MongoDB")
-    valores = {k.lower(): v for k, v in dotenv_values(archivo).items() if v}
-    if "completar_localmente" in (valores.get("mongo_user"), valores.get("mongo_password")):
-        pytest.skip("MONGO_USER / MONGO_PASSWORD de Hito 10/.env tienen el valor de relleno")
-    return Settings(_env_file=None, **valores)
 
 
 @pytest.fixture(scope="module")

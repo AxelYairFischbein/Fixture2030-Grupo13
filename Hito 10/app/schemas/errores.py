@@ -21,6 +21,8 @@ class RespuestaError(BaseModel):
 
 DESCRIPCIONES_ERROR = {
     400: "VALIDACION: parámetro ausente, con formato inválido o fuera de rango.",
+    401: "SESION_REQUERIDA (falta X-Session-Id) o SESION_NO_VIGENTE (ausente, vencida o inactiva).",
+    403: "ROL_NO_AUTORIZADO: la sesión vigente no tiene el rol necesario.",
     404: "El recurso principal no existe.",
     503: "DEPENDENCIA_NO_DISPONIBLE: la fuente de datos no está disponible.",
     504: "DEPENDENCIA_TIMEOUT: la fuente de datos no respondió a tiempo.",
