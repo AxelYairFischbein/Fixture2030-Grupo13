@@ -186,7 +186,7 @@ Cada ficha responde las nueve preguntas del punto 5.1 en el mismo orden. Los có
 | Qué recibe o envía | Recibe `partidoId`. Envía los eventos con los jugadores involucrados. |
 | Fuentes | **Neo4j**, recorrido `(:Partido)<-[:OCURRE_EN]-(:EventoDeportivo)-[i:INVOLUCRA]->(:Jugador)-[:PERTENECE_A]->(:Equipo)` (Hito 5 Q07). |
 | Datos de entrada | Path `partidoId` `^PAR-\d{3}$`. Query `limite` 1–200, por defecto 50 (límite sobre eventos, no sobre filas). |
-| Respuesta esperada | `200` con `partidoId`, `items[]` (`eventoId`, `tipo`, `minuto`, `participantes[]` con `jugadorId`, `nombre`, `apellido`, `equipoId`, `rol` SALE/ENTRA). Orden `minuto ASC, eventoId ASC`. Nodos y relaciones se transforman a JSON plano; no se envían IDs internos de Neo4j. |
+| Respuesta esperada | `200` con `partidoId`, `items[]` (`eventoId`, `tipo`, `minuto`, `participantes[]` con `jugadorId`, `nombre`, `apellido`, `equipoId`, `rol` SALE/ENTRA). Orden `minuto ASC, eventoId ASC`; dentro de cada evento, participantes en orden `SALE`, `ENTRA`. Nodos y relaciones se transforman a JSON plano; no se envían IDs internos de Neo4j. |
 | Si el dato no existe | Partido inexistente → `404 PARTIDO_NO_ENCONTRADO`. Partido válido sin eventos → `200` con `items: []` (exigido por 5.6). |
 | Si la dependencia no está | `503` / `504`. |
 | Tipo de operación | Lectura. |
@@ -199,7 +199,7 @@ Cada ficha responde las nueve preguntas del punto 5.1 en el mismo orden. Los có
 | Quién consume | APP, en el calendario del día o de la semana. |
 | Qué recibe o envía | Recibe un intervalo. Envía los partidos con estadio. |
 | Fuentes | **Neo4j**, `(:Partido)-[:SE_JUEGA_EN]->(:Estadio)` filtrado por `Partido.inicio` con el índice `idx_partido_inicio` (Hito 5 Q09). |
-| Datos de entrada | Query `desde` y `hasta` **obligatorias**, ISO-8601 UTC, `desde < hasta`, intervalo ≤ 7 días. `estadioId` opcional `^EST-\d{2}$`. `limite` 1–64, por defecto 64. |
+| Datos de entrada | Query `desde` y `hasta` **obligatorias**, ISO-8601 con zona horaria, `desde < hasta`, intervalo ≤ 7 días (rango semiabierto `[desde, hasta)`). Una fecha sin zona → `400`; una con offset se acepta y se normaliza a UTC (misma regla para todas las fechas de la API, §6.5). `estadioId` opcional `^EST-\d{2}$`. `limite` 1–64, por defecto 64. |
 | Respuesta esperada | `200` con `items[]` (`partidoId`, `inicio`, `grupo`, `fase`, `estadio{estadioId,nombre,ciudad}`). Orden `inicio, partidoId`. Sin `estado` (sección 3.1). |
 | Si el dato no existe | Intervalo sin partidos → `200` con `items: []`. Estadio inexistente con formato válido → `200` vacío (es un filtro, no el recurso principal). |
 | Si la dependencia no está | `503` / `504`. |
@@ -444,6 +444,10 @@ Son valores iniciales para el entorno local con un nodo por motor. Se documentan
 | Creación | CU-09 | Idempotente por `Idempotency-Key`; sin clave → `400`. |
 | Actualización | CU-12, CU-19, CU-20 | CU-12 reestablece el TTL; CU-19 y CU-20 fijan un estado absoluto y devuelven `cambio: false` si ya era el pedido. |
 | Invalidación | CU-13, CU-14 | `204` aunque la clave ya no exista. |
+
+### 6.5 Fechas
+
+Toda fecha de entrada es ISO-8601 con zona horaria explícita (`Z` o un offset como `-03:00`). Una fecha sin zona es ambigua y se rechaza con `400 VALIDACION` antes de consultar. Las fechas con offset se normalizan a UTC. Toda fecha de salida se informa en UTC con sufijo `Z`.
 
 ## 7. Decisiones tomadas y alcance
 

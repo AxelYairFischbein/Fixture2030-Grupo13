@@ -14,3 +14,12 @@ def obtener_adaptador_mongo(request: Request):
 
 def obtener_adaptador_redis(request: Request):
     return request.app.state.adaptador_redis
+
+
+def obtener_adaptador_neo4j(request: Request):
+    return request.app.state.adaptador_neo4j
+
+
+def obtener_catalogo_partidos(request: Request):
+    """Catálogo de partidos en memoria (casos_de_uso.md §3.2), para las fases 5 y 6."""
+    return request.app.state.catalogo_partidos

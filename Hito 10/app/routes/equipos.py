@@ -1,4 +1,5 @@
-"""Rutas de equipos: CU-01 (Redis + MongoDB), CU-02 y CU-03 (MongoDB, Hito 4)."""
+"""Rutas de equipos: CU-01 (Redis + MongoDB), CU-02 y CU-03 (MongoDB, Hito 4) y
+CU-05 (Neo4j, Hito 5)."""
 
 from typing import Annotated
 
@@ -7,7 +8,9 @@ from fastapi import APIRouter, Depends, Path, Query, Response
 from app.schemas.equipos import PATRON_EQUIPO, Confederacion, FichaEquipo, PaginaEquipos
 from app.schemas.errores import respuestas_error
 from app.schemas.jugadores import PlantelEquipo, Posicion
+from app.schemas.partidos import AgendaEquipo
 from app.services.equipos import ServicioEquipos, obtener_servicio_equipos
+from app.services.partidos import ServicioPartidos, obtener_servicio_partidos
 
 router = APIRouter(prefix="/api/v1/equipos", tags=["equipos"])
 
@@ -71,3 +74,19 @@ def ver_plantel(
     pagina: Pagina = 1,
 ) -> PlantelEquipo:
     return servicio.plantel(equipoId, posicion.value if posicion else None, pagina, limite)
+
+
+@router.get(
+    "/{equipoId}/partidos",
+    response_model=AgendaEquipo,
+    summary="CU-05 · Ver agenda y rivales de un equipo",
+    description="Neo4j. Orden inicio, partidoId. Equipo inexistente → 404; equipo sin "
+                "partidos → items vacío. No incluye el estado del partido (fuente: IRIS, CU-18).",
+    responses=respuestas_error(400, 404, 503, 504),
+)
+def ver_agenda(
+    equipoId: EquipoId,
+    servicio: Annotated[ServicioPartidos, Depends(obtener_servicio_partidos)],
+    limite: Annotated[int, Query(ge=1, le=50)] = 20,
+) -> AgendaEquipo:
+    return servicio.agenda(equipoId, limite)

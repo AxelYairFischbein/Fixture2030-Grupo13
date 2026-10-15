@@ -41,6 +41,9 @@ class Settings(BaseSettings):
     neo4j_password: SecretStr
     neo4j_connection_timeout_s: float = 2.0
     neo4j_tx_timeout_s: float = 3.0
+    # Catálogo de partidos en memoria (casos_de_uso.md §3.2)
+    catalogo_refresco_s: float = 600.0
+    catalogo_reintento_s: float = 30.0
 
     # Cassandra (Hito 6): el contenedor no usa autenticación
     cassandra_hosts: str = "127.0.0.1"

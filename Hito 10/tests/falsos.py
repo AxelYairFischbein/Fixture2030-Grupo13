@@ -160,3 +160,97 @@ class RedisFalso:
 
     def cerrar(self) -> None:
         pass
+
+
+def _participante(numero: int, equipo_id: str, rol: str) -> dict:
+    return {"jugadorId": f"JUG-{numero:04d}", "nombre": f"Nombre{numero:04d}",
+            "apellido": f"Apellido{numero:04d}", "equipoId": equipo_id, "rol": rol}
+
+
+class Neo4jFalso:
+    """Imita el contrato de AdaptadorNeo4j con una porción de la muestra del Hito 5.
+
+    EQ-001 disputa PAR-001 (vs EQ-002) y PAR-033 (vs EQ-003), LOCAL en EST-01.
+    PAR-002 (EQ-003 vs EQ-004, EST-02) no tiene eventos. EQ-005 existe sin partidos.
+    `falla` hace fallar cualquier consulta y `llamadas` registra cada una.
+    """
+
+    EQUIPOS = {f"EQ-{n:03d}": f"F{n:02d}" for n in range(1, 6)}
+    ESTADIOS = {f"EST-{n:02d}": {"estadioId": f"EST-{n:02d}", "nombre": f"Estadio Sintetico {n:02d}",
+                                 "ciudad": f"Ciudad Sede {n:02d}"} for n in range(1, 9)}
+
+    def __init__(self) -> None:
+        dia = datetime(2030, 6, 10, 18, tzinfo=timezone.utc)
+        self.partidos = [
+            {"partidoId": "PAR-001", "inicio": dia, "grupo": "G01", "fase": "GRUPOS_MUESTRA",
+             "local": "EQ-001", "visitante": "EQ-002", "estadioId": "EST-01"},
+            {"partidoId": "PAR-002", "inicio": dia, "grupo": "G01", "fase": "GRUPOS_MUESTRA",
+             "local": "EQ-003", "visitante": "EQ-004", "estadioId": "EST-02"},
+            {"partidoId": "PAR-033", "inicio": dia.replace(day=14), "grupo": "G01",
+             "fase": "GRUPOS_MUESTRA", "local": "EQ-001", "visitante": "EQ-003",
+             "estadioId": "EST-01"},
+        ]
+        self.eventos = {
+            "PAR-001": [
+                {"eventoId": "EVT-PAR-001-LOCAL", "tipo": "SUSTITUCION", "minuto": 60,
+                 "participantes": [_participante(20, "EQ-001", "SALE"),
+                                   _participante(21, "EQ-001", "ENTRA")]},
+                {"eventoId": "EVT-PAR-001-VISITANTE", "tipo": "SUSTITUCION", "minuto": 65,
+                 "participantes": [_participante(44, "EQ-002", "SALE"),
+                                   _participante(45, "EQ-002", "ENTRA")]},
+            ],
+        }
+        self.falla: Exception | None = None
+        self.llamadas: list[str] = []
+
+    def _registrar(self, operacion: str) -> None:
+        self.llamadas.append(operacion)
+        if self.falla is not None:
+            raise self.falla
+
+    def _ordenados(self) -> list[dict]:
+        return sorted(self.partidos, key=lambda p: (p["inicio"], p["partidoId"]))
+
+    def agenda_equipo(self, equipo_id, limite):
+        self._registrar("agenda_equipo")
+        if equipo_id not in self.EQUIPOS:
+            return None
+        agenda = []
+        for p in self._ordenados():
+            if equipo_id not in (p["local"], p["visitante"]):
+                continue
+            local = p["local"] == equipo_id
+            rival = p["visitante"] if local else p["local"]
+            agenda.append({
+                "partidoId": p["partidoId"], "inicio": p["inicio"], "grupo": p["grupo"],
+                "fase": p["fase"], "rol": "LOCAL" if local else "VISITANTE",
+                "rival": {"equipoId": rival, "codigo": self.EQUIPOS[rival],
+                          "nombre": f"Seleccion Sintetica {rival[-2:]}"},
+                "estadio": dict(self.ESTADIOS[p["estadioId"]]),
+            })
+        return agenda[:limite]
+
+    def eventos_partido(self, partido_id, limite):
+        self._registrar("eventos_partido")
+        if partido_id not in {p["partidoId"] for p in self.partidos}:
+            return None
+        return [dict(e) for e in self.eventos.get(partido_id, [])][:limite]
+
+    def partidos_por_fecha(self, desde, hasta, estadio_id, limite):
+        self._registrar("partidos_por_fecha")
+        return [
+            {"partidoId": p["partidoId"], "inicio": p["inicio"], "grupo": p["grupo"],
+             "fase": p["fase"], "estadio": dict(self.ESTADIOS[p["estadioId"]])}
+            for p in self._ordenados()
+            if desde <= p["inicio"] < hasta and estadio_id in (None, p["estadioId"])
+        ][:limite]
+
+    def cargar_catalogo_partidos(self):
+        self._registrar("cargar_catalogo_partidos")
+        return {p["partidoId"]: tuple(sorted((p["local"], p["visitante"]))) for p in self.partidos}
+
+    def ping(self) -> bool:
+        return self.falla is None
+
+    def cerrar(self) -> None:
+        pass

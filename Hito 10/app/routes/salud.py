@@ -14,7 +14,9 @@ router = APIRouter(prefix="/api/v1", tags=["salud"])
     "/salud",
     response_model=RespuestaSalud,
     summary="Estado de las dependencias",
-    description='Informa por dependencia "disponible", "no_disponible" o "no_configurada".',
+    description='Informa por dependencia "disponible", "no_disponible" o "no_configurada", '
+                'y el estado del catálogo de partidos en memoria (cargado, cantidad de '
+                'partidos y hora de la última carga, casos_de_uso.md §3.2).',
 )
 def consultar_salud(
     servicio: Annotated[ServicioSalud, Depends(obtener_servicio_salud)],
