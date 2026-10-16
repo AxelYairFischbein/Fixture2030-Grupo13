@@ -54,7 +54,8 @@ En la carpeta `Hito 10/`:
 
 ```text
 Hito 10/
-├── fixture.ps1              # atajos: todo, bases, esperar, verificar, api, abrir, influx, iris-usuario, pruebas, unitarias, latencia, detener
+├── fixture.cmd / fixture.ps1 # un comando: todo, preparar, api, abrir, estado, verificar, influx, pruebas, unitarias, latencia, logs, detener
+├── Dockerfile, docker-compose.yml, .dockerignore, .gitattributes  # API en contenedor (python:3.12-slim)
 ├── README.md                # guía de uso
 ├── requirements.txt         # dependencias con versión fija
 ├── pytest.ini               # pythonpath=., filtros de warnings, marker "integracion"
@@ -229,25 +230,36 @@ HTML, CSS y JS sin librerías, con modo oscuro automático. Usa solo la API púb
 
 En el encabezado: chips de salud de las 6 fuentes, botón "Revisar conectividad" y enlace a Swagger.
 
-## 11. Cómo se ejecuta
+## 11. Cómo se ejecuta (modo Docker, cualquier PC con Windows)
 
-Desde `Hito 10/` en PowerShell:
+Solo requiere Windows y Docker Desktop (se recomiendan 16 GB de RAM). No hace falta Python. Desde `Hito 10/`:
 
 ```powershell
-Set-ExecutionPolicy -Scope Process Bypass
-.\fixture.ps1 todo     # levanta las 6 bases (docker compose up -d de cada hito), espera a que respondan y arranca la API
-.\fixture.ps1 abrir    # en otra terminal: abre http://127.0.0.1:8000/ y /docs
+.\fixture.cmd todo
 ```
 
-Otros comandos: `bases`, `esperar`, `verificar`, `api`, `influx`, `iris-usuario`, `pruebas`, `unitarias`, `latencia`, `detener` (hace `stop`, nunca `down -v`) y `ayuda`.
+`fixture.cmd` llama a `fixture.ps1` con `-ExecutionPolicy Bypass`. `todo` hace, de forma idempotente:
 
-**Primera vez en otra máquina:**
+1. Verifica que Docker responda y que los puertos no estén ocupados por otros programas.
+2. Crea `%USERPROFILE%\docker\data\{cassandra,influxdb,iris}`, `Hito 8\.local`, `Hito 5\.env` (desde su ejemplo) y `Hito 10\.env` (credenciales de laboratorio y clave IRIS aleatoria).
+3. Ejecuta `docker compose up -d` de los Hitos 4 a 9.
+4. MongoDB: corre los scripts 01, 02, 03 y el seed.
+5. Neo4j: `cypher-shell -f` de `01_constraints` y `02_load`.
+6. Cassandra: espera a `cqlsh` y carga el esquema y la muestra.
+7. InfluxDB: crea el token admin si falta (`Hito 8\.local\admin.token`) y la base con retención de 7 días.
+8. IRIS: espera a que esté `healthy`; si aparece el error de `chown`, lo corrige una sola vez. Luego `LoadDir` y `Demo.Ejecutar()` si falta `PAR-001`, y crea el usuario de la API.
+9. Construye y levanta la API (`docker compose up -d --build`, imagen `python:3.12-slim`, contenedor `grupo13-hito10-api-1` en `127.0.0.1:8000`, bases vía `host.docker.internal`).
+10. Agrega 30 minutos de estadísticas en InfluxDB y abre el navegador.
 
-1. Levantar los Hitos 4 a 9 y cargar sus muestras con los scripts de cada hito.
-2. Copiar `.env.example` a `.env` y completar las contraseñas.
-3. Ejecutar `.\fixture.ps1 iris-usuario`.
-4. Ejecutar `.\fixture.ps1 todo`.
-5. Si el gráfico de estadísticas sale vacío, ejecutar `.\fixture.ps1 influx`.
+Otros comandos: `preparar`, `api`, `abrir`, `estado`, `verificar`, `influx`, `pruebas`, `unitarias`, `latencia`, `logs`, `detener` (`stop`, nunca `down -v`) y `ayuda`. Las pruebas y los scripts Python se ejecutan dentro del contenedor con `docker compose run --rm api ...` (36 aprobadas también así).
+
+Detalles de compatibilidad con PowerShell 5.1 resueltos en el script:
+- No se pasan comillas dobles dentro de argumentos a `docker` (PS 5.1 no las escapa).
+- El stdin se reenvía con `$input`.
+- Del token se quitan el BOM y el `\r` que agrega PowerShell.
+- `.cmd` y `.ps1` usan CRLF (forzado con `.gitattributes`) y los `.ps1` se guardan en UTF-8 con BOM para los acentos.
+
+**Modo alternativo sin Docker para la API:** Python 3.12+, `scripts\iniciar_api.ps1` y los pasos manuales del README.
 
 ## 12. Pruebas y evidencia
 

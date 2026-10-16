@@ -19,6 +19,8 @@ Todos los datos son sintéticos y provienen de las muestras de los hitos anterio
 
 ```text
 Hito 10/
+├── fixture.cmd / fixture.ps1   # un comando para preparar, levantar, probar y detener todo
+├── Dockerfile, docker-compose.yml, .dockerignore, .gitattributes   # API en contenedor
 ├── README.md, requirements.txt, pytest.ini, .env.example, .gitignore
 ├── app/
 │   ├── main.py            # ensamblado, middleware X-Request-ID, logs, manejo de errores, OpenAPI
@@ -48,26 +50,47 @@ Hito 10/
 - [Conectividad, configuración y seguridad](docs/conectividad_y_configuracion.md)
 - [Pruebas, evidencia y rendimiento](docs/pruebas_y_evidencia.md)
 
-## Requisitos
+## Inicio rápido (cualquier PC con Windows)
 
-- Windows con PowerShell 5.1+, Docker Desktop (contenedores Linux) y Python 3.12 o posterior (probado con 3.14.0).
-- Los servicios de los Hitos 4 a 9 iniciados y con sus muestras cargadas, siguiendo el README de cada hito.
-- Puerto `8000` libre en la notebook.
+Requisitos: **Windows 10/11 y Docker Desktop** iniciado (contenedores Linux). No hace falta instalar Python ni ninguna base. Se recomiendan 16 GB de RAM: Cassandra, IRIS, Neo4j e InfluxDB corren a la vez.
 
-## Atajos por terminal
-
-`fixture.ps1` reúne los pasos habituales. Desde `Hito 10/` en PowerShell:
+Clonar el repositorio, abrir una terminal (PowerShell o cmd) en `Hito 10` y ejecutar:
 
 ```powershell
-Set-ExecutionPolicy -Scope Process Bypass   # una vez por terminal
-.\fixture.ps1 todo        # inicia las 6 bases, espera que respondan y levanta la API
-.\fixture.ps1 abrir       # interfaz y Swagger en el navegador (en otra terminal)
-.\fixture.ps1 ayuda       # lista completa: bases, verificar, api, influx, iris-usuario, pruebas, unitarias, latencia, detener
+.\fixture.cmd todo
 ```
 
-La sección siguiente detalla los mismos pasos uno por uno.
+Ese comando, sin pasos manuales y de forma repetible:
 
-## Puesta en marcha
+1. comprueba que Docker responda y que los puertos 27017, 7474, 7687, 9042, 16379, 8181, 1972, 52773 y 8000 no estén ocupados por otro programa;
+2. crea las carpetas de datos (`%USERPROFILE%\docker\data\...`), `Hito 5\.env` desde su ejemplo y `Hito 10\.env` con las credenciales de laboratorio y una clave IRIS aleatoria;
+3. inicia los contenedores de los Hitos 4 a 9 y espera a cada base;
+4. carga las muestras con los scripts de cada hito (MongoDB, Neo4j, Cassandra, clases y demo de IRIS), corrige el `chown` de IRIS si la carpeta es nueva, crea el usuario IRIS de la API y el token y la base de InfluxDB;
+5. construye y levanta la API en un contenedor, agrega 30 minutos de estadísticas recientes y abre <http://127.0.0.1:8000/>.
+
+La primera vez tarda varios minutos (descarga de imágenes y arranque de Cassandra e IRIS). Las siguientes, menos de un minuto.
+
+| Comando | Qué hace |
+| --- | --- |
+| `.\fixture.cmd todo` | Todo lo anterior |
+| `.\fixture.cmd preparar` | Solo bases y datos |
+| `.\fixture.cmd api` | Reconstruye y levanta la API |
+| `.\fixture.cmd abrir` | Abre la interfaz y Swagger |
+| `.\fixture.cmd estado` | Contenedores y salud de la API |
+| `.\fixture.cmd verificar` | Conectividad y latencia de cada base |
+| `.\fixture.cmd influx` | Estadísticas recientes (si el gráfico sale vacío) |
+| `.\fixture.cmd pruebas` / `unitarias` | Pruebas dentro del contenedor |
+| `.\fixture.cmd latencia` | Medición de latencia |
+| `.\fixture.cmd logs` | Logs de la API |
+| `.\fixture.cmd detener` | Detiene API y bases sin borrar datos |
+
+`fixture.cmd` llama a `fixture.ps1` sin depender de la política de ejecución de PowerShell. La API en contenedor llega a las bases por `host.docker.internal` ([docker-compose.yml](docker-compose.yml)).
+
+## Modo sin Docker para la API (opcional)
+
+La API también puede ejecutarse con Python 3.12+ en la notebook. Los pasos siguientes son los mismos que automatiza `fixture.cmd`, hechos a mano.
+
+## Puesta en marcha manual
 
 Todos los comandos se ejecutan desde `Hito 10/` en PowerShell.
 
