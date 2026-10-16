@@ -5,6 +5,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
+from app.adapters.cassandra_adaptador import AdaptadorCassandra
 from app.adapters.mongo_adaptador import AdaptadorMongo
 from app.adapters.neo4j_adaptador import AdaptadorNeo4j
 from app.adapters.redis_adaptador import AdaptadorRedis
@@ -12,7 +13,7 @@ from app.config.logging import configurar_logging
 from app.config.settings import Settings, cargar_settings
 from app.manejadores import registrar_manejadores
 from app.middleware import RequestIdMiddleware
-from app.routes import cache, equipos, jugadores, partidos, salud, sesiones
+from app.routes import cache, comentarios, equipos, jugadores, partidos, salud, sesiones
 from app.services.catalogo_partidos import CatalogoPartidos
 
 
@@ -28,6 +29,8 @@ def create_app(settings: Settings | None = None, iniciar_catalogo: bool = True) 
         app.state.adaptador_mongo = AdaptadorMongo(settings)
         app.state.adaptador_redis = AdaptadorRedis(settings)
         app.state.adaptador_neo4j = AdaptadorNeo4j(settings)
+        # Cassandra conecta en el primer uso: la API arranca aunque esté caída.
+        app.state.adaptador_cassandra = AdaptadorCassandra(settings)
         app.state.catalogo_partidos = CatalogoPartidos(app.state.adaptador_neo4j, settings)
         if iniciar_catalogo:
             # Con Neo4j caído la API arranca igual y el catálogo queda "no_cargado" (§3.2).
@@ -39,10 +42,11 @@ def create_app(settings: Settings | None = None, iniciar_catalogo: bool = True) 
             app.state.adaptador_mongo.cerrar()
             app.state.adaptador_redis.cerrar()
             app.state.adaptador_neo4j.cerrar()
+            app.state.adaptador_cassandra.cerrar()
 
     app = FastAPI(
         title="Fixture 2030 · API integrada",
-        version="0.4.0",
+        version="0.5.0",
         description="API REST del Hito 10 (Grupo 13) sobre MongoDB, Neo4j, Cassandra, "
                     "Redis, InfluxDB e InterSystems IRIS.",
         lifespan=lifespan,
@@ -56,6 +60,7 @@ def create_app(settings: Settings | None = None, iniciar_catalogo: bool = True) 
     app.include_router(partidos.router)
     app.include_router(sesiones.router)
     app.include_router(cache.router)
+    app.include_router(comentarios.router)
     return app
 
 

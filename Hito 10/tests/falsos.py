@@ -2,6 +2,8 @@
 
 from datetime import datetime, timezone
 
+from app.adapters.cassandra_adaptador import clave_de_orden, minuto_de, segmento
+
 
 def _equipo(numero: int, confederacion: str, ranking: int) -> dict:
     return {
@@ -103,6 +105,7 @@ class RedisFalso:
     def __init__(self) -> None:
         self.sesiones: dict[str, dict] = {}
         self.fichas: dict[str, dict] = {}
+        self.idempotencia: dict[str, dict] = {}
         self.falla: Exception | None = None
         self.falla_guardar: Exception | None = None
         self.llamadas: list[str] = []
@@ -154,6 +157,13 @@ class RedisFalso:
     def invalidar_ficha_cacheada(self, equipo_id):
         self._registrar("invalidar_ficha_cacheada")
         self.fichas.pop(equipo_id, None)
+
+    def reservar_idempotencia(self, clave, registro):
+        self._registrar("reservar_idempotencia")
+        if clave in self.idempotencia:
+            return dict(self.idempotencia[clave])
+        self.idempotencia[clave] = dict(registro)
+        return None
 
     def ping(self) -> bool:
         return self.falla is None
@@ -248,6 +258,116 @@ class Neo4jFalso:
     def cargar_catalogo_partidos(self):
         self._registrar("cargar_catalogo_partidos")
         return {p["partidoId"]: tuple(sorted((p["local"], p["visitante"]))) for p in self.partidos}
+
+    def ping(self) -> bool:
+        return self.falla is None
+
+    def cerrar(self) -> None:
+        pass
+
+
+def _comentario(numero: int, partido_id: str, creado: str, usuario_id: str, estado: str,
+                likes: int = 0) -> dict:
+    creado_en = datetime.fromisoformat(creado)
+    comentario_id = f"MUESTRA-{numero:03d}"
+    return {
+        "partido_id": partido_id, "minuto": minuto_de(creado_en),
+        "segmento": segmento(comentario_id), "creado_en": creado_en,
+        "comentario_id": comentario_id, "usuario_id": usuario_id, "dia": creado_en.date(),
+        "contenido": f"Comentario de muestra {numero:03d}", "estado": estado, "likes": likes,
+    }
+
+
+class CassandraFalso:
+    """Imita el contrato de AdaptadorCassandra con la muestra del Hito 6 (carga_muestra.cql).
+
+    Las filas se indexan por clave primaria completa, así que una reescritura con la misma
+    clave es un upsert (como en Cassandra). `filas_por_usuario` es la segunda representación.
+    `falla` hace fallar cualquier operación y `llamadas` registra cada una.
+    """
+
+    def __init__(self) -> None:
+        muestra = [
+            _comentario(1, "PAR-001", "2030-06-10T18:00:20+00:00", "USR-00001", "visible", 2),
+            _comentario(2, "PAR-001", "2030-06-10T18:00:30+00:00", "USR-00002", "pendiente"),
+            _comentario(3, "PAR-001", "2030-06-10T18:00:55+00:00", "USR-00001", "visible", 4),
+            _comentario(4, "PAR-001", "2030-06-10T18:01:05+00:00", "USR-00003", "oculto"),
+            _comentario(5, "PAR-001", "2030-06-10T18:01:20+00:00", "USR-00001", "visible", 5),
+            _comentario(6, "PAR-001", "2030-06-10T18:01:20+00:00", "USR-00002", "visible", 3),
+            _comentario(7, "PAR-001", "2030-06-10T18:01:45+00:00", "USR-00003", "pendiente"),
+            _comentario(8, "PAR-001", "2030-06-10T18:01:59+00:00", "USR-00001", "visible", 1),
+            _comentario(9, "PAR-001", "2030-06-10T18:02:05+00:00", "USR-00002", "visible", 1),
+            _comentario(10, "PAR-001", "2030-06-10T18:02:10+00:00", "USR-00001", "visible"),
+            _comentario(11, "PAR-002", "2030-06-10T18:01:10+00:00", "USR-00001", "visible", 2),
+        ]
+        self.filas_por_partido: dict[tuple, dict] = {}
+        self.filas_por_usuario: dict[tuple, dict] = {}
+        for fila in muestra:
+            self._guardar(fila)
+        self.falla: Exception | None = None
+        self.falla_escritura: Exception | None = None
+        self.llamadas: list[str] = []
+
+    def _guardar(self, fila: dict) -> None:
+        self.filas_por_partido[(fila["partido_id"], fila["minuto"], fila["segmento"],
+                                fila["creado_en"], fila["comentario_id"])] = dict(fila)
+        self.filas_por_usuario[(fila["usuario_id"], fila["dia"], fila["creado_en"],
+                                fila["comentario_id"])] = dict(fila)
+
+    def _registrar(self, operacion: str) -> None:
+        self.llamadas.append(operacion)
+        if self.falla is not None:
+            raise self.falla
+
+    @staticmethod
+    def _pagina(filas, antes_de, limite):
+        filas = sorted(filas, key=lambda f: clave_de_orden(f["creado_en"], f["comentario_id"]))
+        if antes_de is not None:
+            tope = clave_de_orden(*antes_de)
+            filas = [f for f in filas if clave_de_orden(f["creado_en"], f["comentario_id"]) > tope]
+        if len(filas) > limite:
+            ultima = filas[limite - 1]
+            return [dict(f) for f in filas[:limite]], (ultima["creado_en"], ultima["comentario_id"])
+        return [dict(f) for f in filas], None
+
+    def leer_por_partido(self, partido_id, desde, hasta, antes_de, limite, solo_visibles):
+        self._registrar("leer_por_partido")
+        filas = [f for f in self.filas_por_partido.values()
+                 if f["partido_id"] == partido_id and desde <= f["creado_en"] < hasta
+                 and (not solo_visibles or f["estado"] == "visible")]
+        return self._pagina(filas, antes_de, limite)
+
+    def leer_por_usuario(self, usuario_id, dia, antes_de, limite):
+        self._registrar("leer_por_usuario")
+        filas = [f for (u, d, _, _), f in self.filas_por_usuario.items()
+                 if u == usuario_id and d == dia]
+        return self._pagina(filas, antes_de, limite)
+
+    def leer_comentario(self, partido_id, creado_en, comentario_id):
+        self._registrar("leer_comentario")
+        fila = self.filas_por_partido.get((partido_id, minuto_de(creado_en), segmento(comentario_id),
+                                           creado_en, comentario_id))
+        return dict(fila) if fila else None
+
+    def insertar_comentario(self, comentario):
+        self._registrar("insertar_comentario")
+        if self.falla_escritura is not None:
+            raise self.falla_escritura
+        creado_en = comentario["creado_en"]
+        self._guardar({**comentario, "minuto": minuto_de(creado_en),
+                       "segmento": segmento(comentario["comentario_id"]), "dia": creado_en.date()})
+
+    def actualizar_estado(self, fila, estado):
+        self._registrar("actualizar_estado")
+        if self.falla_escritura is not None:
+            raise self.falla_escritura
+        self.filas_por_partido[(fila["partido_id"], fila["minuto"], fila["segmento"],
+                                fila["creado_en"], fila["comentario_id"])]["estado"] = estado
+        self.filas_por_usuario[(fila["usuario_id"], fila["dia"], fila["creado_en"],
+                                fila["comentario_id"])]["estado"] = estado
+
+    def escrituras(self) -> int:
+        return sum(op in ("insertar_comentario", "actualizar_estado") for op in self.llamadas)
 
     def ping(self) -> bool:
         return self.falla is None

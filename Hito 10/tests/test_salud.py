@@ -9,16 +9,17 @@ from app.errors import DependenciaNoDisponible
 from app.services.catalogo_partidos import CatalogoPartidos
 
 
-SIN_ADAPTADOR = ("cassandra", "influxdb", "iris")
+SIN_ADAPTADOR = ("influxdb", "iris")
 
 
-def test_salud_con_mongodb_redis_y_neo4j_disponibles(client):
+def test_salud_con_mongodb_redis_neo4j_y_cassandra_disponibles(client):
     respuesta = client.get("/api/v1/salud")
     assert respuesta.status_code == 200
     cuerpo = respuesta.json()
     assert cuerpo["estado"] == "ok"
     assert cuerpo["dependencias"] == (
-        {"mongodb": "disponible", "redis": "disponible", "neo4j": "disponible"}
+        {"mongodb": "disponible", "redis": "disponible", "neo4j": "disponible",
+         "cassandra": "disponible"}
         | {n: "no_configurada" for n in SIN_ADAPTADOR}
     )
     catalogo = cuerpo["catalogoPartidos"]
@@ -88,3 +89,11 @@ def test_timeouts_por_defecto_de_la_seccion_6_3():
     assert settings.redis_socket_timeout_s == 0.5
     assert settings.influx_timeout_s == 5
     assert "valor-de-prueba" not in repr(settings)
+
+
+def test_salud_con_cassandra_caida_es_degradado_pero_200(client, cassandra_falso):
+    cassandra_falso.falla = RuntimeError("caída")
+    respuesta = client.get("/api/v1/salud")
+    assert respuesta.status_code == 200
+    assert respuesta.json()["estado"] == "degradado"
+    assert respuesta.json()["dependencias"]["cassandra"] == "no_disponible"

@@ -75,6 +75,21 @@ class ServicioSesiones:
             raise RolNoAutorizado(detalles=[{"campo": "X-Session-Id", "problema": f"requiere rol {rol}"}])
         return Sesion(resultado["usuario_id"], resultado["rol"], resultado["ttl"])
 
+    def autorizar_autor_o_rol(self, sesion_id: str | None, usuario_id: str, rol: str) -> Sesion:
+        """La sesión debe ser del propio `usuario_id` o tener `rol` (CU-10).
+
+        Primero se lee sin renovar: un 403 no cuenta como actividad (Hito 7). Si pasa,
+        se valida y renueva con el mismo script de CU-12.
+        """
+        sesion_id = _requerir(sesion_id)
+        sesion = self._repo.leer_sesion(sesion_id)
+        if sesion is None or sesion["ttl"] <= 0 or sesion.get("estado") != ESTADO_ACTIVA:
+            raise SesionNoVigente()
+        if sesion.get("usuario_id") != usuario_id and sesion.get("rol") != rol:
+            raise RolNoAutorizado(detalles=[{
+                "campo": "X-Session-Id", "problema": f"requiere ser el autor o tener rol {rol}"}])
+        return self.autorizar(sesion_id)
+
     def registrar_actividad(self, sesion_id: str | None) -> ActividadRegistrada:
         """CU-12. No recrea una sesión ausente; ante timeout no informa un TTL nuevo (504)."""
         return ActividadRegistrada(expiraEnSegundos=self.autorizar(sesion_id).expira_en_segundos)
@@ -104,6 +119,19 @@ class Autorizacion:
         Si la sesión es válida cuenta como actividad: renueva el TTL a 1800 s.
         """
         return self._servicio.autorizar(self._sesion_id, self._rol)
+
+    def opcional(self) -> Sesion | None:
+        """Sesión opcional (CU-08): None si no llegó el encabezado, sin consultar Redis.
+
+        Si llegó, se exige igual que en exigir() (401, 503/504 o renovación).
+        """
+        if self._sesion_id is None:
+            return None
+        return self.exigir()
+
+    def exigir_autor_o_rol(self, usuario_id: str) -> Sesion:
+        """La sesión es del propio usuario o tiene el rol de la dependencia (CU-10)."""
+        return self._servicio.autorizar_autor_o_rol(self._sesion_id, usuario_id, self._rol)
 
 
 def obtener_servicio_sesiones(

@@ -31,6 +31,7 @@ from app.errors import (  # noqa: E402
     NoEncontrado,
 )
 from app.dependencias import (  # noqa: E402
+    obtener_adaptador_cassandra,
     obtener_adaptador_mongo,
     obtener_adaptador_neo4j,
     obtener_adaptador_redis,
@@ -38,7 +39,7 @@ from app.dependencias import (  # noqa: E402
 )
 from app.main import create_app  # noqa: E402
 from app.services.catalogo_partidos import CatalogoPartidos  # noqa: E402
-from tests.falsos import MongoFalso, Neo4jFalso, RedisFalso  # noqa: E402
+from tests.falsos import CassandraFalso, MongoFalso, Neo4jFalso, RedisFalso  # noqa: E402
 
 
 def _router_de_prueba() -> APIRouter:
@@ -95,6 +96,11 @@ def neo4j_falso() -> Neo4jFalso:
 
 
 @pytest.fixture
+def cassandra_falso() -> CassandraFalso:
+    return CassandraFalso()
+
+
+@pytest.fixture
 def catalogo(neo4j_falso) -> CatalogoPartidos:
     """Catálogo cargado desde el Neo4j falso (sin hilo de refresco)."""
     catalogo = CatalogoPartidos(neo4j_falso, Settings(_env_file=None))
@@ -104,13 +110,14 @@ def catalogo(neo4j_falso) -> CatalogoPartidos:
 
 
 @pytest.fixture
-def app(mongo_falso, redis_falso, neo4j_falso, catalogo):
+def app(mongo_falso, redis_falso, neo4j_falso, cassandra_falso, catalogo):
     # iniciar_catalogo=False: el lifespan no intenta conectarse a un Neo4j real.
     aplicacion = create_app(Settings(_env_file=None), iniciar_catalogo=False)
     aplicacion.include_router(_router_de_prueba())
     aplicacion.dependency_overrides[obtener_adaptador_mongo] = lambda: mongo_falso
     aplicacion.dependency_overrides[obtener_adaptador_redis] = lambda: redis_falso
     aplicacion.dependency_overrides[obtener_adaptador_neo4j] = lambda: neo4j_falso
+    aplicacion.dependency_overrides[obtener_adaptador_cassandra] = lambda: cassandra_falso
     aplicacion.dependency_overrides[obtener_catalogo_partidos] = lambda: catalogo
     return aplicacion
 

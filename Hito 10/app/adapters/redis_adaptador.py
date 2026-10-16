@@ -30,6 +30,7 @@ DEPENDENCIA = "redis"
 # Valores fijados por el contrato (casos_de_uso.md CU-01 y CU-12, Hito 7).
 TTL_SESION_S = 1800
 TTL_FICHA_S = 300
+TTL_IDEMPOTENCIA_S = 86400  # CU-09
 
 logger = logging.getLogger("app.adapters.redis")
 
@@ -50,6 +51,17 @@ end
 redis.call('HSET', KEYS[1], 'ultima_actividad', redis.call('TIME')[1])
 redis.call('EXPIRE', KEYS[1], ARGV[2])
 return {redis.call('HGET', KEYS[1], 'usuario_id') or '', rol, redis.call('TTL', KEYS[1])}
+"""
+
+# Registro de idempotencia de CU-09: SET NX EX y, si la clave ya existía, su valor, en un
+# solo paso (sin carrera entre SET y GET). Devuelve nil si la reserva es nueva.
+LUA_RESERVAR = """
+local previo = redis.call('GET', KEYS[1])
+if previo then
+  return previo
+end
+redis.call('SET', KEYS[1], ARGV[1], 'NX', 'EX', ARGV[2])
+return false
 """
 
 
@@ -76,6 +88,7 @@ class AdaptadorRedis:
         )
         self._prefijo = settings.redis_prefijo
         self._renovar = self._cliente.register_script(LUA_RENOVAR)
+        self._reservar = self._cliente.register_script(LUA_RESERVAR)
 
     def cerrar(self) -> None:
         self._cliente.close()
@@ -182,6 +195,31 @@ class AdaptadorRedis:
     def invalidar_ficha_cacheada(self, equipo_id: str) -> None:
         with self._traducir("invalidar_ficha_cacheada"):
             self._cliente.delete(self._clave_ficha(equipo_id))
+
+    # Idempotencia de la publicación de comentarios (CU-09)
+
+    def _clave_idempotencia(self, clave: str) -> str:
+        return f"{self._prefijo}idem:comentario:{clave}"
+
+    def reservar_idempotencia(self, clave: str, registro: dict) -> dict | None:
+        """Guarda `registro` con SET NX EX 86400 si la clave no existe y devuelve None.
+
+        Si ya existía, no la modifica y devuelve el registro guardado antes.
+        """
+        with self._traducir("reservar_idempotencia"):
+            previo = self._reservar(
+                keys=[self._clave_idempotencia(clave)],
+                args=[json.dumps(registro), TTL_IDEMPOTENCIA_S],
+            )
+        if previo is None:
+            return None
+        try:
+            return json.loads(previo)
+        except ValueError:
+            # Un registro ilegible no permite decidir: es un error interno, no un 409.
+            logger.error("dependencia=%s operacion=reservar_idempotencia resultado=registro_invalido",
+                         DEPENDENCIA)
+            raise ErrorDominio() from None
 
     def ping(self) -> bool:
         """Chequeo de salud: True si Redis responde. Nunca lanza."""

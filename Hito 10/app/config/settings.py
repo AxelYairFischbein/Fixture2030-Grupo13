@@ -52,6 +52,7 @@ class Settings(BaseSettings):
     cassandra_dc: str = "datacenter1"
     cassandra_user: str | None = None
     cassandra_password: SecretStr | None = None
+    cassandra_connect_timeout_s: float = 2.0
     cassandra_request_timeout_s: float = 2.0
 
     # Redis (Hito 7): el contenedor no usa contraseña

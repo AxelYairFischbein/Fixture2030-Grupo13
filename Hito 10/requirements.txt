@@ -11,3 +11,8 @@ pymongo==4.19.0
 redis==8.1.0
 # Fase 4: Neo4j (Hito 5)
 neo4j==6.4.1
+# Fase 5: Cassandra (Hito 6). Python 3.12+ no trae asyncore y cassandra.cluster falla al
+# importarse si no encuentra una clase de conexión por defecto: pyasyncore la provee, y el
+# adaptador usa igualmente AsyncioConnection.
+cassandra-driver==3.30.1
+pyasyncore==1.0.5

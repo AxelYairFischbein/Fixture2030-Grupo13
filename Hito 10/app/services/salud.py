@@ -12,6 +12,7 @@ from typing import Annotated
 from fastapi import Depends
 
 from app.dependencias import (
+    obtener_adaptador_cassandra,
     obtener_adaptador_mongo,
     obtener_adaptador_neo4j,
     obtener_adaptador_redis,
@@ -60,10 +61,11 @@ def obtener_servicio_salud(
     adaptador_mongo: Annotated[object, Depends(obtener_adaptador_mongo)],
     adaptador_redis: Annotated[object, Depends(obtener_adaptador_redis)],
     adaptador_neo4j: Annotated[object, Depends(obtener_adaptador_neo4j)],
+    adaptador_cassandra: Annotated[object, Depends(obtener_adaptador_cassandra)],
     catalogo: Annotated[object, Depends(obtener_catalogo_partidos)],
 ) -> ServicioSalud:
     return ServicioSalud(
         {"mongodb": adaptador_mongo.ping, "redis": adaptador_redis.ping,
-         "neo4j": adaptador_neo4j.ping},
+         "neo4j": adaptador_neo4j.ping, "cassandra": adaptador_cassandra.ping},
         catalogo.estado,
     )
