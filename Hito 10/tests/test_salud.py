@@ -9,17 +9,17 @@ from app.errors import DependenciaNoDisponible
 from app.services.catalogo_partidos import CatalogoPartidos
 
 
-SIN_ADAPTADOR = ("influxdb", "iris")
+SIN_ADAPTADOR = ("iris",)
 
 
-def test_salud_con_mongodb_redis_neo4j_y_cassandra_disponibles(client):
+def test_salud_con_mongodb_redis_neo4j_cassandra_e_influxdb_disponibles(client):
     respuesta = client.get("/api/v1/salud")
     assert respuesta.status_code == 200
     cuerpo = respuesta.json()
     assert cuerpo["estado"] == "ok"
     assert cuerpo["dependencias"] == (
         {"mongodb": "disponible", "redis": "disponible", "neo4j": "disponible",
-         "cassandra": "disponible"}
+         "cassandra": "disponible", "influxdb": "disponible"}
         | {n: "no_configurada" for n in SIN_ADAPTADOR}
     )
     catalogo = cuerpo["catalogoPartidos"]
@@ -97,3 +97,11 @@ def test_salud_con_cassandra_caida_es_degradado_pero_200(client, cassandra_falso
     assert respuesta.status_code == 200
     assert respuesta.json()["estado"] == "degradado"
     assert respuesta.json()["dependencias"]["cassandra"] == "no_disponible"
+
+
+def test_salud_con_influxdb_caido_es_degradado_pero_200(client, influx_falso):
+    influx_falso.falla = RuntimeError("caído")
+    respuesta = client.get("/api/v1/salud")
+    assert respuesta.status_code == 200
+    assert respuesta.json()["estado"] == "degradado"
+    assert respuesta.json()["dependencias"]["influxdb"] == "no_disponible"

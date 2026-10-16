@@ -1,18 +1,26 @@
 """Fixtures comunes de las pruebas unitarias (sin Docker).
 
 Las variables obligatorias se completan con valores ficticios antes de importar
-la app, para que app.main pueda crear la aplicación sin un .env real.
+la app, para que app.main pueda crear la aplicación sin un .env real. El token de
+InfluxDB es un archivo temporal con un valor ficticio: el adaptador lo lee al crearse.
 """
 
+import atexit
 import os
+import tempfile
 from typing import Annotated
+
+_descriptor, TOKEN_INFLUX_DE_PRUEBA = tempfile.mkstemp(suffix=".token")
+os.write(_descriptor, b"token-ficticio-de-prueba")
+os.close(_descriptor)
+atexit.register(lambda: os.path.exists(TOKEN_INFLUX_DE_PRUEBA) and os.remove(TOKEN_INFLUX_DE_PRUEBA))
 
 VARIABLES_DE_PRUEBA = {
     "MONGO_USER": "usuario-de-prueba",
     "MONGO_PASSWORD": "valor-de-prueba",
     "NEO4J_USER": "usuario-de-prueba",
     "NEO4J_PASSWORD": "valor-de-prueba",
-    "INFLUX_TOKEN_FILE": "ruta/de/prueba.token",
+    "INFLUX_TOKEN_FILE": TOKEN_INFLUX_DE_PRUEBA,
     "IRIS_USER": "usuario-de-prueba",
     "IRIS_PASSWORD": "valor-de-prueba",
 }
@@ -32,6 +40,7 @@ from app.errors import (  # noqa: E402
 )
 from app.dependencias import (  # noqa: E402
     obtener_adaptador_cassandra,
+    obtener_adaptador_influx,
     obtener_adaptador_mongo,
     obtener_adaptador_neo4j,
     obtener_adaptador_redis,
@@ -39,7 +48,13 @@ from app.dependencias import (  # noqa: E402
 )
 from app.main import create_app  # noqa: E402
 from app.services.catalogo_partidos import CatalogoPartidos  # noqa: E402
-from tests.falsos import CassandraFalso, MongoFalso, Neo4jFalso, RedisFalso  # noqa: E402
+from tests.falsos import (  # noqa: E402
+    CassandraFalso,
+    InfluxFalso,
+    MongoFalso,
+    Neo4jFalso,
+    RedisFalso,
+)
 
 
 def _router_de_prueba() -> APIRouter:
@@ -101,6 +116,11 @@ def cassandra_falso() -> CassandraFalso:
 
 
 @pytest.fixture
+def influx_falso() -> InfluxFalso:
+    return InfluxFalso()
+
+
+@pytest.fixture
 def catalogo(neo4j_falso) -> CatalogoPartidos:
     """Catálogo cargado desde el Neo4j falso (sin hilo de refresco)."""
     catalogo = CatalogoPartidos(neo4j_falso, Settings(_env_file=None))
@@ -110,7 +130,7 @@ def catalogo(neo4j_falso) -> CatalogoPartidos:
 
 
 @pytest.fixture
-def app(mongo_falso, redis_falso, neo4j_falso, cassandra_falso, catalogo):
+def app(mongo_falso, redis_falso, neo4j_falso, cassandra_falso, influx_falso, catalogo):
     # iniciar_catalogo=False: el lifespan no intenta conectarse a un Neo4j real.
     aplicacion = create_app(Settings(_env_file=None), iniciar_catalogo=False)
     aplicacion.include_router(_router_de_prueba())
@@ -118,6 +138,7 @@ def app(mongo_falso, redis_falso, neo4j_falso, cassandra_falso, catalogo):
     aplicacion.dependency_overrides[obtener_adaptador_redis] = lambda: redis_falso
     aplicacion.dependency_overrides[obtener_adaptador_neo4j] = lambda: neo4j_falso
     aplicacion.dependency_overrides[obtener_adaptador_cassandra] = lambda: cassandra_falso
+    aplicacion.dependency_overrides[obtener_adaptador_influx] = lambda: influx_falso
     aplicacion.dependency_overrides[obtener_catalogo_partidos] = lambda: catalogo
     return aplicacion
 

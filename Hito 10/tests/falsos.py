@@ -1,6 +1,6 @@
 """Adaptadores falsos en memoria para las pruebas unitarias (sin Docker)."""
 
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from app.adapters.cassandra_adaptador import clave_de_orden, minuto_de, segmento
 
@@ -368,6 +368,102 @@ class CassandraFalso:
 
     def escrituras(self) -> int:
         return sum(op in ("insertar_comentario", "actualizar_estado") for op in self.llamadas)
+
+    def ping(self) -> bool:
+        return self.falla is None
+
+    def cerrar(self) -> None:
+        pass
+
+INICIO_SERIE = datetime(2026, 10, 16, 0, 0, 0, tzinfo=timezone.utc)
+
+
+def _observaciones(partido_id: str, equipo_id: str, estadio_id: str, segundos: int,
+                   periodo_pases: int) -> list[dict]:
+    """Serie de un punto por segundo desde INICIO_SERIE, como la del Hito 8."""
+    return [{
+        "time": INICIO_SERIE + timedelta(seconds=s), "partido_id": partido_id,
+        "equipo_id": equipo_id, "estadio_id": estadio_id,
+        "posesion_pct": 50.0 + (s % 5 - 2) * (1 if equipo_id == "EQ-001" else -1),
+        "pases_acumulados": s // periodo_pases, "tiros_intervalo": 1 if s == 900 else 0,
+    } for s in range(segundos)]
+
+
+class InfluxFalso:
+    """Imita el contrato de AdaptadorInflux sobre puntos en memoria.
+
+    PAR-001 tiene 20 minutos de datos (EQ-001 y EQ-002, paso 1 s) desde INICIO_SERIE;
+    PAR-002 existe en el catálogo y no tiene puntos. Las agregaciones reproducen el SQL:
+    LAG por serie incluyendo la muestra anterior a desde, SUM, AVG y conteo de inválidos.
+    """
+
+    PASO = timedelta(seconds=1)
+
+    def __init__(self) -> None:
+        self.puntos = (_observaciones("PAR-001", "EQ-001", "EST-01", 1200, 10)
+                       + _observaciones("PAR-001", "EQ-002", "EST-01", 1200, 12))
+        self.falla: Exception | None = None
+        self.llamadas: list[str] = []
+
+    def _registrar(self, operacion: str) -> None:
+        self.llamadas.append(operacion)
+        if self.falla is not None:
+            raise self.falla
+
+    def ultimas_observaciones(self, partido_id, equipo_id, desde, hasta, limite):
+        self._registrar("ultimas_observaciones")
+        filas = sorted((p for p in self.puntos if p["partido_id"] == partido_id
+                        and p["equipo_id"] == equipo_id and desde <= p["time"] < hasta),
+                       key=lambda p: p["time"], reverse=True)
+        return [{k: p[k] for k in ("time", "estadio_id", "posesion_pct", "pases_acumulados",
+                                   "tiros_intervalo")} for p in filas[:limite]]
+
+    def _ventana(self, partido_id, equipo_id, desde, hasta) -> list[dict]:
+        series: dict[str, list[dict]] = {}
+        for p in sorted(self.puntos, key=lambda p: p["time"]):
+            if (p["partido_id"] == partido_id and desde - self.PASO <= p["time"] < hasta
+                    and equipo_id in (None, p["equipo_id"])):
+                series.setdefault(p["equipo_id"], []).append(p)
+        ventana = []
+        for puntos in series.values():
+            anterior = None
+            for p in puntos:
+                nuevos = None if anterior is None else p["pases_acumulados"] - anterior["pases_acumulados"]
+                separacion = None if anterior is None else p["time"] - anterior["time"]
+                if p["time"] >= desde:
+                    ventana.append({**p, "pases_nuevos": nuevos, "separacion": separacion})
+                anterior = p
+        return ventana
+
+    @classmethod
+    def _agregar(cls, filas: list[dict]) -> dict:
+        nuevos = [f["pases_nuevos"] for f in filas if f["pases_nuevos"] is not None]
+        return {
+            "muestras": len(filas),
+            "posesion_media": round(sum(f["posesion_pct"] for f in filas) / len(filas), 3),
+            "pases_nuevos": sum(nuevos) if nuevos else None,
+            "tiros": sum(f["tiros_intervalo"] for f in filas),
+            "intervalos_invalidos": sum(
+                not (f["separacion"] == cls.PASO and f["pases_nuevos"] >= 0) for f in filas),
+        }
+
+    def comparar(self, partido_id, desde, hasta):
+        self._registrar("comparar")
+        grupos: dict[str, list[dict]] = {}
+        for f in self._ventana(partido_id, None, desde, hasta):
+            grupos.setdefault(f["equipo_id"], []).append(f)
+        return [{"equipo_id": e, **self._agregar(f)} for e, f in sorted(grupos.items())]
+
+    def evolucion(self, partido_id, equipo_id, desde, hasta, resolucion):
+        self._registrar("evolucion")
+        bin_s = {"1m": 60, "5m": 300}[resolucion]
+        grupos: dict[tuple, list[dict]] = {}
+        for f in self._ventana(partido_id, equipo_id, desde, hasta):
+            segundos = int(f["time"].timestamp())
+            inicio = datetime.fromtimestamp(segundos - segundos % bin_s, timezone.utc)
+            grupos.setdefault((f["equipo_id"], inicio), []).append(f)
+        return [{"equipo_id": e, "inicio": i, **self._agregar(f)}
+                for (e, i), f in sorted(grupos.items())]
 
     def ping(self) -> bool:
         return self.falla is None

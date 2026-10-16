@@ -24,6 +24,10 @@ def obtener_adaptador_cassandra(request: Request):
     return request.app.state.adaptador_cassandra
 
 
+def obtener_adaptador_influx(request: Request):
+    return request.app.state.adaptador_influx
+
+
 def obtener_catalogo_partidos(request: Request):
     """Catálogo de partidos en memoria (casos_de_uso.md §3.2), para las fases 5 y 6."""
     return request.app.state.catalogo_partidos

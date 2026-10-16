@@ -25,6 +25,7 @@ DESCRIPCIONES_ERROR = {
     403: "ROL_NO_AUTORIZADO: la sesión vigente no tiene el rol necesario.",
     404: "El recurso principal no existe.",
     409: "TRANSICION_NO_PERMITIDA o IDEMPOTENCY_KEY_REUTILIZADA (misma clave con otro contenido).",
+    500: "ERROR_INTERNO: error inesperado o de configuración (el detalle queda solo en logs).",
     503: "DEPENDENCIA_NO_DISPONIBLE: la fuente de datos no está disponible.",
     504: "DEPENDENCIA_TIMEOUT: la fuente de datos no respondió a tiempo.",
 }

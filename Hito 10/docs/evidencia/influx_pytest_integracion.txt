@@ -1,0 +1,30 @@
+﻿# InfluxDB (Fase 6) · pytest -m integration tests/integracion/test_influx.py
+# Generado: 2026-10-16T00:32:56Z
+
+============================= test session starts =============================
+platform win32 -- Python 3.13.4, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\moham\Repositorios\Fixture2030-Grupo13\Hito 10\.venv\Scripts\python.exe
+rootdir: C:\Users\moham\Repositorios\Fixture2030-Grupo13\Hito 10
+configfile: pytest.ini
+plugins: anyio-4.15.1
+collecting ... collected 12 items
+
+tests/integracion/test_influx.py::test_salud_informa_influxdb_disponible PASSED [  8%]
+tests/integracion/test_influx.py::test_cu16_reproduce_la_comparacion_del_hito_8 PASSED [ 16%]
+tests/integracion/test_influx.py::test_cu17_sumas_por_minuto_coinciden_con_cu16 PASSED [ 25%]
+tests/integracion/test_influx.py::test_cu17_cinco_minutos_con_bins_cortados_conserva_los_totales PASSED [ 33%]
+tests/integracion/test_influx.py::test_cu15_ultimas_cinco_observaciones PASSED [ 41%]
+tests/integracion/test_influx.py::test_ventana_fuera_de_la_carga_es_200_vacio PASSED [ 50%]
+tests/integracion/test_influx.py::test_desde_posterior_a_hasta_es_400 PASSED [ 58%]
+tests/integracion/test_influx.py::test_cu17_ventana_de_tres_horas_es_400 PASSED [ 66%]
+tests/integracion/test_influx.py::test_partido_y_equipo_validados_contra_el_catalogo PASSED [ 75%]
+tests/integracion/test_influx.py::test_token_incorrecto_es_500_sin_detalles PASSED [ 83%]
+tests/integracion/test_influx.py::test_influx_inaccesible_es_503 PASSED  [ 91%]
+tests/integracion/test_influx.py::test_lectura_lenta_es_504 PASSED       [100%]
+
+============================== warnings summary ===============================
+.venv\Lib\site-packages\fastapi\testclient.py:1
+  C:\Users\moham\Repositorios\Fixture2030-Grupo13\Hito 10\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================== 12 passed, 1 warning in 4.97s ========================

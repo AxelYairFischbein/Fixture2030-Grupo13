@@ -7,7 +7,7 @@ usan como default los valores propuestos en casos_de_uso.md §6.3.
 
 from pathlib import Path
 
-from pydantic import SecretStr, ValidationError
+from pydantic import PositiveInt, SecretStr, ValidationError
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 RAIZ_HITO10 = Path(__file__).resolve().parents[2]
@@ -69,6 +69,9 @@ class Settings(BaseSettings):
     influx_database: str = "fixture2030_h8"
     influx_token_file: Path
     influx_timeout_s: float = 5.0
+    # Cadencia de la serie del Hito 8 (una observación por segundo): define muestrasEsperadas
+    # y la separación válida entre muestras consecutivas en CU-16 y CU-17.
+    influx_paso_s: PositiveInt = 1
 
     # InterSystems IRIS (Hito 9)
     iris_host: str = "127.0.0.1"
