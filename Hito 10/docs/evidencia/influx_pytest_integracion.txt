@@ -1,5 +1,5 @@
 ﻿# InfluxDB (Fase 6) · pytest -m integration tests/integracion/test_influx.py
-# Generado: 2026-10-16T00:32:56Z
+# Generado: 2026-10-16T17:31:27Z
 
 ============================= test session starts =============================
 platform win32 -- Python 3.13.4, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\moham\Repositorios\Fixture2030-Grupo13\Hito 10\.venv\Scripts\python.exe
@@ -27,4 +27,4 @@ tests/integracion/test_influx.py::test_lectura_lenta_es_504 PASSED       [100%]
     from starlette.testclient import TestClient as TestClient  # noqa
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-======================== 12 passed, 1 warning in 4.97s ========================
+======================== 12 passed, 1 warning in 6.69s ========================

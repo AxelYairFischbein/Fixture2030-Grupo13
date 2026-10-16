@@ -46,6 +46,14 @@ function Docker-Compose([string]$accion) {
     if ($LASTEXITCODE -ne 0) { throw "docker compose $accion mongodb falló" }
 }
 
+function Borrar-Cache([string]$equipoId) {
+    # Copia de CU-01 en el Redis del Hito 7 (sin credenciales: redis-cli dentro del contenedor).
+    $ErrorActionPreference = "Continue"
+    $composeHito7 = Join-Path (Split-Path -Parent $raiz) "Hito 7\docker-compose.yml"
+    & docker compose -f $composeHito7 exec -T redis redis-cli DEL "fixture2030:h7:demo:cache:equipo:$equipoId" 2>&1 | Out-Null
+    if ($LASTEXITCODE -ne 0) { throw "No se pudo borrar la copia de $equipoId en Redis" }
+}
+
 function Esperar-Api {
     for ($i = 0; $i -lt 40; $i++) {
         & curl.exe -s -o NUL --max-time 2 "$base/api/v1/salud"
@@ -103,7 +111,10 @@ try {
         Escribir $archivoControl @("", "## MongoDB detenido (docker compose stop mongodb en Hito 4)")
         try {
             Docker-Compose "stop"
-            Pedir $archivoControl "CU-01 con MongoDB detenido -> 503 en menos de ~3 s" "/api/v1/equipos/EQ-001"
+            Pedir $archivoControl "CU-01 con MongoDB detenido y copia vigente en Redis -> 200 X-Cache: HIT (casos_de_uso.md CU-01)" "/api/v1/equipos/EQ-001"
+            Borrar-Cache "EQ-001"
+            Escribir $archivoControl @("", "(Se eliminó la copia de EQ-001 en Redis para forzar la lectura de MongoDB.)")
+            Pedir $archivoControl "CU-01 con MongoDB detenido y sin copia en Redis -> 503 en menos de ~3 s" "/api/v1/equipos/EQ-001"
             Pedir $archivoControl "CU-03 con MongoDB detenido -> 503, nunca 200 vacío" "/api/v1/equipos/EQ-002/jugadores"
             Pedir $archivoControl "Salud con MongoDB detenido -> 200 degradado" "/api/v1/salud"
         } finally {

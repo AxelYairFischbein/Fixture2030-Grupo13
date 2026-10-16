@@ -1,0 +1,38 @@
+﻿# API · Latencia de lectura por endpoint (RNF18)
+# Generado: 2026-10-16T18:05:48Z con scripts/medir_latencia.ps1 -Repeticiones 50
+
+## Método
+- Cliente: curl.exe en la misma notebook, 50 requests secuenciales por endpoint después de 1 de calentamiento,
+  sin concurrencia y con una conexión TCP nueva por request. Métrica: time_total de curl, en milisegundos.
+- Percentiles por rango más cercano sobre las requests con el código HTTP esperado; las demás se cuentan en 'errores'.
+- API: uvicorn app.main:app, un proceso, sin --reload, log en nivel warning (sin log de acceso durante la medición).
+- CU-01 MISS borra la copia de Redis antes de cada request (docker compose exec, fuera del tiempo medido).
+
+## Entorno
+- Notebook: Microsoft Windows 11 Pro · Intel(R) Core(TM) Ultra 5 125U · 15.3 GB de RAM.
+- Python 3.13.4. Bases en Docker Desktop en la misma máquina (motor 29.7.2 · 14 CPU · 7965700096 bytes), un nodo por motor,
+  con los puertos publicados en 127.0.0.1 y los timeouts de .env (casos_de_uso.md §6.3).
+
+## Volumen
+- Datos de muestra de los Hitos 4 a 9: 64 equipos y 1.536 jugadores (MongoDB), 64 partidos (Neo4j),
+  comentarios de muestra de PAR-001 (Cassandra), 300 muestras por equipo en la ventana de PAR-001 (InfluxDB,
+  [2026-10-16T00:12:00Z, 2026-10-16T00:17:00Z)) y un acta con dos eventos (IRIS).
+
+## Resultados (ms)
+Endpoint                                   n errores      mín      p50      p95      máx
+CU-01 equipo EQ-001 (Redis HIT)           50      0      4,1      4,6     22,9     25,8
+CU-01 equipo EQ-001 (MISS -> MongoDB)     50      0      7,2      9,8     33,0     34,5
+CU-03 plantel EQ-002 (MongoDB, 24)        50      0      8,8      9,7     17,7     25,2
+CU-06 eventos PAR-001 (Neo4j)             50      0      9,3     10,5     15,3    113,0
+CU-08 comentarios minuto (Cassandra)      50      0     11,6     16,5     28,6     34,7
+CU-11 sesión vigente (Redis)              50      0      6,6      8,2     10,2     11,1
+CU-16 comparación 5 min (InfluxDB)        50      0     22,1     32,2     46,6     47,5
+CU-18 acta PAR-001 (IRIS)                 50      0      5,6      6,3      9,4     14,2
+CU-01 EQ-1 (400, sin consultar)           50      0      2,6      3,1      5,8     22,1
+
+## Limitaciones
+- Un solo cliente secuencial: no mide throughput ni comportamiento bajo concurrencia (uvicorn usa un threadpool
+  para las rutas síncronas; con muchas requests simultáneas la latencia puede ser otra).
+- Cliente, API y bases comparten CPU y RAM de la notebook; otros procesos influyen en las cifras.
+- Volúmenes de muestra, muy menores a los de producción; las cachés de cada motor están calientes.
+- Una sola corrida: las cifras sirven para comparar órdenes de magnitud entre fuentes, no como SLA.

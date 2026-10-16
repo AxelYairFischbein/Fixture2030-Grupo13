@@ -1,5 +1,5 @@
 ﻿# MongoDB (Fase 2) · pytest -m integration
-# Generado: 2026-10-15T04:47:42Z
+# Generado: 2026-10-16T17:34:22Z
 
 ============================= test session starts =============================
 platform win32 -- Python 3.13.4, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\moham\Repositorios\Fixture2030-Grupo13\Hito 10\.venv\Scripts\python.exe
@@ -7,16 +7,65 @@ rootdir: C:\Users\moham\Repositorios\Fixture2030-Grupo13\Hito 10
 configfile: pytest.ini
 testpaths: tests
 plugins: anyio-4.15.1
-collecting ... collected 79 items / 71 deselected / 8 selected
+collecting ... collected 483 items / 426 deselected / 57 selected
 
-tests/integracion/test_mongo.py::test_salud_informa_mongodb_disponible PASSED [ 12%]
-tests/integracion/test_mongo.py::test_cu01_ficha_de_equipo PASSED        [ 25%]
-tests/integracion/test_mongo.py::test_cu01_equipo_inexistente PASSED     [ 37%]
-tests/integracion/test_mongo.py::test_cu02_conmebol_ranking_50_igual_que_q03 PASSED [ 50%]
-tests/integracion/test_mongo.py::test_cu03_eq002_tiene_24_jugadores PASSED [ 62%]
-tests/integracion/test_mongo.py::test_cu03_pagina_2_de_eq001_coincide_con_q06 PASSED [ 75%]
-tests/integracion/test_mongo.py::test_cu04_ficha_de_jugador_sin_huerfanos PASSED [ 87%]
-tests/integracion/test_mongo.py::test_cu04_jugador_inexistente PASSED    [100%]
+tests/integracion/test_cassandra.py::test_salud_informa_cassandra_disponible PASSED [  1%]
+tests/integracion/test_cassandra.py::test_cu08_q1_minuto PASSED          [  3%]
+tests/integracion/test_cassandra.py::test_cu08_q2_ventana_y_cursor PASSED [  5%]
+tests/integracion/test_cassandra.py::test_cu08_ventana_mayor_a_5_minutos_es_400 PASSED [  7%]
+tests/integracion/test_cassandra.py::test_cu08_partido_inexistente_es_404 PASSED [  8%]
+tests/integracion/test_cassandra.py::test_cu10_q3_historial PASSED       [ 10%]
+tests/integracion/test_cassandra.py::test_cu09_publicacion_idempotente_y_cu20_moderacion PASSED [ 12%]
+tests/integracion/test_cassandra.py::test_cassandra_no_disponible_es_503 PASSED [ 14%]
+tests/integracion/test_influx.py::test_salud_informa_influxdb_disponible PASSED [ 15%]
+tests/integracion/test_influx.py::test_cu16_reproduce_la_comparacion_del_hito_8 PASSED [ 17%]
+tests/integracion/test_influx.py::test_cu17_sumas_por_minuto_coinciden_con_cu16 PASSED [ 19%]
+tests/integracion/test_influx.py::test_cu17_cinco_minutos_con_bins_cortados_conserva_los_totales PASSED [ 21%]
+tests/integracion/test_influx.py::test_cu15_ultimas_cinco_observaciones PASSED [ 22%]
+tests/integracion/test_influx.py::test_ventana_fuera_de_la_carga_es_200_vacio PASSED [ 24%]
+tests/integracion/test_influx.py::test_desde_posterior_a_hasta_es_400 PASSED [ 26%]
+tests/integracion/test_influx.py::test_cu17_ventana_de_tres_horas_es_400 PASSED [ 28%]
+tests/integracion/test_influx.py::test_partido_y_equipo_validados_contra_el_catalogo PASSED [ 29%]
+tests/integracion/test_influx.py::test_token_incorrecto_es_500_sin_detalles PASSED [ 31%]
+tests/integracion/test_influx.py::test_influx_inaccesible_es_503 PASSED  [ 33%]
+tests/integracion/test_influx.py::test_lectura_lenta_es_504 PASSED       [ 35%]
+tests/integracion/test_iris.py::test_salud_informa_iris_disponible PASSED [ 36%]
+tests/integracion/test_iris.py::test_cu18_acta_de_par001_coincide_con_la_demo_del_hito9 PASSED [ 38%]
+tests/integracion/test_iris.py::test_cu18_partido_del_calendario_sin_acta_es_404 PASSED [ 40%]
+tests/integracion/test_iris.py::test_cu18_acta_temporal_sin_eventos PASSED [ 42%]
+tests/integracion/test_iris.py::test_cu19_lista_de_control_sobre_partido_temporal PASSED [ 43%]
+tests/integracion/test_iris.py::test_cu19_pendiente_a_finalizado_es_409_y_no_cambia PASSED [ 45%]
+tests/integracion/test_iris.py::test_cu19_acta_inexistente_es_404 PASSED [ 47%]
+tests/integracion/test_iris.py::test_cu19_rol_lector_es_403_y_no_cambia PASSED [ 49%]
+tests/integracion/test_iris.py::test_cu19_pendiente_como_destino_es_400 PASSED [ 50%]
+tests/integracion/test_iris.py::test_par001_sigue_pendiente PASSED       [ 52%]
+tests/integracion/test_mongo.py::test_salud_informa_mongodb_disponible PASSED [ 54%]
+tests/integracion/test_mongo.py::test_cu01_ficha_de_equipo PASSED        [ 56%]
+tests/integracion/test_mongo.py::test_cu01_equipo_inexistente PASSED     [ 57%]
+tests/integracion/test_mongo.py::test_cu02_conmebol_ranking_50_igual_que_q03 PASSED [ 59%]
+tests/integracion/test_mongo.py::test_cu03_eq002_tiene_24_jugadores PASSED [ 61%]
+tests/integracion/test_mongo.py::test_cu03_pagina_2_de_eq001_coincide_con_q06 PASSED [ 63%]
+tests/integracion/test_mongo.py::test_cu04_ficha_de_jugador_sin_huerfanos PASSED [ 64%]
+tests/integracion/test_mongo.py::test_cu04_jugador_inexistente PASSED    [ 66%]
+tests/integracion/test_neo4j.py::test_salud_informa_catalogo_cargado_con_64_partidos PASSED [ 68%]
+tests/integracion/test_neo4j.py::test_cu05_agenda_de_eq001_como_q04_q06 PASSED [ 70%]
+tests/integracion/test_neo4j.py::test_cu05_equipo_inexistente PASSED     [ 71%]
+tests/integracion/test_neo4j.py::test_cu06_eventos_de_par001_como_q07 PASSED [ 73%]
+tests/integracion/test_neo4j.py::test_cu06_limite_cuenta_eventos PASSED  [ 75%]
+tests/integracion/test_neo4j.py::test_cu06_partido_inexistente PASSED    [ 77%]
+tests/integracion/test_neo4j.py::test_cu07_primer_dia_como_q09 PASSED    [ 78%]
+tests/integracion/test_neo4j.py::test_cu07_estadio_inexistente_es_vacio_valido PASSED [ 80%]
+tests/integracion/test_neo4j.py::test_cu07_intervalo_invertido_es_400 PASSED [ 82%]
+tests/integracion/test_neo4j.py::test_api_arranca_con_neo4j_inaccesible PASSED [ 84%]
+tests/integracion/test_redis.py::test_salud_informa_redis_disponible PASSED [ 85%]
+tests/integracion/test_redis.py::test_cu11_sesion_vigente_no_renueva PASSED [ 87%]
+tests/integracion/test_redis.py::test_cu12_renueva_ttl_y_ultima_actividad PASSED [ 89%]
+tests/integracion/test_redis.py::test_sesion_vencida_por_ttl_corto PASSED [ 91%]
+tests/integracion/test_redis.py::test_sesion_sin_vencimiento_no_es_valida PASSED [ 92%]
+tests/integracion/test_redis.py::test_cu13_cierre_repetido_es_204 PASSED [ 94%]
+tests/integracion/test_redis.py::test_sesion_inexistente_es_401 PASSED   [ 96%]
+tests/integracion/test_redis.py::test_cu01_miss_hit_y_cu14_invalidacion PASSED [ 98%]
+tests/integracion/test_redis.py::test_redis_no_disponible_bypass_y_503 PASSED [100%]
 
 ============================== warnings summary ===============================
 .venv\Lib\site-packages\fastapi\testclient.py:1
@@ -24,4 +73,4 @@ tests/integracion/test_mongo.py::test_cu04_jugador_inexistente PASSED    [100%]
     from starlette.testclient import TestClient as TestClient  # noqa
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-================= 8 passed, 71 deselected, 1 warning in 0.22s =================
+=============== 57 passed, 426 deselected, 1 warning in 21.03s ================

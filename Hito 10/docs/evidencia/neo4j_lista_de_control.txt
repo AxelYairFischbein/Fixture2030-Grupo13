@@ -1,0 +1,214 @@
+﻿# Neo4j (Fase 4) · Lista de control (plan_de_implementacion.md)
+# Generado: 2026-10-16T17:25:45Z · API en http://127.0.0.1:8016 · respuestas crudas de curl.exe -i
+
+### Salud con Neo4j arriba -> catálogo cargado con 64 partidos
+GET /api/v1/salud
+HTTP/1.1 200 OK
+date: Fri, 16 Oct 2026 17:26:01 GMT
+server: uvicorn
+content-length: 264
+content-type: application/json
+x-request-id: 5c55eff7-14e3-45a3-8efb-7d6e9bcc6402
+
+{"estado":"ok","dependencias":{"mongodb":"disponible","neo4j":"disponible","cassandra":"disponible","redis":"disponible","influxdb":"disponible","iris":"disponible"},"catalogoPartidos":{"estado":"cargado","partidos":64,"ultimaCarga":"2026-10-16T17:26:01.559422Z"}}
+(tiempo_total_s=0.048853)
+
+### CU-05 · EQ-001 -> PAR-001 y PAR-033 (Q04/Q06), sin estado
+GET /api/v1/equipos/EQ-001/partidos
+HTTP/1.1 200 OK
+date: Fri, 16 Oct 2026 17:26:01 GMT
+server: uvicorn
+content-length: 587
+content-type: application/json
+x-request-id: 157f3caf-3177-437e-80e7-76ec78dacc5f
+
+{"equipoId":"EQ-001","items":[{"partidoId":"PAR-001","inicio":"2030-06-10T18:00:00Z","grupo":"G01","fase":"GRUPOS_MUESTRA","rol":"LOCAL","rival":{"equipoId":"EQ-002","codigo":"F02","nombre":"Seleccion Sintetica 02"},"estadio":{"estadioId":"EST-01","nombre":"Estadio Sintetico 01","ciudad":"Ciudad Sede 01"}},{"partidoId":"PAR-033","inicio":"2030-06-14T18:00:00Z","grupo":"G01","fase":"GRUPOS_MUESTRA","rol":"LOCAL","rival":{"equipoId":"EQ-003","codigo":"F03","nombre":"Seleccion Sintetica 03"},"estadio":{"estadioId":"EST-01","nombre":"Estadio Sintetico 01","ciudad":"Ciudad Sede 01"}}]}
+(tiempo_total_s=0.054349)
+
+### CU-05 · EQ-999 -> 404 EQUIPO_NO_ENCONTRADO
+GET /api/v1/equipos/EQ-999/partidos
+HTTP/1.1 404 Not Found
+date: Fri, 16 Oct 2026 17:26:01 GMT
+server: uvicorn
+x-request-id: 77e7b443-9004-43e7-a973-2e1f88246a3e
+content-length: 221
+content-type: application/json
+
+{"error":{"codigo":"EQUIPO_NO_ENCONTRADO","mensaje":"No existe un equipo con el identificador indicado.","requestId":"77e7b443-9004-43e7-a973-2e1f88246a3e","detalles":[{"campo":"equipoId","problema":"EQ-999 no existe"}]}}
+(tiempo_total_s=0.023084)
+
+### CU-05 · EQ-1 -> 400 VALIDACION (sin consultar Neo4j)
+GET /api/v1/equipos/EQ-1/partidos
+HTTP/1.1 400 Bad Request
+date: Fri, 16 Oct 2026 17:26:02 GMT
+server: uvicorn
+x-request-id: a2914122-b08d-468a-b148-ac3c4efbc138
+content-length: 213
+content-type: application/json
+
+{"error":{"codigo":"VALIDACION","mensaje":"La solicitud tiene datos inválidos.","requestId":"a2914122-b08d-468a-b148-ac3c4efbc138","detalles":[{"campo":"equipoId","problema":"no cumple el formato ^EQ-\\d{3}$"}]}}
+(tiempo_total_s=0.012040)
+
+### CU-06 · PAR-001 -> 2 eventos con 4 participantes (Q07)
+GET /api/v1/partidos/PAR-001/eventos
+HTTP/1.1 200 OK
+date: Fri, 16 Oct 2026 17:26:02 GMT
+server: uvicorn
+content-length: 631
+content-type: application/json
+x-request-id: bae9a66e-6cde-40cb-b275-86d5e6a4bb18
+
+{"partidoId":"PAR-001","items":[{"eventoId":"EVT-PAR-001-LOCAL","tipo":"SUSTITUCION","minuto":60,"participantes":[{"jugadorId":"JUG-0020","nombre":"Nombre0020","apellido":"Apellido0020","equipoId":"EQ-001","rol":"SALE"},{"jugadorId":"JUG-0021","nombre":"Nombre0021","apellido":"Apellido0021","equipoId":"EQ-001","rol":"ENTRA"}]},{"eventoId":"EVT-PAR-001-VISITANTE","tipo":"SUSTITUCION","minuto":65,"participantes":[{"jugadorId":"JUG-0044","nombre":"Nombre0044","apellido":"Apellido0044","equipoId":"EQ-002","rol":"SALE"},{"jugadorId":"JUG-0045","nombre":"Nombre0045","apellido":"Apellido0045","equipoId":"EQ-002","rol":"ENTRA"}]}]}
+(tiempo_total_s=0.035288)
+
+### CU-06 · PAR-001 limite=1 -> 1 evento con sus 2 participantes
+GET /api/v1/partidos/PAR-001/eventos?limite=1
+HTTP/1.1 200 OK
+date: Fri, 16 Oct 2026 17:26:02 GMT
+server: uvicorn
+content-length: 330
+content-type: application/json
+x-request-id: cfc9f4b9-5a01-4ac6-bb35-3e6f29d73182
+
+{"partidoId":"PAR-001","items":[{"eventoId":"EVT-PAR-001-LOCAL","tipo":"SUSTITUCION","minuto":60,"participantes":[{"jugadorId":"JUG-0020","nombre":"Nombre0020","apellido":"Apellido0020","equipoId":"EQ-001","rol":"SALE"},{"jugadorId":"JUG-0021","nombre":"Nombre0021","apellido":"Apellido0021","equipoId":"EQ-001","rol":"ENTRA"}]}]}
+(tiempo_total_s=0.024076)
+
+### CU-06 · PAR-999 -> 404 PARTIDO_NO_ENCONTRADO
+GET /api/v1/partidos/PAR-999/eventos
+HTTP/1.1 404 Not Found
+date: Fri, 16 Oct 2026 17:26:02 GMT
+server: uvicorn
+x-request-id: 2f158d76-0916-441d-8206-41b75d43e3cb
+content-length: 225
+content-type: application/json
+
+{"error":{"codigo":"PARTIDO_NO_ENCONTRADO","mensaje":"No existe un partido con el identificador indicado.","requestId":"2f158d76-0916-441d-8206-41b75d43e3cb","detalles":[{"campo":"partidoId","problema":"PAR-999 no existe"}]}}
+(tiempo_total_s=0.017410)
+
+### CU-07 · 2030-06-10 -> PAR-001…PAR-008 (Q09), sin estado
+GET /api/v1/partidos?desde=2030-06-10T00:00:00Z&hasta=2030-06-11T00:00:00Z
+HTTP/1.1 200 OK
+date: Fri, 16 Oct 2026 17:26:02 GMT
+server: uvicorn
+content-length: 1491
+content-type: application/json
+x-request-id: f454baec-ae4f-41bb-828e-78fd476ab586
+
+{"items":[{"partidoId":"PAR-001","inicio":"2030-06-10T18:00:00Z","grupo":"G01","fase":"GRUPOS_MUESTRA","estadio":{"estadioId":"EST-01","nombre":"Estadio Sintetico 01","ciudad":"Ciudad Sede 01"}},{"partidoId":"PAR-002","inicio":"2030-06-10T18:00:00Z","grupo":"G01","fase":"GRUPOS_MUESTRA","estadio":{"estadioId":"EST-02","nombre":"Estadio Sintetico 02","ciudad":"Ciudad Sede 02"}},{"partidoId":"PAR-003","inicio":"2030-06-10T18:00:00Z","grupo":"G02","fase":"GRUPOS_MUESTRA","estadio":{"estadioId":"EST-03","nombre":"Estadio Sintetico 03","ciudad":"Ciudad Sede 03"}},{"partidoId":"PAR-004","inicio":"2030-06-10T18:00:00Z","grupo":"G02","fase":"GRUPOS_MUESTRA","estadio":{"estadioId":"EST-04","nombre":"Estadio Sintetico 04","ciudad":"Ciudad Sede 04"}},{"partidoId":"PAR-005","inicio":"2030-06-10T18:00:00Z","grupo":"G03","fase":"GRUPOS_MUESTRA","estadio":{"estadioId":"EST-05","nombre":"Estadio Sintetico 05","ciudad":"Ciudad Sede 05"}},{"partidoId":"PAR-006","inicio":"2030-06-10T18:00:00Z","grupo":"G03","fase":"GRUPOS_MUESTRA","estadio":{"estadioId":"EST-06","nombre":"Estadio Sintetico 06","ciudad":"Ciudad Sede 06"}},{"partidoId":"PAR-007","inicio":"2030-06-10T18:00:00Z","grupo":"G04","fase":"GRUPOS_MUESTRA","estadio":{"estadioId":"EST-07","nombre":"Estadio Sintetico 07","ciudad":"Ciudad Sede 07"}},{"partidoId":"PAR-008","inicio":"2030-06-10T18:00:00Z","grupo":"G04","fase":"GRUPOS_MUESTRA","estadio":{"estadioId":"EST-08","nombre":"Estadio Sintetico 08","ciudad":"Ciudad Sede 08"}}]}
+(tiempo_total_s=0.030699)
+
+### CU-07 · estadioId=EST-99 -> 200 items [] (vacío válido)
+GET /api/v1/partidos?desde=2030-06-10T00:00:00Z&hasta=2030-06-11T00:00:00Z&estadioId=EST-99
+HTTP/1.1 200 OK
+date: Fri, 16 Oct 2026 17:26:02 GMT
+server: uvicorn
+content-length: 12
+content-type: application/json
+x-request-id: 53aa382f-e68a-4c3a-b20d-367a49381402
+
+{"items":[]}
+(tiempo_total_s=0.022033)
+
+### CU-07 · intervalo invertido -> 400 VALIDACION (sin consultar Neo4j)
+GET /api/v1/partidos?desde=2030-06-11T00:00:00Z&hasta=2030-06-10T00:00:00Z
+HTTP/1.1 400 Bad Request
+date: Fri, 16 Oct 2026 17:26:02 GMT
+server: uvicorn
+x-request-id: e058b36d-5ed2-4e6a-a359-d530a54ffe4f
+content-length: 204
+content-type: application/json
+
+{"error":{"codigo":"VALIDACION","mensaje":"La solicitud tiene datos inválidos.","requestId":"e058b36d-5ed2-4e6a-a359-d530a54ffe4f","detalles":[{"campo":"hasta","problema":"debe ser posterior a desde"}]}}
+(tiempo_total_s=0.010503)
+
+### CU-07 · fecha sin zona -> 400 VALIDACION
+GET /api/v1/partidos?desde=2030-06-10T00:00:00&hasta=2030-06-11T00:00:00Z
+HTTP/1.1 400 Bad Request
+date: Fri, 16 Oct 2026 17:26:02 GMT
+server: uvicorn
+x-request-id: 7e54980d-4dfc-413c-a79c-a08d7c4110ff
+content-length: 209
+content-type: application/json
+
+{"error":{"codigo":"VALIDACION","mensaje":"La solicitud tiene datos inválidos.","requestId":"7e54980d-4dfc-413c-a79c-a08d7c4110ff","detalles":[{"campo":"desde","problema":"debe incluir zona horaria (UTC)"}]}}
+(tiempo_total_s=0.006112)
+
+## Neo4j detenido (docker compose stop neo4j en Hito 5)
+
+### CU-05 con Neo4j detenido -> 503, nunca 200 vacío
+GET /api/v1/equipos/EQ-001/partidos
+HTTP/1.1 503 Service Unavailable
+date: Fri, 16 Oct 2026 17:26:17 GMT
+server: uvicorn
+x-request-id: 1a196209-1168-4196-b311-05116b5d2a71
+content-length: 176
+content-type: application/json
+
+{"error":{"codigo":"DEPENDENCIA_NO_DISPONIBLE","mensaje":"Una fuente de datos necesaria no está disponible.","requestId":"1a196209-1168-4196-b311-05116b5d2a71","detalles":[]}}
+(tiempo_total_s=2.037046)
+
+### CU-06 con Neo4j detenido -> 503
+GET /api/v1/partidos/PAR-001/eventos
+HTTP/1.1 503 Service Unavailable
+date: Fri, 16 Oct 2026 17:26:19 GMT
+server: uvicorn
+x-request-id: 4f16c120-f29c-4923-848b-ffef1b681664
+content-length: 176
+content-type: application/json
+
+{"error":{"codigo":"DEPENDENCIA_NO_DISPONIBLE","mensaje":"Una fuente de datos necesaria no está disponible.","requestId":"4f16c120-f29c-4923-848b-ffef1b681664","detalles":[]}}
+(tiempo_total_s=2.024381)
+
+### CU-07 con Neo4j detenido -> 503
+GET /api/v1/partidos?desde=2030-06-10T00:00:00Z&hasta=2030-06-11T00:00:00Z
+HTTP/1.1 503 Service Unavailable
+date: Fri, 16 Oct 2026 17:26:21 GMT
+server: uvicorn
+x-request-id: 37ed4571-d1e8-4f68-a861-246b8da85208
+content-length: 176
+content-type: application/json
+
+{"error":{"codigo":"DEPENDENCIA_NO_DISPONIBLE","mensaje":"Una fuente de datos necesaria no está disponible.","requestId":"37ed4571-d1e8-4f68-a861-246b8da85208","detalles":[]}}
+(tiempo_total_s=2.015164)
+
+### CU-08 con Neo4j detenido -> 200: usa el catálogo ya cargado (§3.2)
+GET /api/v1/partidos/PAR-001/comentarios?minuto=2030-06-10T18:01:00Z
+HTTP/1.1 200 OK
+date: Fri, 16 Oct 2026 17:26:23 GMT
+server: uvicorn
+content-length: 518
+content-type: application/json
+x-request-id: ac54f86a-3675-45de-bfcb-2685dc1dd817
+
+{"partidoId":"PAR-001","items":[{"comentarioId":"MUESTRA-008","usuarioId":"USR-00001","creadoEn":"2030-06-10T18:01:59.000Z","contenido":"Se termina este minuto","estado":"visible","likes":1},{"comentarioId":"MUESTRA-005","usuarioId":"USR-00001","creadoEn":"2030-06-10T18:01:20.000Z","contenido":"Buen remate","estado":"visible","likes":5},{"comentarioId":"MUESTRA-006","usuarioId":"USR-00002","creadoEn":"2030-06-10T18:01:20.000Z","contenido":"Atajada importante","estado":"visible","likes":3}],"siguienteCursor":null}
+(tiempo_total_s=0.093285)
+
+### Salud con Neo4j detenido -> neo4j no_disponible, catálogo sigue cargado
+GET /api/v1/salud
+HTTP/1.1 200 OK
+date: Fri, 16 Oct 2026 17:26:23 GMT
+server: uvicorn
+content-length: 274
+content-type: application/json
+x-request-id: b0adb1d0-739f-4609-a576-0be29e831523
+
+{"estado":"degradado","dependencias":{"mongodb":"disponible","neo4j":"no_disponible","cassandra":"disponible","redis":"disponible","influxdb":"disponible","iris":"disponible"},"catalogoPartidos":{"estado":"cargado","partidos":64,"ultimaCarga":"2026-10-16T17:26:01.559422Z"}}
+(tiempo_total_s=2.114659)
+
+### CU-05 después de volver a levantar Neo4j -> 200 (el driver reconecta)
+GET /api/v1/equipos/EQ-001/partidos
+HTTP/1.1 200 OK
+date: Fri, 16 Oct 2026 17:27:02 GMT
+server: uvicorn
+content-length: 587
+content-type: application/json
+x-request-id: fc3a112d-1cfd-4df6-8652-05055741af24
+
+{"equipoId":"EQ-001","items":[{"partidoId":"PAR-001","inicio":"2030-06-10T18:00:00Z","grupo":"G01","fase":"GRUPOS_MUESTRA","rol":"LOCAL","rival":{"equipoId":"EQ-002","codigo":"F02","nombre":"Seleccion Sintetica 02"},"estadio":{"estadioId":"EST-01","nombre":"Estadio Sintetico 01","ciudad":"Ciudad Sede 01"}},{"partidoId":"PAR-033","inicio":"2030-06-14T18:00:00Z","grupo":"G01","fase":"GRUPOS_MUESTRA","rol":"LOCAL","rival":{"equipoId":"EQ-003","codigo":"F03","nombre":"Seleccion Sintetica 03"},"estadio":{"estadioId":"EST-01","nombre":"Estadio Sintetico 01","ciudad":"Ciudad Sede 01"}}]}
+(tiempo_total_s=4.034743)
+
+### Las respuestas de CU-05, CU-06 y CU-07 no incluyen el campo estado
+Sin coincidencias de '"estado":' en las respuestas 200 de CU-05, CU-06 y CU-07.
+
+### Ningún archivo de app/routes ni app/services importa neo4j
+Sin coincidencias de 'import neo4j' / 'from neo4j' en app/routes ni app/services.

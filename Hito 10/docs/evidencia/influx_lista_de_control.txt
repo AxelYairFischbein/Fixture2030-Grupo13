@@ -1,224 +1,224 @@
 ﻿# InfluxDB (Fase 6) · Lista de control (plan_de_implementacion.md)
-# Generado: 2026-10-16T00:32:56Z · API en http://127.0.0.1:8013 · respuestas crudas de curl.exe -i
+# Generado: 2026-10-16T17:31:27Z · API en http://127.0.0.1:8013 · respuestas crudas de curl.exe -i
 # Ventana de la carga de muestra (Hito 8/datos/muestra.json, fin - 300 s): [2026-10-16T00:12:00Z, 2026-10-16T00:17:00Z)
 
 ### Salud con InfluxDB arriba
 GET /api/v1/salud
 HTTP/1.1 200 OK
-date: Fri, 16 Oct 2026 00:33:08 GMT
+date: Fri, 16 Oct 2026 17:31:49 GMT
 server: uvicorn
-content-length: 278
+content-length: 264
 content-type: application/json
-x-request-id: 344e4da1-b83d-4295-b948-19f8cfeb21fe
+x-request-id: 66671421-0e74-4e1d-ba7e-16efd9f9bb84
 
-{"estado":"degradado","dependencias":{"mongodb":"no_disponible","neo4j":"disponible","cassandra":"disponible","redis":"disponible","influxdb":"disponible","iris":"no_configurada"},"catalogoPartidos":{"estado":"cargado","partidos":64,"ultimaCarga":"2026-10-16T00:33:06.165696Z"}}
-(tiempo_total_s=2.393536)
+{"estado":"ok","dependencias":{"mongodb":"disponible","neo4j":"disponible","cassandra":"disponible","redis":"disponible","influxdb":"disponible","iris":"disponible"},"catalogoPartidos":{"estado":"cargado","partidos":64,"ultimaCarga":"2026-10-16T17:31:49.548159Z"}}
+(tiempo_total_s=0.072594)
 
 ### CU-16 · PAR-001 -> EQ-001 300 muestras, 49.975, 30 pases, 1 tiro; EQ-002 300, 50.025, 25, 1; 0 inválidos
 GET /api/v1/partidos/PAR-001/estadisticas/comparacion?desde=2026-10-16T00:12:00Z&hasta=2026-10-16T00:17:00Z
 HTTP/1.1 200 OK
-date: Fri, 16 Oct 2026 00:33:10 GMT
+date: Fri, 16 Oct 2026 17:31:49 GMT
 server: uvicorn
 content-length: 399
 content-type: application/json
-x-request-id: 17603bc6-126d-464a-aa9c-7ece90304cab
+x-request-id: 95d7b5b2-e415-4f69-8534-c89b3221bacf
 
 {"partidoId":"PAR-001","desde":"2026-10-16T00:12:00Z","hasta":"2026-10-16T00:17:00Z","equipos":[{"muestras":300,"muestrasEsperadas":300,"posesionMedia":49.975,"pasesNuevos":30,"tiros":1,"intervalosInvalidos":0,"completo":true,"equipoId":"EQ-001"},{"muestras":300,"muestrasEsperadas":300,"posesionMedia":50.025,"pasesNuevos":25,"tiros":1,"intervalosInvalidos":0,"completo":true,"equipoId":"EQ-002"}]}
-(tiempo_total_s=0.044834)
+(tiempo_total_s=0.186921)
 
 ### CU-17 · 1m -> 5 intervalos por equipo; las sumas coinciden con CU-16 (30 y 25 pases)
 GET /api/v1/partidos/PAR-001/estadisticas/evolucion?desde=2026-10-16T00:12:00Z&hasta=2026-10-16T00:17:00Z
 HTTP/1.1 200 OK
-date: Fri, 16 Oct 2026 00:33:10 GMT
+date: Fri, 16 Oct 2026 17:31:50 GMT
 server: uvicorn
 content-length: 1782
 content-type: application/json
-x-request-id: 30ba224c-66d2-4eb7-92b6-74b2af76541c
+x-request-id: 7d5b4cd1-8ca6-4c1a-a738-abecf63f1a21
 
 {"partidoId":"PAR-001","desde":"2026-10-16T00:12:00Z","hasta":"2026-10-16T00:17:00Z","resolucion":"1m","series":[{"equipoId":"EQ-001","intervalos":[{"muestras":60,"muestrasEsperadas":60,"posesionMedia":49.825,"pasesNuevos":6,"tiros":0,"intervalosInvalidos":0,"completo":true,"inicio":"2026-10-16T00:12:00Z"},{"muestras":60,"muestrasEsperadas":60,"posesionMedia":49.9,"pasesNuevos":6,"tiros":0,"intervalosInvalidos":0,"completo":true,"inicio":"2026-10-16T00:13:00Z"},{"muestras":60,"muestrasEsperadas":60,"posesionMedia":49.975,"pasesNuevos":6,"tiros":1,"intervalosInvalidos":0,"completo":true,"inicio":"2026-10-16T00:14:00Z"},{"muestras":60,"muestrasEsperadas":60,"posesionMedia":50.05,"pasesNuevos":6,"tiros":0,"intervalosInvalidos":0,"completo":true,"inicio":"2026-10-16T00:15:00Z"},{"muestras":60,"muestrasEsperadas":60,"posesionMedia":50.125,"pasesNuevos":6,"tiros":0,"intervalosInvalidos":0,"completo":true,"inicio":"2026-10-16T00:16:00Z"}]},{"equipoId":"EQ-002","intervalos":[{"muestras":60,"muestrasEsperadas":60,"posesionMedia":50.175,"pasesNuevos":5,"tiros":0,"intervalosInvalidos":0,"completo":true,"inicio":"2026-10-16T00:12:00Z"},{"muestras":60,"muestrasEsperadas":60,"posesionMedia":50.1,"pasesNuevos":5,"tiros":0,"intervalosInvalidos":0,"completo":true,"inicio":"2026-10-16T00:13:00Z"},{"muestras":60,"muestrasEsperadas":60,"posesionMedia":50.025,"pasesNuevos":5,"tiros":0,"intervalosInvalidos":0,"completo":true,"inicio":"2026-10-16T00:14:00Z"},{"muestras":60,"muestrasEsperadas":60,"posesionMedia":49.95,"pasesNuevos":5,"tiros":1,"intervalosInvalidos":0,"completo":true,"inicio":"2026-10-16T00:15:00Z"},{"muestras":60,"muestrasEsperadas":60,"posesionMedia":49.875,"pasesNuevos":5,"tiros":0,"intervalosInvalidos":0,"completo":true,"inicio":"2026-10-16T00:16:00Z"}]}]}
-(tiempo_total_s=0.017099)
+(tiempo_total_s=0.054818)
 
 ### CU-17 · 5m solo EQ-002 -> bins de 5 min UTC (cortados por la ventana), mismos totales
 GET /api/v1/partidos/PAR-001/estadisticas/evolucion?desde=2026-10-16T00:12:00Z&hasta=2026-10-16T00:17:00Z&resolucion=5m&equipoId=EQ-002
 HTTP/1.1 200 OK
-date: Fri, 16 Oct 2026 00:33:10 GMT
+date: Fri, 16 Oct 2026 17:31:50 GMT
 server: uvicorn
 content-length: 475
 content-type: application/json
-x-request-id: da242c8b-3a35-49ca-ae41-7f5e5bcfdad9
+x-request-id: ba946423-24ef-4a7b-a9eb-e0d0e5065a6d
 
 {"partidoId":"PAR-001","desde":"2026-10-16T00:12:00Z","hasta":"2026-10-16T00:17:00Z","resolucion":"5m","series":[{"equipoId":"EQ-002","intervalos":[{"muestras":180,"muestrasEsperadas":180,"posesionMedia":50.1,"pasesNuevos":15,"tiros":0,"intervalosInvalidos":0,"completo":true,"inicio":"2026-10-16T00:10:00Z"},{"muestras":120,"muestrasEsperadas":120,"posesionMedia":49.913,"pasesNuevos":10,"tiros":1,"intervalosInvalidos":0,"completo":true,"inicio":"2026-10-16T00:15:00Z"}]}]}
-(tiempo_total_s=0.014517)
+(tiempo_total_s=0.059810)
 
 ### CU-15 · EQ-001 -> 5 observaciones en orden descendente y ultimaObservacion
 GET /api/v1/partidos/PAR-001/equipos/EQ-001/estadisticas/recientes?hasta=2026-10-16T00:17:00Z
 HTTP/1.1 200 OK
-date: Fri, 16 Oct 2026 00:33:11 GMT
+date: Fri, 16 Oct 2026 17:31:50 GMT
 server: uvicorn
 content-length: 577
 content-type: application/json
-x-request-id: 1bf26a2a-977a-4ee1-94ca-34409f951b29
+x-request-id: 62d3d665-e080-4dbc-8f64-9a1e86feb5b7
 
 {"partidoId":"PAR-001","equipoId":"EQ-001","estadioId":"EST-01","items":[{"time":"2026-10-16T00:16:59Z","posesionPct":46.5,"pasesAcumulados":539,"tirosIntervalo":0},{"time":"2026-10-16T00:16:58Z","posesionPct":46.0,"pasesAcumulados":539,"tirosIntervalo":0},{"time":"2026-10-16T00:16:57Z","posesionPct":45.5,"pasesAcumulados":539,"tirosIntervalo":0},{"time":"2026-10-16T00:16:56Z","posesionPct":45.0,"pasesAcumulados":539,"tirosIntervalo":0},{"time":"2026-10-16T00:16:55Z","posesionPct":55.0,"pasesAcumulados":539,"tirosIntervalo":0}],"ultimaObservacion":"2026-10-16T00:16:59Z"}
-(tiempo_total_s=0.013541)
+(tiempo_total_s=0.042152)
 
 ### CU-15 · ventana sin puntos (hasta = ahora) -> 200 items [] y ultimaObservacion null
 GET /api/v1/partidos/PAR-001/equipos/EQ-001/estadisticas/recientes
 HTTP/1.1 200 OK
-date: Fri, 16 Oct 2026 00:33:11 GMT
+date: Fri, 16 Oct 2026 17:31:50 GMT
 server: uvicorn
 content-length: 96
 content-type: application/json
-x-request-id: 7af3fff1-63fd-40a9-b53f-9bc11291d4ea
+x-request-id: c5f4a2f0-acc3-4b9f-a7c7-2d3559ebb85e
 
 {"partidoId":"PAR-001","equipoId":"EQ-001","estadioId":null,"items":[],"ultimaObservacion":null}
-(tiempo_total_s=0.008722)
+(tiempo_total_s=0.027606)
 
 ### CU-16 · desde > hasta -> 400 VALIDACION (sin consultar)
 GET /api/v1/partidos/PAR-001/estadisticas/comparacion?desde=2026-10-16T00:17:00Z&hasta=2026-10-16T00:12:00Z
 HTTP/1.1 400 Bad Request
-date: Fri, 16 Oct 2026 00:33:11 GMT
+date: Fri, 16 Oct 2026 17:31:50 GMT
 server: uvicorn
-x-request-id: 043e8fd5-d2d5-42ac-bc77-d0fc8a529663
+x-request-id: b726e548-a8cc-4abe-b2c7-2fdb927bf6e6
 content-length: 204
 content-type: application/json
 
-{"error":{"codigo":"VALIDACION","mensaje":"La solicitud tiene datos inválidos.","requestId":"043e8fd5-d2d5-42ac-bc77-d0fc8a529663","detalles":[{"campo":"hasta","problema":"debe ser posterior a desde"}]}}
-(tiempo_total_s=0.003684)
+{"error":{"codigo":"VALIDACION","mensaje":"La solicitud tiene datos inválidos.","requestId":"b726e548-a8cc-4abe-b2c7-2fdb927bf6e6","detalles":[{"campo":"hasta","problema":"debe ser posterior a desde"}]}}
+(tiempo_total_s=0.010829)
 
 ### CU-16 · ventana de 6 min -> 400 VALIDACION
 GET /api/v1/partidos/PAR-001/estadisticas/comparacion?desde=2026-10-16T00:11:00Z&hasta=2026-10-16T00:17:00Z
 HTTP/1.1 400 Bad Request
-date: Fri, 16 Oct 2026 00:33:11 GMT
+date: Fri, 16 Oct 2026 17:31:50 GMT
 server: uvicorn
-x-request-id: f7b8fca9-50dd-4f4b-8284-59b50eead837
+x-request-id: ea087b19-4fff-4643-a7cb-70668ce8bcda
 content-length: 215
 content-type: application/json
 
-{"error":{"codigo":"VALIDACION","mensaje":"La solicitud tiene datos inválidos.","requestId":"f7b8fca9-50dd-4f4b-8284-59b50eead837","detalles":[{"campo":"hasta","problema":"la ventana no puede superar 5 minutos"}]}}
-(tiempo_total_s=0.022245)
+{"error":{"codigo":"VALIDACION","mensaje":"La solicitud tiene datos inválidos.","requestId":"ea087b19-4fff-4643-a7cb-70668ce8bcda","detalles":[{"campo":"hasta","problema":"la ventana no puede superar 5 minutos"}]}}
+(tiempo_total_s=0.008688)
 
 ### CU-17 · ventana de 3 h -> 400 VALIDACION
 GET /api/v1/partidos/PAR-001/estadisticas/evolucion?desde=2026-10-15T21:17:00Z&hasta=2026-10-16T00:17:00Z
 HTTP/1.1 400 Bad Request
-date: Fri, 16 Oct 2026 00:33:11 GMT
+date: Fri, 16 Oct 2026 17:31:50 GMT
 server: uvicorn
-x-request-id: 6b0c2ff9-3093-4c2d-90c5-90fcbf379132
+x-request-id: 5ce4deea-9226-43ec-81c1-e9412cb1c74d
 content-length: 213
 content-type: application/json
 
-{"error":{"codigo":"VALIDACION","mensaje":"La solicitud tiene datos inválidos.","requestId":"6b0c2ff9-3093-4c2d-90c5-90fcbf379132","detalles":[{"campo":"hasta","problema":"la ventana no puede superar 2 horas"}]}}
-(tiempo_total_s=0.019930)
+{"error":{"codigo":"VALIDACION","mensaje":"La solicitud tiene datos inválidos.","requestId":"5ce4deea-9226-43ec-81c1-e9412cb1c74d","detalles":[{"campo":"hasta","problema":"la ventana no puede superar 2 horas"}]}}
+(tiempo_total_s=0.009343)
 
 ### CU-17 · resolucion=10m -> 400 VALIDACION
 GET /api/v1/partidos/PAR-001/estadisticas/evolucion?desde=2026-10-16T00:12:00Z&hasta=2026-10-16T00:17:00Z&resolucion=10m
 HTTP/1.1 400 Bad Request
-date: Fri, 16 Oct 2026 00:33:11 GMT
+date: Fri, 16 Oct 2026 17:31:50 GMT
 server: uvicorn
-x-request-id: 52164d36-cfb2-4468-9086-5e3b2098f0b1
+x-request-id: a9e62047-a616-4f2d-ae2c-720d141ddb44
 content-length: 212
 content-type: application/json
 
-{"error":{"codigo":"VALIDACION","mensaje":"La solicitud tiene datos inválidos.","requestId":"52164d36-cfb2-4468-9086-5e3b2098f0b1","detalles":[{"campo":"resolucion","problema":"debe ser uno de: '1m' or '5m'"}]}}
-(tiempo_total_s=0.002619)
+{"error":{"codigo":"VALIDACION","mensaje":"La solicitud tiene datos inválidos.","requestId":"a9e62047-a616-4f2d-ae2c-720d141ddb44","detalles":[{"campo":"resolucion","problema":"debe ser uno de: '1m' or '5m'"}]}}
+(tiempo_total_s=0.012093)
 
 ### CU-16 · fecha sin zona -> 400 VALIDACION
 GET /api/v1/partidos/PAR-001/estadisticas/comparacion?desde=2026-10-16T00:12:00&hasta=2026-10-16T00:17:00Z
 HTTP/1.1 400 Bad Request
-date: Fri, 16 Oct 2026 00:33:11 GMT
+date: Fri, 16 Oct 2026 17:31:50 GMT
 server: uvicorn
-x-request-id: 2727f1c8-d5e0-47f6-a199-75ba99f80fd6
+x-request-id: 2f519114-e285-4eff-9627-77e8fbb5a960
 content-length: 209
 content-type: application/json
 
-{"error":{"codigo":"VALIDACION","mensaje":"La solicitud tiene datos inválidos.","requestId":"2727f1c8-d5e0-47f6-a199-75ba99f80fd6","detalles":[{"campo":"desde","problema":"debe incluir zona horaria (UTC)"}]}}
-(tiempo_total_s=0.003005)
+{"error":{"codigo":"VALIDACION","mensaje":"La solicitud tiene datos inválidos.","requestId":"2f519114-e285-4eff-9627-77e8fbb5a960","detalles":[{"campo":"desde","problema":"debe incluir zona horaria (UTC)"}]}}
+(tiempo_total_s=0.009191)
 
 ### CU-16 · PAR-999 -> 404 PARTIDO_NO_ENCONTRADO (catálogo, sin consultar InfluxDB)
 GET /api/v1/partidos/PAR-999/estadisticas/comparacion?desde=2026-10-16T00:12:00Z&hasta=2026-10-16T00:17:00Z
 HTTP/1.1 404 Not Found
-date: Fri, 16 Oct 2026 00:33:11 GMT
+date: Fri, 16 Oct 2026 17:31:50 GMT
 server: uvicorn
-x-request-id: b06f0eb1-5299-4df9-bb07-d288d5d899f7
+x-request-id: 76a09059-b5e2-4d80-8cf3-0d673743b4e9
 content-length: 225
 content-type: application/json
 
-{"error":{"codigo":"PARTIDO_NO_ENCONTRADO","mensaje":"No existe un partido con el identificador indicado.","requestId":"b06f0eb1-5299-4df9-bb07-d288d5d899f7","detalles":[{"campo":"partidoId","problema":"PAR-999 no existe"}]}}
-(tiempo_total_s=0.003087)
+{"error":{"codigo":"PARTIDO_NO_ENCONTRADO","mensaje":"No existe un partido con el identificador indicado.","requestId":"76a09059-b5e2-4d80-8cf3-0d673743b4e9","detalles":[{"campo":"partidoId","problema":"PAR-999 no existe"}]}}
+(tiempo_total_s=0.027578)
 
 ### CU-15 · EQ-003 no disputa PAR-001 -> 404 EQUIPO_NO_PARTICIPA
 GET /api/v1/partidos/PAR-001/equipos/EQ-003/estadisticas/recientes?hasta=2026-10-16T00:17:00Z
 HTTP/1.1 404 Not Found
-date: Fri, 16 Oct 2026 00:33:11 GMT
+date: Fri, 16 Oct 2026 17:31:50 GMT
 server: uvicorn
-x-request-id: c0b3e4ff-d21f-41d4-98cc-b6bcb0f18af9
+x-request-id: 66bfe425-d1be-41e2-b5a7-8a575630a3b1
 content-length: 221
 content-type: application/json
 
-{"error":{"codigo":"EQUIPO_NO_PARTICIPA","mensaje":"El equipo indicado no disputa ese partido.","requestId":"c0b3e4ff-d21f-41d4-98cc-b6bcb0f18af9","detalles":[{"campo":"equipoId","problema":"EQ-003 no disputa PAR-001"}]}}
-(tiempo_total_s=0.012471)
+{"error":{"codigo":"EQUIPO_NO_PARTICIPA","mensaje":"El equipo indicado no disputa ese partido.","requestId":"66bfe425-d1be-41e2-b5a7-8a575630a3b1","detalles":[{"campo":"equipoId","problema":"EQ-003 no disputa PAR-001"}]}}
+(tiempo_total_s=0.009967)
 
 ### CU-16 · PAR-003 existe y no tiene puntos -> 200 equipos []
 GET /api/v1/partidos/PAR-003/estadisticas/comparacion?desde=2026-10-16T00:12:00Z&hasta=2026-10-16T00:17:00Z
 HTTP/1.1 200 OK
-date: Fri, 16 Oct 2026 00:33:11 GMT
+date: Fri, 16 Oct 2026 17:31:50 GMT
 server: uvicorn
 content-length: 98
 content-type: application/json
-x-request-id: 04991d78-ed51-42b9-a693-b1e0771c62ae
+x-request-id: 7588cd78-9dd0-4849-af28-4ed6bf56555e
 
 {"partidoId":"PAR-003","desde":"2026-10-16T00:12:00Z","hasta":"2026-10-16T00:17:00Z","equipos":[]}
-(tiempo_total_s=0.017141)
+(tiempo_total_s=0.042009)
 
 ## InfluxDB detenido (docker compose stop influxdb en Hito 8)
 
 ### CU-16 con InfluxDB detenido -> 503, nunca 200 vacío
 GET /api/v1/partidos/PAR-001/estadisticas/comparacion?desde=2026-10-16T00:12:00Z&hasta=2026-10-16T00:17:00Z
 HTTP/1.1 503 Service Unavailable
-date: Fri, 16 Oct 2026 00:33:11 GMT
+date: Fri, 16 Oct 2026 17:31:52 GMT
 server: uvicorn
-x-request-id: e7c5d192-9e51-440c-9f4c-154c2c233c7e
+x-request-id: d717e1a6-fa2c-4b86-90f4-d52c5d9adb49
 content-length: 176
 content-type: application/json
 
-{"error":{"codigo":"DEPENDENCIA_NO_DISPONIBLE","mensaje":"Una fuente de datos necesaria no está disponible.","requestId":"e7c5d192-9e51-440c-9f4c-154c2c233c7e","detalles":[]}}
-(tiempo_total_s=2.037017)
+{"error":{"codigo":"DEPENDENCIA_NO_DISPONIBLE","mensaje":"Una fuente de datos necesaria no está disponible.","requestId":"d717e1a6-fa2c-4b86-90f4-d52c5d9adb49","detalles":[]}}
+(tiempo_total_s=2.045879)
 
 ### CU-15 con InfluxDB detenido -> 503
 GET /api/v1/partidos/PAR-001/equipos/EQ-001/estadisticas/recientes?hasta=2026-10-16T00:17:00Z
 HTTP/1.1 503 Service Unavailable
-date: Fri, 16 Oct 2026 00:33:13 GMT
+date: Fri, 16 Oct 2026 17:31:55 GMT
 server: uvicorn
-x-request-id: 2fbaed4e-124a-4f1d-909d-b2836efef27c
+x-request-id: 0f386c53-4dab-4c00-8542-354de44f85c9
 content-length: 176
 content-type: application/json
 
-{"error":{"codigo":"DEPENDENCIA_NO_DISPONIBLE","mensaje":"Una fuente de datos necesaria no está disponible.","requestId":"2fbaed4e-124a-4f1d-909d-b2836efef27c","detalles":[]}}
-(tiempo_total_s=2.034032)
+{"error":{"codigo":"DEPENDENCIA_NO_DISPONIBLE","mensaje":"Una fuente de datos necesaria no está disponible.","requestId":"0f386c53-4dab-4c00-8542-354de44f85c9","detalles":[]}}
+(tiempo_total_s=2.036299)
 
 ### Salud con InfluxDB detenido -> 200 degradado
 GET /api/v1/salud
 HTTP/1.1 200 OK
-date: Fri, 16 Oct 2026 00:33:16 GMT
+date: Fri, 16 Oct 2026 17:31:57 GMT
 server: uvicorn
-content-length: 281
+content-length: 274
 content-type: application/json
-x-request-id: 090020cd-91ad-4de2-bf11-0b6e54743b36
+x-request-id: cb5844fe-7780-41e9-a1a5-25a7198d3cb9
 
-{"estado":"degradado","dependencias":{"mongodb":"no_disponible","neo4j":"disponible","cassandra":"disponible","redis":"disponible","influxdb":"no_disponible","iris":"no_configurada"},"catalogoPartidos":{"estado":"cargado","partidos":64,"ultimaCarga":"2026-10-16T00:33:06.165696Z"}}
-(tiempo_total_s=4.069008)
+{"estado":"degradado","dependencias":{"mongodb":"disponible","neo4j":"disponible","cassandra":"disponible","redis":"disponible","influxdb":"no_disponible","iris":"disponible"},"catalogoPartidos":{"estado":"cargado","partidos":64,"ultimaCarga":"2026-10-16T17:31:49.548159Z"}}
+(tiempo_total_s=2.086005)
 
 ### CU-16 después de volver a levantar InfluxDB -> 200
 GET /api/v1/partidos/PAR-001/estadisticas/comparacion?desde=2026-10-16T00:12:00Z&hasta=2026-10-16T00:17:00Z
 HTTP/1.1 200 OK
-date: Fri, 16 Oct 2026 00:33:22 GMT
+date: Fri, 16 Oct 2026 17:32:05 GMT
 server: uvicorn
 content-length: 399
 content-type: application/json
-x-request-id: 0bcb3ca8-1efa-4fff-8e46-81ede3814bb1
+x-request-id: 188d2aff-2e70-4d72-9c80-275a7bfd2f56
 
 {"partidoId":"PAR-001","desde":"2026-10-16T00:12:00Z","hasta":"2026-10-16T00:17:00Z","equipos":[{"muestras":300,"muestrasEsperadas":300,"posesionMedia":49.975,"pasesNuevos":30,"tiros":1,"intervalosInvalidos":0,"completo":true,"equipoId":"EQ-001"},{"muestras":300,"muestrasEsperadas":300,"posesionMedia":50.025,"pasesNuevos":25,"tiros":1,"intervalosInvalidos":0,"completo":true,"equipoId":"EQ-002"}]}
-(tiempo_total_s=0.013096)
+(tiempo_total_s=0.049198)
 
 ### Ningún archivo de app/routes ni app/services importa httpx
 Sin coincidencias de 'import httpx' / 'from httpx' en app/routes ni app/services.

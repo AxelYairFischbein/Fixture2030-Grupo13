@@ -1,0 +1,28 @@
+﻿# Neo4j (Fase 4) · pytest -m integration tests/integracion/test_neo4j.py
+# Generado: 2026-10-16T17:25:45Z
+
+============================= test session starts =============================
+platform win32 -- Python 3.13.4, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\moham\Repositorios\Fixture2030-Grupo13\Hito 10\.venv\Scripts\python.exe
+rootdir: C:\Users\moham\Repositorios\Fixture2030-Grupo13\Hito 10
+configfile: pytest.ini
+plugins: anyio-4.15.1
+collecting ... collected 10 items
+
+tests/integracion/test_neo4j.py::test_salud_informa_catalogo_cargado_con_64_partidos PASSED [ 10%]
+tests/integracion/test_neo4j.py::test_cu05_agenda_de_eq001_como_q04_q06 PASSED [ 20%]
+tests/integracion/test_neo4j.py::test_cu05_equipo_inexistente PASSED     [ 30%]
+tests/integracion/test_neo4j.py::test_cu06_eventos_de_par001_como_q07 PASSED [ 40%]
+tests/integracion/test_neo4j.py::test_cu06_limite_cuenta_eventos PASSED  [ 50%]
+tests/integracion/test_neo4j.py::test_cu06_partido_inexistente PASSED    [ 60%]
+tests/integracion/test_neo4j.py::test_cu07_primer_dia_como_q09 PASSED    [ 70%]
+tests/integracion/test_neo4j.py::test_cu07_estadio_inexistente_es_vacio_valido PASSED [ 80%]
+tests/integracion/test_neo4j.py::test_cu07_intervalo_invertido_es_400 PASSED [ 90%]
+tests/integracion/test_neo4j.py::test_api_arranca_con_neo4j_inaccesible PASSED [100%]
+
+============================== warnings summary ===============================
+.venv\Lib\site-packages\fastapi\testclient.py:1
+  C:\Users\moham\Repositorios\Fixture2030-Grupo13\Hito 10\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================== 10 passed, 1 warning in 4.26s ========================

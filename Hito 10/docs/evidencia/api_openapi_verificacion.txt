@@ -1,0 +1,4 @@
+﻿# API · scripts/exportar_openapi.ps1 -Verificar (RNF2)
+# Generado: 2026-10-16T18:04:04Z
+
+openapi\openapi.yaml coincide con app.openapi(). (código de salida: 0; 0 = openapi/openapi.yaml coincide con app.openapi())

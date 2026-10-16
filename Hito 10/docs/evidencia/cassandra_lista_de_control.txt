@@ -1,333 +1,333 @@
 ﻿# Cassandra (Fase 5) · Lista de control (plan_de_implementacion.md)
-# Generado: 2026-10-15T22:58:49Z · API en http://127.0.0.1:8012 · respuestas crudas de curl.exe -i
+# Generado: 2026-10-16T17:29:32Z · API en http://127.0.0.1:8012 · respuestas crudas de curl.exe -i
 # Sesiones creadas con scripts/crear_sesiones_prueba.ps1; los IDs se muestran enmascarados.
 # Lecturas sobre la muestra del Hito 6 (carga_muestra.cql); escrituras sobre PAR-064, borradas al final.
 
 ### Salud con Cassandra arriba
 GET /api/v1/salud
 HTTP/1.1 200 OK
-date: Thu, 15 Oct 2026 22:59:07 GMT
+date: Fri, 16 Oct 2026 17:29:56 GMT
 server: uvicorn
-content-length: 282
+content-length: 264
 content-type: application/json
-x-request-id: 51216b61-9062-4cc8-bb4f-fc4c2effefd5
+x-request-id: 08752a77-2d08-4b45-92f6-e875be1c059d
 
-{"estado":"degradado","dependencias":{"mongodb":"no_disponible","neo4j":"disponible","cassandra":"disponible","redis":"disponible","influxdb":"no_configurada","iris":"no_configurada"},"catalogoPartidos":{"estado":"cargado","partidos":64,"ultimaCarga":"2026-10-15T22:59:05.727690Z"}}
-(tiempo_total_s=2.263463)
+{"estado":"ok","dependencias":{"mongodb":"disponible","neo4j":"disponible","cassandra":"disponible","redis":"disponible","influxdb":"disponible","iris":"disponible"},"catalogoPartidos":{"estado":"cargado","partidos":64,"ultimaCarga":"2026-10-16T17:29:56.043717Z"}}
+(tiempo_total_s=0.078428)
 
 ### CU-08 · Q1 anónimo -> 200 solo visibles (008, 005, 006)
 GET /api/v1/partidos/PAR-001/comentarios?minuto=2030-06-10T18:01:00Z
 HTTP/1.1 200 OK
-date: Thu, 15 Oct 2026 22:59:10 GMT
+date: Fri, 16 Oct 2026 17:29:56 GMT
 server: uvicorn
 content-length: 518
 content-type: application/json
-x-request-id: 16c3306e-93c4-400b-acce-98dc506582c5
+x-request-id: 55f2b535-c4e9-4193-859b-4d523fa1016a
 
 {"partidoId":"PAR-001","items":[{"comentarioId":"MUESTRA-008","usuarioId":"USR-00001","creadoEn":"2030-06-10T18:01:59.000Z","contenido":"Se termina este minuto","estado":"visible","likes":1},{"comentarioId":"MUESTRA-005","usuarioId":"USR-00001","creadoEn":"2030-06-10T18:01:20.000Z","contenido":"Buen remate","estado":"visible","likes":5},{"comentarioId":"MUESTRA-006","usuarioId":"USR-00002","creadoEn":"2030-06-10T18:01:20.000Z","contenido":"Atajada importante","estado":"visible","likes":3}],"siguienteCursor":null}
-(tiempo_total_s=0.041720)
+(tiempo_total_s=0.176404)
 
 ### CU-08 · Q1 moderador -> 200 todos los estados (008, 007, 005, 006, 004)
-GET /api/v1/partidos/PAR-001/comentarios?minuto=2030-06-10T18:01:00Z  [X-Session-Id: SES-PRUEBA-bf98…]
+GET /api/v1/partidos/PAR-001/comentarios?minuto=2030-06-10T18:01:00Z  [X-Session-Id: SES-PRUEBA-d59a…]
 HTTP/1.1 200 OK
-date: Thu, 15 Oct 2026 22:59:10 GMT
+date: Fri, 16 Oct 2026 17:29:57 GMT
 server: uvicorn
 content-length: 840
 content-type: application/json
-x-request-id: bfa1de45-7429-43db-803e-2681045ce56e
+x-request-id: c22b6d23-f9ab-4a2c-9a6b-8fb0c43acb8f
 
 {"partidoId":"PAR-001","items":[{"comentarioId":"MUESTRA-008","usuarioId":"USR-00001","creadoEn":"2030-06-10T18:01:59.000Z","contenido":"Se termina este minuto","estado":"visible","likes":1},{"comentarioId":"MUESTRA-007","usuarioId":"USR-00003","creadoEn":"2030-06-10T18:01:45.000Z","contenido":"Comentario en revision","estado":"pendiente","likes":0},{"comentarioId":"MUESTRA-005","usuarioId":"USR-00001","creadoEn":"2030-06-10T18:01:20.000Z","contenido":"Buen remate","estado":"visible","likes":5},{"comentarioId":"MUESTRA-006","usuarioId":"USR-00002","creadoEn":"2030-06-10T18:01:20.000Z","contenido":"Atajada importante","estado":"visible","likes":3},{"comentarioId":"MUESTRA-004","usuarioId":"USR-00003","creadoEn":"2030-06-10T18:01:05.000Z","contenido":"Mensaje oculto de muestra","estado":"oculto","likes":0}],"siguienteCursor":null}
-(tiempo_total_s=0.017110)
+(tiempo_total_s=0.041834)
 
 ### CU-08 · Q2 ventana moderador -> 200 (009 … 002), igual que consultas.cql
-GET /api/v1/partidos/PAR-001/comentarios?desde=2030-06-10T18:00:30Z&hasta=2030-06-10T18:02:10Z  [X-Session-Id: SES-PRUEBA-bf98…]
+GET /api/v1/partidos/PAR-001/comentarios?desde=2030-06-10T18:00:30Z&hasta=2030-06-10T18:02:10Z  [X-Session-Id: SES-PRUEBA-d59a…]
 HTTP/1.1 200 OK
-date: Thu, 15 Oct 2026 22:59:10 GMT
+date: Fri, 16 Oct 2026 17:29:57 GMT
 server: uvicorn
 content-length: 1305
 content-type: application/json
-x-request-id: dd46b22b-f2d5-4b98-881a-9a26fb68c3e4
+x-request-id: 9c470734-b415-470f-970f-531c4df67911
 
 {"partidoId":"PAR-001","items":[{"comentarioId":"MUESTRA-009","usuarioId":"USR-00002","creadoEn":"2030-06-10T18:02:05.000Z","contenido":"Sigue el partido","estado":"visible","likes":1},{"comentarioId":"MUESTRA-008","usuarioId":"USR-00001","creadoEn":"2030-06-10T18:01:59.000Z","contenido":"Se termina este minuto","estado":"visible","likes":1},{"comentarioId":"MUESTRA-007","usuarioId":"USR-00003","creadoEn":"2030-06-10T18:01:45.000Z","contenido":"Comentario en revision","estado":"pendiente","likes":0},{"comentarioId":"MUESTRA-005","usuarioId":"USR-00001","creadoEn":"2030-06-10T18:01:20.000Z","contenido":"Buen remate","estado":"visible","likes":5},{"comentarioId":"MUESTRA-006","usuarioId":"USR-00002","creadoEn":"2030-06-10T18:01:20.000Z","contenido":"Atajada importante","estado":"visible","likes":3},{"comentarioId":"MUESTRA-004","usuarioId":"USR-00003","creadoEn":"2030-06-10T18:01:05.000Z","contenido":"Mensaje oculto de muestra","estado":"oculto","likes":0},{"comentarioId":"MUESTRA-003","usuarioId":"USR-00001","creadoEn":"2030-06-10T18:00:55.000Z","contenido":"Gran pase al area","estado":"visible","likes":4},{"comentarioId":"MUESTRA-002","usuarioId":"USR-00002","creadoEn":"2030-06-10T18:00:30.000Z","contenido":"Revisar esta jugada","estado":"pendiente","likes":0}],"siguienteCursor":null}
-(tiempo_total_s=0.023249)
+(tiempo_total_s=0.047748)
 
 ### CU-08 · Q2 con limite=3 -> siguienteCursor
-GET /api/v1/partidos/PAR-001/comentarios?desde=2030-06-10T18:00:30Z&hasta=2030-06-10T18:02:10Z&limite=3  [X-Session-Id: SES-PRUEBA-bf98…]
+GET /api/v1/partidos/PAR-001/comentarios?desde=2030-06-10T18:00:30Z&hasta=2030-06-10T18:02:10Z&limite=3  [X-Session-Id: SES-PRUEBA-d59a…]
 HTTP/1.1 200 OK
-date: Thu, 15 Oct 2026 22:59:10 GMT
+date: Fri, 16 Oct 2026 17:29:57 GMT
 server: uvicorn
 content-length: 563
 content-type: application/json
-x-request-id: 0b9d9210-3548-45b6-be0a-e6175553adef
+x-request-id: 624bf470-568a-4a35-8800-7b8fa2720657
 
 {"partidoId":"PAR-001","items":[{"comentarioId":"MUESTRA-009","usuarioId":"USR-00002","creadoEn":"2030-06-10T18:02:05.000Z","contenido":"Sigue el partido","estado":"visible","likes":1},{"comentarioId":"MUESTRA-008","usuarioId":"USR-00001","creadoEn":"2030-06-10T18:01:59.000Z","contenido":"Se termina este minuto","estado":"visible","likes":1},{"comentarioId":"MUESTRA-007","usuarioId":"USR-00003","creadoEn":"2030-06-10T18:01:45.000Z","contenido":"Comentario en revision","estado":"pendiente","likes":0}],"siguienteCursor":"2030-06-10T18:01:45.000Z|MUESTRA-007"}
-(tiempo_total_s=0.025724)
+(tiempo_total_s=0.039497)
 
 ### CU-08 · ventana de 6 min -> 400 VALIDACION (sin consultar)
 GET /api/v1/partidos/PAR-001/comentarios?desde=2030-06-10T18:00:00Z&hasta=2030-06-10T18:06:00Z
 HTTP/1.1 400 Bad Request
-date: Thu, 15 Oct 2026 22:59:10 GMT
+date: Fri, 16 Oct 2026 17:29:57 GMT
 server: uvicorn
-x-request-id: 7024d7c2-d9f7-45ec-8e84-a0c88d596c23
+x-request-id: 7f6c85ce-8b1d-4d46-a109-50a7a81158d0
 content-length: 215
 content-type: application/json
 
-{"error":{"codigo":"VALIDACION","mensaje":"La solicitud tiene datos inválidos.","requestId":"7024d7c2-d9f7-45ec-8e84-a0c88d596c23","detalles":[{"campo":"hasta","problema":"la ventana no puede superar 5 minutos"}]}}
-(tiempo_total_s=0.006766)
+{"error":{"codigo":"VALIDACION","mensaje":"La solicitud tiene datos inválidos.","requestId":"7f6c85ce-8b1d-4d46-a109-50a7a81158d0","detalles":[{"campo":"hasta","problema":"la ventana no puede superar 5 minutos"}]}}
+(tiempo_total_s=0.024816)
 
 ### CU-08 · PAR-999 -> 404 PARTIDO_NO_ENCONTRADO (catálogo, sin consultar Cassandra)
 GET /api/v1/partidos/PAR-999/comentarios
 HTTP/1.1 404 Not Found
-date: Thu, 15 Oct 2026 22:59:10 GMT
+date: Fri, 16 Oct 2026 17:29:57 GMT
 server: uvicorn
-x-request-id: 746a7189-99f3-41e1-8771-d86e50ffbefc
+x-request-id: 33228219-84fa-4ac3-af5b-e639561bb977
 content-length: 225
 content-type: application/json
 
-{"error":{"codigo":"PARTIDO_NO_ENCONTRADO","mensaje":"No existe un partido con el identificador indicado.","requestId":"746a7189-99f3-41e1-8771-d86e50ffbefc","detalles":[{"campo":"partidoId","problema":"PAR-999 no existe"}]}}
-(tiempo_total_s=0.003996)
+{"error":{"codigo":"PARTIDO_NO_ENCONTRADO","mensaje":"No existe un partido con el identificador indicado.","requestId":"33228219-84fa-4ac3-af5b-e639561bb977","detalles":[{"campo":"partidoId","problema":"PAR-999 no existe"}]}}
+(tiempo_total_s=0.015507)
 
 ### CU-10 · historial propio de USR-00001 el 2030-06-10 -> 200
-GET /api/v1/usuarios/USR-00001/comentarios?dia=2030-06-10  [X-Session-Id: SES-PRUEBA-9b1a…]
+GET /api/v1/usuarios/USR-00001/comentarios?dia=2030-06-10  [X-Session-Id: SES-PRUEBA-9af2…]
 HTTP/1.1 200 OK
-date: Thu, 15 Oct 2026 22:59:10 GMT
+date: Fri, 16 Oct 2026 17:29:57 GMT
 server: uvicorn
 content-length: 1007
 content-type: application/json
-x-request-id: 7e84ebfc-2af9-4056-9f8f-aaaef15ca36f
+x-request-id: 51a0cf17-a179-4657-8279-fbbba6a6b8d3
 
 {"usuarioId":"USR-00001","dia":"2030-06-10","items":[{"comentarioId":"MUESTRA-010","partidoId":"PAR-001","creadoEn":"2030-06-10T18:02:10.000Z","contenido":"Fuera del limite superior de Q2","estado":"visible","likes":0},{"comentarioId":"MUESTRA-008","partidoId":"PAR-001","creadoEn":"2030-06-10T18:01:59.000Z","contenido":"Se termina este minuto","estado":"visible","likes":1},{"comentarioId":"MUESTRA-005","partidoId":"PAR-001","creadoEn":"2030-06-10T18:01:20.000Z","contenido":"Buen remate","estado":"visible","likes":5},{"comentarioId":"MUESTRA-011","partidoId":"PAR-002","creadoEn":"2030-06-10T18:01:10.000Z","contenido":"Comentario en otro partido","estado":"visible","likes":2},{"comentarioId":"MUESTRA-003","partidoId":"PAR-001","creadoEn":"2030-06-10T18:00:55.000Z","contenido":"Gran pase al area","estado":"visible","likes":4},{"comentarioId":"MUESTRA-001","partidoId":"PAR-001","creadoEn":"2030-06-10T18:00:20.000Z","contenido":"Buen comienzo","estado":"visible","likes":2}],"siguienteCursor":null}
-(tiempo_total_s=0.015609)
+(tiempo_total_s=0.048920)
 
 ### CU-10 · el lector pide el historial de USR-00003 -> 403
-GET /api/v1/usuarios/USR-00003/comentarios?dia=2030-06-10  [X-Session-Id: SES-PRUEBA-9b1a…]
+GET /api/v1/usuarios/USR-00003/comentarios?dia=2030-06-10  [X-Session-Id: SES-PRUEBA-9af2…]
 HTTP/1.1 403 Forbidden
-date: Thu, 15 Oct 2026 22:59:10 GMT
+date: Fri, 16 Oct 2026 17:29:57 GMT
 server: uvicorn
-x-request-id: 0e1c96bf-d0c1-428e-a00e-aae2ae83af78
+x-request-id: b0e619a2-7539-47f1-b2bb-0a2e7c8aedbd
 content-length: 257
 content-type: application/json
 
-{"error":{"codigo":"ROL_NO_AUTORIZADO","mensaje":"La sesión no tiene el rol necesario para esta operación.","requestId":"0e1c96bf-d0c1-428e-a00e-aae2ae83af78","detalles":[{"campo":"X-Session-Id","problema":"requiere ser el autor o tener rol moderador"}]}}
-(tiempo_total_s=0.012130)
+{"error":{"codigo":"ROL_NO_AUTORIZADO","mensaje":"La sesión no tiene el rol necesario para esta operación.","requestId":"b0e619a2-7539-47f1-b2bb-0a2e7c8aedbd","detalles":[{"campo":"X-Session-Id","problema":"requiere ser el autor o tener rol moderador"}]}}
+(tiempo_total_s=0.031605)
 
 ### CU-09 · sin X-Session-Id -> 401 sin escribir
-POST /api/v1/partidos/PAR-064/comentarios  [Idempotency-Key: b2457fa7-b3ff-48d8-b6e8-87c75642729c]  body: {"contenido": "Comentario de evidencia de la Fase 5"}
+POST /api/v1/partidos/PAR-064/comentarios  [Idempotency-Key: 3dc0744e-1fd8-4a82-ab2b-780bf1022430]  body: {"contenido": "Comentario de evidencia de la Fase 5"}
 HTTP/1.1 401 Unauthorized
-date: Thu, 15 Oct 2026 22:59:10 GMT
+date: Fri, 16 Oct 2026 17:29:57 GMT
 server: uvicorn
-x-request-id: f7db6c9e-980c-4dc3-aa62-90d60363e451
+x-request-id: 4909e066-5801-4d94-869b-ab2be8c1845a
 content-length: 167
 content-type: application/json
 
-{"error":{"codigo":"SESION_REQUERIDA","mensaje":"La operación requiere el encabezado X-Session-Id.","requestId":"f7db6c9e-980c-4dc3-aa62-90d60363e451","detalles":[]}}
-(tiempo_total_s=0.004299)
+{"error":{"codigo":"SESION_REQUERIDA","mensaje":"La operación requiere el encabezado X-Session-Id.","requestId":"4909e066-5801-4d94-869b-ab2be8c1845a","detalles":[]}}
+(tiempo_total_s=0.013524)
 
 ### CU-09 · sin Idempotency-Key -> 400
-POST /api/v1/partidos/PAR-064/comentarios  [X-Session-Id: SES-PRUEBA-9b1a…]  body: {"contenido": "Comentario de evidencia de la Fase 5"}
+POST /api/v1/partidos/PAR-064/comentarios  [X-Session-Id: SES-PRUEBA-9af2…]  body: {"contenido": "Comentario de evidencia de la Fase 5"}
 HTTP/1.1 400 Bad Request
-date: Thu, 15 Oct 2026 22:59:10 GMT
+date: Fri, 16 Oct 2026 17:29:57 GMT
 server: uvicorn
-x-request-id: b8600e2d-f2fb-46b1-a5a3-4a3f42b4cbd2
+x-request-id: 89d7c094-a384-4a6f-934d-4b267868f2e7
 content-length: 202
 content-type: application/json
 
-{"error":{"codigo":"VALIDACION","mensaje":"La solicitud tiene datos inválidos.","requestId":"b8600e2d-f2fb-46b1-a5a3-4a3f42b4cbd2","detalles":[{"campo":"Idempotency-Key","problema":"es obligatorio"}]}}
-(tiempo_total_s=0.009404)
+{"error":{"codigo":"VALIDACION","mensaje":"La solicitud tiene datos inválidos.","requestId":"89d7c094-a384-4a6f-934d-4b267868f2e7","detalles":[{"campo":"Idempotency-Key","problema":"es obligatorio"}]}}
+(tiempo_total_s=0.015819)
 
 ### CU-09 · publicar -> 201
-POST /api/v1/partidos/PAR-064/comentarios  [X-Session-Id: SES-PRUEBA-9b1a…]  [Idempotency-Key: b2457fa7-b3ff-48d8-b6e8-87c75642729c]  body: {"contenido": "Comentario de evidencia de la Fase 5"}
+POST /api/v1/partidos/PAR-064/comentarios  [X-Session-Id: SES-PRUEBA-9af2…]  [Idempotency-Key: 3dc0744e-1fd8-4a82-ab2b-780bf1022430]  body: {"contenido": "Comentario de evidencia de la Fase 5"}
 HTTP/1.1 201 Created
-date: Thu, 15 Oct 2026 22:59:10 GMT
+date: Fri, 16 Oct 2026 17:29:57 GMT
 server: uvicorn
 content-length: 219
 content-type: application/json
-x-request-id: 1a265d4b-ec12-4e6c-b359-6457af2dbc02
+x-request-id: 3dbccd79-fe0e-4da2-bb66-29fa570e5961
 
-{"comentarioId":"b2457fa7-b3ff-48d8-b6e8-87c75642729c","partidoId":"PAR-064","usuarioId":"USR-00001","creadoEn":"2026-10-15T22:59:11.350Z","contenido":"Comentario de evidencia de la Fase 5","estado":"visible","likes":0}
-(tiempo_total_s=0.019420)
+{"comentarioId":"3dc0744e-1fd8-4a82-ab2b-780bf1022430","partidoId":"PAR-064","usuarioId":"USR-00001","creadoEn":"2026-10-16T17:29:58.224Z","contenido":"Comentario de evidencia de la Fase 5","estado":"visible","likes":0}
+(tiempo_total_s=0.053170)
 
 ### CU-09 · reintento con la misma clave -> 201, mismo comentarioId y creadoEn
-POST /api/v1/partidos/PAR-064/comentarios  [X-Session-Id: SES-PRUEBA-9b1a…]  [Idempotency-Key: b2457fa7-b3ff-48d8-b6e8-87c75642729c]  body: {"contenido": "Comentario de evidencia de la Fase 5"}
+POST /api/v1/partidos/PAR-064/comentarios  [X-Session-Id: SES-PRUEBA-9af2…]  [Idempotency-Key: 3dc0744e-1fd8-4a82-ab2b-780bf1022430]  body: {"contenido": "Comentario de evidencia de la Fase 5"}
 HTTP/1.1 201 Created
-date: Thu, 15 Oct 2026 22:59:11 GMT
+date: Fri, 16 Oct 2026 17:29:58 GMT
 server: uvicorn
 content-length: 219
 content-type: application/json
-x-request-id: 7c7dc797-18e7-43d7-857d-d30a4c6ab7a3
+x-request-id: 78aeeb32-586f-4d9f-a63a-eeffcae4c6c9
 
-{"comentarioId":"b2457fa7-b3ff-48d8-b6e8-87c75642729c","partidoId":"PAR-064","usuarioId":"USR-00001","creadoEn":"2026-10-15T22:59:11.350Z","contenido":"Comentario de evidencia de la Fase 5","estado":"visible","likes":0}
-(tiempo_total_s=0.021151)
+{"comentarioId":"3dc0744e-1fd8-4a82-ab2b-780bf1022430","partidoId":"PAR-064","usuarioId":"USR-00001","creadoEn":"2026-10-16T17:29:58.224Z","contenido":"Comentario de evidencia de la Fase 5","estado":"visible","likes":0}
+(tiempo_total_s=0.029669)
 
 ### CU-09 · misma clave con otro body -> 409 IDEMPOTENCY_KEY_REUTILIZADA
-POST /api/v1/partidos/PAR-064/comentarios  [X-Session-Id: SES-PRUEBA-9b1a…]  [Idempotency-Key: b2457fa7-b3ff-48d8-b6e8-87c75642729c]  body: {"contenido": "Otro texto"}
+POST /api/v1/partidos/PAR-064/comentarios  [X-Session-Id: SES-PRUEBA-9af2…]  [Idempotency-Key: 3dc0744e-1fd8-4a82-ab2b-780bf1022430]  body: {"contenido": "Otro texto"}
 HTTP/1.1 409 Conflict
-date: Thu, 15 Oct 2026 22:59:11 GMT
+date: Fri, 16 Oct 2026 17:29:58 GMT
 server: uvicorn
-x-request-id: 68545784-6842-419d-b882-fe61e5e87d09
+x-request-id: 4169dc80-0e61-40ab-bb67-53748633e734
 content-length: 259
 content-type: application/json
 
-{"error":{"codigo":"IDEMPOTENCY_KEY_REUTILIZADA","mensaje":"La Idempotency-Key ya se usó con otro contenido.","requestId":"68545784-6842-419d-b882-fe61e5e87d09","detalles":[{"campo":"Idempotency-Key","problema":"ya se usó con otro body, partido o autor"}]}}
-(tiempo_total_s=0.010812)
+{"error":{"codigo":"IDEMPOTENCY_KEY_REUTILIZADA","mensaje":"La Idempotency-Key ya se usó con otro contenido.","requestId":"4169dc80-0e61-40ab-bb67-53748633e734","detalles":[{"campo":"Idempotency-Key","problema":"ya se usó con otro body, partido o autor"}]}}
+(tiempo_total_s=0.019276)
 
 ### CU-08 · minuto de la publicación -> el comentario aparece una sola vez
-GET /api/v1/partidos/PAR-064/comentarios?minuto=2026-10-15T22:59:00Z
+GET /api/v1/partidos/PAR-064/comentarios?minuto=2026-10-16T17:29:00Z
 HTTP/1.1 200 OK
-date: Thu, 15 Oct 2026 22:59:11 GMT
+date: Fri, 16 Oct 2026 17:29:58 GMT
 server: uvicorn
 content-length: 254
 content-type: application/json
-x-request-id: 9b1906bb-c670-4700-9c64-b95c77411b28
+x-request-id: 91a3f7d6-bd12-496a-adce-2361fd09fae3
 
-{"partidoId":"PAR-064","items":[{"comentarioId":"b2457fa7-b3ff-48d8-b6e8-87c75642729c","usuarioId":"USR-00001","creadoEn":"2026-10-15T22:59:11.350Z","contenido":"Comentario de evidencia de la Fase 5","estado":"visible","likes":0}],"siguienteCursor":null}
-(tiempo_total_s=0.013726)
+{"partidoId":"PAR-064","items":[{"comentarioId":"3dc0744e-1fd8-4a82-ab2b-780bf1022430","usuarioId":"USR-00001","creadoEn":"2026-10-16T17:29:58.224Z","contenido":"Comentario de evidencia de la Fase 5","estado":"visible","likes":0}],"siguienteCursor":null}
+(tiempo_total_s=0.027304)
 
-### CU-10 · historial del autor el 2026-10-15 -> aparece una sola vez
-GET /api/v1/usuarios/USR-00001/comentarios?dia=2026-10-15  [X-Session-Id: SES-PRUEBA-9b1a…]
+### CU-10 · historial del autor el 2026-10-16 -> aparece una sola vez
+GET /api/v1/usuarios/USR-00001/comentarios?dia=2026-10-16  [X-Session-Id: SES-PRUEBA-9af2…]
 HTTP/1.1 200 OK
-date: Thu, 15 Oct 2026 22:59:11 GMT
+date: Fri, 16 Oct 2026 17:29:58 GMT
 server: uvicorn
-content-length: 273
+content-length: 1014
 content-type: application/json
-x-request-id: 8ff64a46-f481-49e0-be23-1a8d06ac2d23
+x-request-id: 12eb5129-da25-4e64-a873-d4b5c7b1eecb
 
-{"usuarioId":"USR-00001","dia":"2026-10-15","items":[{"comentarioId":"b2457fa7-b3ff-48d8-b6e8-87c75642729c","partidoId":"PAR-064","creadoEn":"2026-10-15T22:59:11.350Z","contenido":"Comentario de evidencia de la Fase 5","estado":"visible","likes":0}],"siguienteCursor":null}
-(tiempo_total_s=0.012467)
+{"usuarioId":"USR-00001","dia":"2026-10-16","items":[{"comentarioId":"3dc0744e-1fd8-4a82-ab2b-780bf1022430","partidoId":"PAR-064","creadoEn":"2026-10-16T17:29:58.224Z","contenido":"Comentario de evidencia de la Fase 5","estado":"visible","likes":0},{"comentarioId":"fd8640d7-ff1a-423d-8217-c3fff405fcee","partidoId":"PAR-064","creadoEn":"2026-10-16T17:10:00.118Z","contenido":"Comentario de prueba replay 6167ff45","estado":"visible","likes":0},{"comentarioId":"762decbf-02d3-4def-b8c8-3f4593e4682e","partidoId":"PAR-064","creadoEn":"2026-10-16T16:29:10.047Z","contenido":"Comentario de prueba replay bfb90e48","estado":"visible","likes":0},{"comentarioId":"3f2b8c1e-9a8d-4e7b-b5f1-2c5d8e9a0b01","partidoId":"PAR-001","creadoEn":"2026-10-16T00:10:56.867Z","contenido":"Bien ahi Moha","estado":"visible","likes":0},{"comentarioId":"3f2b8c1e-9a8d-4e7b-b5f1-2c5d8e9a0b00","partidoId":"PAR-001","creadoEn":"2026-10-16T00:06:05.595Z","contenido":"Gran jugada Moha","estado":"visible","likes":0}],"siguienteCursor":null}
+(tiempo_total_s=0.033923)
 
 ### CU-20 · creadoEn equivocado -> 404 COMENTARIO_NO_ENCONTRADO sin escribir
-PATCH /api/v1/partidos/PAR-064/comentarios/b2457fa7-b3ff-48d8-b6e8-87c75642729c  [X-Session-Id: SES-PRUEBA-bf98…]  body: {"creadoEn": "2030-06-10T18:01:21.000Z", "estado": "oculto"}
+PATCH /api/v1/partidos/PAR-064/comentarios/3dc0744e-1fd8-4a82-ab2b-780bf1022430  [X-Session-Id: SES-PRUEBA-d59a…]  body: {"creadoEn": "2030-06-10T18:01:21.000Z", "estado": "oculto"}
 HTTP/1.1 404 Not Found
-date: Thu, 15 Oct 2026 22:59:11 GMT
+date: Fri, 16 Oct 2026 17:29:58 GMT
 server: uvicorn
-x-request-id: d4e83d82-de1a-40ad-9d47-cbb9321e1d04
+x-request-id: b1347280-29e2-432b-82b4-f4f042bfec4f
 content-length: 287
 content-type: application/json
 
-{"error":{"codigo":"COMENTARIO_NO_ENCONTRADO","mensaje":"No existe un comentario con esa clave en el partido indicado.","requestId":"d4e83d82-de1a-40ad-9d47-cbb9321e1d04","detalles":[{"campo":"comentarioId","problema":"b2457fa7-b3ff-48d8-b6e8-87c75642729c no existe con ese creadoEn"}]}}
-(tiempo_total_s=0.009820)
+{"error":{"codigo":"COMENTARIO_NO_ENCONTRADO","mensaje":"No existe un comentario con esa clave en el partido indicado.","requestId":"b1347280-29e2-432b-82b4-f4f042bfec4f","detalles":[{"campo":"comentarioId","problema":"3dc0744e-1fd8-4a82-ab2b-780bf1022430 no existe con ese creadoEn"}]}}
+(tiempo_total_s=0.023993)
 
 ### CU-20 · lector intenta moderar -> 403
-PATCH /api/v1/partidos/PAR-064/comentarios/b2457fa7-b3ff-48d8-b6e8-87c75642729c  [X-Session-Id: SES-PRUEBA-9b1a…]  body: {"creadoEn": "2026-10-15T22:59:11.350Z", "estado": "oculto"}
+PATCH /api/v1/partidos/PAR-064/comentarios/3dc0744e-1fd8-4a82-ab2b-780bf1022430  [X-Session-Id: SES-PRUEBA-9af2…]  body: {"creadoEn": "2026-10-16T17:29:58.224Z", "estado": "oculto"}
 HTTP/1.1 403 Forbidden
-date: Thu, 15 Oct 2026 22:59:11 GMT
+date: Fri, 16 Oct 2026 17:29:58 GMT
 server: uvicorn
-x-request-id: e2d9734b-0d54-412a-b78c-6e1cbc993683
+x-request-id: 31f9eba8-d680-4408-9f36-d39981cd0fe7
 content-length: 236
 content-type: application/json
 
-{"error":{"codigo":"ROL_NO_AUTORIZADO","mensaje":"La sesión no tiene el rol necesario para esta operación.","requestId":"e2d9734b-0d54-412a-b78c-6e1cbc993683","detalles":[{"campo":"X-Session-Id","problema":"requiere rol moderador"}]}}
-(tiempo_total_s=0.008468)
+{"error":{"codigo":"ROL_NO_AUTORIZADO","mensaje":"La sesión no tiene el rol necesario para esta operación.","requestId":"31f9eba8-d680-4408-9f36-d39981cd0fe7","detalles":[{"campo":"X-Session-Id","problema":"requiere rol moderador"}]}}
+(tiempo_total_s=0.015951)
 
 ### CU-20 · moderador oculta -> 200 cambio=true
-PATCH /api/v1/partidos/PAR-064/comentarios/b2457fa7-b3ff-48d8-b6e8-87c75642729c  [X-Session-Id: SES-PRUEBA-bf98…]  body: {"creadoEn": "2026-10-15T22:59:11.350Z", "estado": "oculto"}
+PATCH /api/v1/partidos/PAR-064/comentarios/3dc0744e-1fd8-4a82-ab2b-780bf1022430  [X-Session-Id: SES-PRUEBA-d59a…]  body: {"creadoEn": "2026-10-16T17:29:58.224Z", "estado": "oculto"}
 HTTP/1.1 200 OK
-date: Thu, 15 Oct 2026 22:59:11 GMT
+date: Fri, 16 Oct 2026 17:29:58 GMT
 server: uvicorn
 content-length: 198
 content-type: application/json
-x-request-id: 2325e422-2899-4506-b41a-ede9c34bf4fc
+x-request-id: 959286f5-9da3-4016-832c-fbf5bbfd4a2a
 
-{"comentarioId":"b2457fa7-b3ff-48d8-b6e8-87c75642729c","partidoId":"PAR-064","usuarioId":"USR-00001","creadoEn":"2026-10-15T22:59:11.350Z","estadoAnterior":"visible","estado":"oculto","cambio":true}
-(tiempo_total_s=0.015484)
+{"comentarioId":"3dc0744e-1fd8-4a82-ab2b-780bf1022430","partidoId":"PAR-064","usuarioId":"USR-00001","creadoEn":"2026-10-16T17:29:58.224Z","estadoAnterior":"visible","estado":"oculto","cambio":true}
+(tiempo_total_s=0.037179)
 
 ### CU-20 · repetido -> 200 cambio=false (sin escribir)
-PATCH /api/v1/partidos/PAR-064/comentarios/b2457fa7-b3ff-48d8-b6e8-87c75642729c  [X-Session-Id: SES-PRUEBA-bf98…]  body: {"creadoEn": "2026-10-15T22:59:11.350Z", "estado": "oculto"}
+PATCH /api/v1/partidos/PAR-064/comentarios/3dc0744e-1fd8-4a82-ab2b-780bf1022430  [X-Session-Id: SES-PRUEBA-d59a…]  body: {"creadoEn": "2026-10-16T17:29:58.224Z", "estado": "oculto"}
 HTTP/1.1 200 OK
-date: Thu, 15 Oct 2026 22:59:11 GMT
+date: Fri, 16 Oct 2026 17:29:58 GMT
 server: uvicorn
 content-length: 198
 content-type: application/json
-x-request-id: 2deb81a4-06ac-41e6-8d9a-0c48fb8a105b
+x-request-id: 80924e00-ff78-425c-abc5-40536ef02bfd
 
-{"comentarioId":"b2457fa7-b3ff-48d8-b6e8-87c75642729c","partidoId":"PAR-064","usuarioId":"USR-00001","creadoEn":"2026-10-15T22:59:11.350Z","estadoAnterior":"oculto","estado":"oculto","cambio":false}
-(tiempo_total_s=0.013397)
+{"comentarioId":"3dc0744e-1fd8-4a82-ab2b-780bf1022430","partidoId":"PAR-064","usuarioId":"USR-00001","creadoEn":"2026-10-16T17:29:58.224Z","estadoAnterior":"oculto","estado":"oculto","cambio":false}
+(tiempo_total_s=0.025977)
 
 ### CU-08 · anónimo -> el comentario oculto ya no aparece
-GET /api/v1/partidos/PAR-064/comentarios?minuto=2026-10-15T22:59:00Z
+GET /api/v1/partidos/PAR-064/comentarios?minuto=2026-10-16T17:29:00Z
 HTTP/1.1 200 OK
-date: Thu, 15 Oct 2026 22:59:11 GMT
+date: Fri, 16 Oct 2026 17:29:58 GMT
 server: uvicorn
 content-length: 57
 content-type: application/json
-x-request-id: f59df797-f799-47f5-81c6-cc4b99f3d77f
+x-request-id: f438ff38-a576-4e22-88fa-dcf08633a1a9
 
 {"partidoId":"PAR-064","items":[],"siguienteCursor":null}
-(tiempo_total_s=0.010150)
+(tiempo_total_s=0.028012)
 
 ### CU-08 · moderador -> sigue apareciendo con estado oculto
-GET /api/v1/partidos/PAR-064/comentarios?minuto=2026-10-15T22:59:00Z  [X-Session-Id: SES-PRUEBA-bf98…]
+GET /api/v1/partidos/PAR-064/comentarios?minuto=2026-10-16T17:29:00Z  [X-Session-Id: SES-PRUEBA-d59a…]
 HTTP/1.1 200 OK
-date: Thu, 15 Oct 2026 22:59:11 GMT
+date: Fri, 16 Oct 2026 17:29:58 GMT
 server: uvicorn
 content-length: 253
 content-type: application/json
-x-request-id: 0a2a45d6-b5ad-45c3-bcdc-ba7b38513cf7
+x-request-id: 44e8078c-0b30-42f2-a918-eabbe01bb6d4
 
-{"partidoId":"PAR-064","items":[{"comentarioId":"b2457fa7-b3ff-48d8-b6e8-87c75642729c","usuarioId":"USR-00001","creadoEn":"2026-10-15T22:59:11.350Z","contenido":"Comentario de evidencia de la Fase 5","estado":"oculto","likes":0}],"siguienteCursor":null}
-(tiempo_total_s=0.012178)
+{"partidoId":"PAR-064","items":[{"comentarioId":"3dc0744e-1fd8-4a82-ab2b-780bf1022430","usuarioId":"USR-00001","creadoEn":"2026-10-16T17:29:58.224Z","contenido":"Comentario de evidencia de la Fase 5","estado":"oculto","likes":0}],"siguienteCursor":null}
+(tiempo_total_s=0.028626)
 
 ### CU-10 · historial del autor -> estado oculto
-GET /api/v1/usuarios/USR-00001/comentarios?dia=2026-10-15  [X-Session-Id: SES-PRUEBA-9b1a…]
+GET /api/v1/usuarios/USR-00001/comentarios?dia=2026-10-16  [X-Session-Id: SES-PRUEBA-9af2…]
 HTTP/1.1 200 OK
-date: Thu, 15 Oct 2026 22:59:11 GMT
+date: Fri, 16 Oct 2026 17:29:58 GMT
 server: uvicorn
-content-length: 272
+content-length: 1013
 content-type: application/json
-x-request-id: bee522e4-e446-4510-98da-9f81d0b1b4bc
+x-request-id: 2b3ee9fd-734a-43ee-a2c5-7fe4cb0046ac
 
-{"usuarioId":"USR-00001","dia":"2026-10-15","items":[{"comentarioId":"b2457fa7-b3ff-48d8-b6e8-87c75642729c","partidoId":"PAR-064","creadoEn":"2026-10-15T22:59:11.350Z","contenido":"Comentario de evidencia de la Fase 5","estado":"oculto","likes":0}],"siguienteCursor":null}
-(tiempo_total_s=0.011702)
+{"usuarioId":"USR-00001","dia":"2026-10-16","items":[{"comentarioId":"3dc0744e-1fd8-4a82-ab2b-780bf1022430","partidoId":"PAR-064","creadoEn":"2026-10-16T17:29:58.224Z","contenido":"Comentario de evidencia de la Fase 5","estado":"oculto","likes":0},{"comentarioId":"fd8640d7-ff1a-423d-8217-c3fff405fcee","partidoId":"PAR-064","creadoEn":"2026-10-16T17:10:00.118Z","contenido":"Comentario de prueba replay 6167ff45","estado":"visible","likes":0},{"comentarioId":"762decbf-02d3-4def-b8c8-3f4593e4682e","partidoId":"PAR-064","creadoEn":"2026-10-16T16:29:10.047Z","contenido":"Comentario de prueba replay bfb90e48","estado":"visible","likes":0},{"comentarioId":"3f2b8c1e-9a8d-4e7b-b5f1-2c5d8e9a0b01","partidoId":"PAR-001","creadoEn":"2026-10-16T00:10:56.867Z","contenido":"Bien ahi Moha","estado":"visible","likes":0},{"comentarioId":"3f2b8c1e-9a8d-4e7b-b5f1-2c5d8e9a0b00","partidoId":"PAR-001","creadoEn":"2026-10-16T00:06:05.595Z","contenido":"Gran jugada Moha","estado":"visible","likes":0}],"siguienteCursor":null}
+(tiempo_total_s=0.029169)
 
 ## Cassandra detenida (docker compose stop cassandra en Hito 6)
 
 ### CU-08 con Cassandra detenida -> 503/504, nunca 200 []
 GET /api/v1/partidos/PAR-001/comentarios?minuto=2030-06-10T18:01:00Z
 HTTP/1.1 503 Service Unavailable
-date: Thu, 15 Oct 2026 22:59:15 GMT
+date: Fri, 16 Oct 2026 17:30:03 GMT
 server: uvicorn
-x-request-id: c263c795-30f1-4a60-8e23-6c5af9c08584
+x-request-id: 7f2814ab-cd6a-4d87-ab99-3e72d4d61d75
 content-length: 176
 content-type: application/json
 
-{"error":{"codigo":"DEPENDENCIA_NO_DISPONIBLE","mensaje":"Una fuente de datos necesaria no está disponible.","requestId":"c263c795-30f1-4a60-8e23-6c5af9c08584","detalles":[]}}
-(tiempo_total_s=0.012739)
+{"error":{"codigo":"DEPENDENCIA_NO_DISPONIBLE","mensaje":"Una fuente de datos necesaria no está disponible.","requestId":"7f2814ab-cd6a-4d87-ab99-3e72d4d61d75","detalles":[]}}
+(tiempo_total_s=0.017405)
 
 ### CU-09 con Cassandra detenida -> 503/504
-POST /api/v1/partidos/PAR-064/comentarios  [X-Session-Id: SES-PRUEBA-9b1a…]  [Idempotency-Key: 872a73d2-50dd-44f7-abb7-ec74b42f1686]  body: {"contenido": "Comentario de evidencia de la Fase 5"}
+POST /api/v1/partidos/PAR-064/comentarios  [X-Session-Id: SES-PRUEBA-9af2…]  [Idempotency-Key: 84ffba0a-c00a-43cb-81a3-e3f5b7dfe77e]  body: {"contenido": "Comentario de evidencia de la Fase 5"}
 HTTP/1.1 503 Service Unavailable
-date: Thu, 15 Oct 2026 22:59:15 GMT
+date: Fri, 16 Oct 2026 17:30:03 GMT
 server: uvicorn
-x-request-id: 70581a7d-ebf2-4211-9cbc-b3240e43184e
+x-request-id: d65d8eed-a6f3-4eed-845e-15954fc4115f
 content-length: 176
 content-type: application/json
 
-{"error":{"codigo":"DEPENDENCIA_NO_DISPONIBLE","mensaje":"Una fuente de datos necesaria no está disponible.","requestId":"70581a7d-ebf2-4211-9cbc-b3240e43184e","detalles":[]}}
-(tiempo_total_s=0.026498)
+{"error":{"codigo":"DEPENDENCIA_NO_DISPONIBLE","mensaje":"Una fuente de datos necesaria no está disponible.","requestId":"d65d8eed-a6f3-4eed-845e-15954fc4115f","detalles":[]}}
+(tiempo_total_s=0.029046)
 
 ### Salud con Cassandra detenida -> 200 degradado
 GET /api/v1/salud
 HTTP/1.1 200 OK
-date: Thu, 15 Oct 2026 22:59:15 GMT
+date: Fri, 16 Oct 2026 17:30:03 GMT
 server: uvicorn
-content-length: 285
+content-length: 274
 content-type: application/json
-x-request-id: 410f5c95-fcc3-4884-b2a9-d9537c74737b
+x-request-id: 949eea46-7f98-465b-b41d-3c7b7b07a46f
 
-{"estado":"degradado","dependencias":{"mongodb":"no_disponible","neo4j":"disponible","cassandra":"no_disponible","redis":"disponible","influxdb":"no_configurada","iris":"no_configurada"},"catalogoPartidos":{"estado":"cargado","partidos":64,"ultimaCarga":"2026-10-15T22:59:05.727690Z"}}
-(tiempo_total_s=2.068302)
+{"estado":"degradado","dependencias":{"mongodb":"disponible","neo4j":"disponible","cassandra":"no_disponible","redis":"disponible","influxdb":"disponible","iris":"disponible"},"catalogoPartidos":{"estado":"cargado","partidos":64,"ultimaCarga":"2026-10-16T17:29:56.043717Z"}}
+(tiempo_total_s=0.054060)
 
 ### CU-08 después de volver a levantar Cassandra -> 200
 GET /api/v1/partidos/PAR-001/comentarios?minuto=2030-06-10T18:01:00Z
 HTTP/1.1 200 OK
-date: Thu, 15 Oct 2026 23:00:27 GMT
+date: Fri, 16 Oct 2026 17:31:22 GMT
 server: uvicorn
 content-length: 518
 content-type: application/json
-x-request-id: 8194d554-c5ef-4905-9993-bb02de5c3367
+x-request-id: d80ebdb3-1c16-47b9-93b7-0a1d88f4323b
 
 {"partidoId":"PAR-001","items":[{"comentarioId":"MUESTRA-008","usuarioId":"USR-00001","creadoEn":"2030-06-10T18:01:59.000Z","contenido":"Se termina este minuto","estado":"visible","likes":1},{"comentarioId":"MUESTRA-005","usuarioId":"USR-00001","creadoEn":"2030-06-10T18:01:20.000Z","contenido":"Buen remate","estado":"visible","likes":5},{"comentarioId":"MUESTRA-006","usuarioId":"USR-00002","creadoEn":"2030-06-10T18:01:20.000Z","contenido":"Atajada importante","estado":"visible","likes":3}],"siguienteCursor":null}
-(tiempo_total_s=0.025301)
+(tiempo_total_s=0.045301)
 
 (Se borró el comentario de evidencia de las dos tablas y su clave de idempotencia.)
 

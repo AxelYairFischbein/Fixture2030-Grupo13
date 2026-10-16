@@ -1,5 +1,5 @@
 ﻿# IRIS (Fase 7) · pytest -m integration tests/integracion/test_iris.py
-# Generado: 2026-10-16T15:57:28Z
+# Generado: 2026-10-16T17:32:07Z
 
 ============================= test session starts =============================
 platform win32 -- Python 3.13.4, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\moham\Repositorios\Fixture2030-Grupo13\Hito 10\.venv\Scripts\python.exe
@@ -25,4 +25,4 @@ tests/integracion/test_iris.py::test_par001_sigue_pendiente PASSED       [100%]
     from starlette.testclient import TestClient as TestClient  # noqa
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-======================== 10 passed, 1 warning in 3.61s ========================
+======================== 10 passed, 1 warning in 2.44s ========================

@@ -1,5 +1,5 @@
 ﻿# Redis (Fase 3) · pytest -m integration -k redis
-# Generado: 2026-10-15T18:43:04Z
+# Generado: 2026-10-16T17:28:47Z
 
 ============================= test session starts =============================
 platform win32 -- Python 3.13.4, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\moham\Repositorios\Fixture2030-Grupo13\Hito 10\.venv\Scripts\python.exe
@@ -7,7 +7,7 @@ rootdir: C:\Users\moham\Repositorios\Fixture2030-Grupo13\Hito 10
 configfile: pytest.ini
 testpaths: tests
 plugins: anyio-4.15.1
-collecting ... collected 147 items / 138 deselected / 9 selected
+collecting ... collected 483 items / 474 deselected / 9 selected
 
 tests/integracion/test_redis.py::test_salud_informa_redis_disponible PASSED [ 11%]
 tests/integracion/test_redis.py::test_cu11_sesion_vigente_no_renueva PASSED [ 22%]
@@ -25,4 +25,4 @@ tests/integracion/test_redis.py::test_redis_no_disponible_bypass_y_503 PASSED [1
     from starlette.testclient import TestClient as TestClient  # noqa
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-================ 9 passed, 138 deselected, 1 warning in 8.07s =================
+================ 9 passed, 474 deselected, 1 warning in 11.08s ================

@@ -1,0 +1,16 @@
+# Configuración local y secretos
+.env
+.local/
+*.token
+
+# Entorno de Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Logs
+*.log
+
+# Plan
+/docs/plan_de_implementacion.md

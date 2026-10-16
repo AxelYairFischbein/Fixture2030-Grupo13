@@ -1,5 +1,5 @@
 ﻿# Cassandra (Fase 5) · pytest -m integration -k cassandra
-# Generado: 2026-10-15T22:58:49Z
+# Generado: 2026-10-16T17:29:32Z
 
 ============================= test session starts =============================
 platform win32 -- Python 3.13.4, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\moham\Repositorios\Fixture2030-Grupo13\Hito 10\.venv\Scripts\python.exe
@@ -7,7 +7,7 @@ rootdir: C:\Users\moham\Repositorios\Fixture2030-Grupo13\Hito 10
 configfile: pytest.ini
 testpaths: tests
 plugins: anyio-4.15.1
-collecting ... collected 335 items / 327 deselected / 8 selected
+collecting ... collected 483 items / 475 deselected / 8 selected
 
 tests/integracion/test_cassandra.py::test_salud_informa_cassandra_disponible PASSED [ 12%]
 tests/integracion/test_cassandra.py::test_cu08_q1_minuto PASSED          [ 25%]
@@ -24,4 +24,4 @@ tests/integracion/test_cassandra.py::test_cassandra_no_disponible_es_503 PASSED 
     from starlette.testclient import TestClient as TestClient  # noqa
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-================ 8 passed, 327 deselected, 1 warning in 8.68s =================
+================ 8 passed, 475 deselected, 1 warning in 7.15s =================
