@@ -1,0 +1,824 @@
+# Recorrido con cURL contra la API en http://127.0.0.1:8000 - 2026-10-16T13:05:39Z
+# Cada respuesta incluye X-Request-ID y meta.fuentes con las operaciones realmente ejecutadas.
+
+$ curl -s -i -X GET 'http://127.0.0.1:8000/api/v1/equipos?confederacion=CONMEBOL&tamanio=3'  
+HTTP/1.1 200 OK
+content-type: application/json
+x-request-id: f81fd86ee86f45eda545ccd384cc80a6
+{
+ "data": [
+  {
+   "equipoId": "EQ-004",
+   "codigo": "F04",
+   "nombre": "Seleccion Sintetica 04",
+   "confederacion": "CONMEBOL",
+   "rankingReferencia": 4,
+   "estado": "PRESELECCIONADO"
+  },
+  {
+   "equipoId": "EQ-010",
+   "codigo": "F10",
+   "nombre": "Seleccion Sintetica 10",
+   "confederacion": "CONMEBOL",
+   "rankingReferencia": 10,
+   "estado": "PRESELECCIONADO"
+  },
+  {
+   "equipoId": "EQ-016",
+   "codigo": "F16",
+   "nombre": "Seleccion Sintetica 16",
+   "confederacion": "CONMEBOL",
+   "rankingReferencia": 16,
+   "estado": "PRESELECCIONADO"
+  }
+ ],
+ "meta": {
+  "requestId": "f81fd86ee86f45eda545ccd384cc80a6",
+  "fuentes": [
+   {
+    "fuente": "mongodb",
+    "operacion": "listar_equipos",
+    "resultado": "ok",
+    "ms": 3.61
+   }
+  ],
+  "paginacion": {
+   "pagina": 1,
+   "tamanio": 3,
+   "total": 11,
+   "siguienteCursor": null
+  },
+  "cache": null
+ }
+}
+
+$ curl -s -i -X DELETE 'http://127.0.0.1:8000/api/v1/equipos/EQ-004/cache'  
+HTTP/1.1 204 No Content
+x-request-id: d5108e3b45704ffca6b337fffad3233a
+
+
+$ curl -s -i -X GET 'http://127.0.0.1:8000/api/v1/equipos/EQ-004'  
+HTTP/1.1 200 OK
+content-type: application/json
+x-cache: MISS
+x-request-id: 42556fdf16924e33b19c5369444fc3d2
+{
+ "data": {
+  "equipoId": "EQ-004",
+  "codigo": "F04",
+  "nombre": "Seleccion Sintetica 04",
+  "confederacion": "CONMEBOL",
+  "rankingReferencia": 4,
+  "estado": "PRESELECCIONADO",
+  "region": "AMERICAS",
+  "sedeBase": {
+   "ciudad": "Ciudad Sintetica 04",
+   "pais": "Pais Sintetico 04"
+  },
+  "participacionesMundiales": 4,
+  "titulosMundiales": 0,
+  "actualizadoEn": "2026-09-02T00:00:00Z"
+ },
+ "meta": {
+  "requestId": "42556fdf16924e33b19c5369444fc3d2",
+  "fuentes": [
+   {
+    "fuente": "redis",
+    "operacion": "leer_cache_equipo",
+    "resultado": "ok",
+    "ms": 1.17
+   },
+   {
+    "fuente": "mongodb",
+    "operacion": "buscar_equipo",
+    "resultado": "ok",
+    "ms": 1.9
+   },
+   {
+    "fuente": "redis",
+    "operacion": "guardar_cache_equipo",
+    "resultado": "ok",
+    "ms": 3.23
+   }
+  ],
+  "paginacion": null,
+  "cache": "MISS"
+ }
+}
+
+$ curl -s -i -X GET 'http://127.0.0.1:8000/api/v1/equipos/EQ-004'  
+HTTP/1.1 200 OK
+content-type: application/json
+x-cache: HIT
+x-request-id: c6011dcdd8d844f98a767ed283ec1c25
+{
+ "data": {
+  "equipoId": "EQ-004",
+  "codigo": "F04",
+  "nombre": "Seleccion Sintetica 04",
+  "confederacion": "CONMEBOL",
+  "rankingReferencia": 4,
+  "estado": "PRESELECCIONADO",
+  "region": "AMERICAS",
+  "sedeBase": {
+   "ciudad": "Ciudad Sintetica 04",
+   "pais": "Pais Sintetico 04"
+  },
+  "participacionesMundiales": 4,
+  "titulosMundiales": 0,
+  "actualizadoEn": "2026-09-02T00:00:00Z"
+ },
+ "meta": {
+  "requestId": "c6011dcdd8d844f98a767ed283ec1c25",
+  "fuentes": [
+   {
+    "fuente": "redis",
+    "operacion": "leer_cache_equipo",
+    "resultado": "ok",
+    "ms": 1.24
+   }
+  ],
+  "paginacion": null,
+  "cache": "HIT"
+ }
+}
+
+$ curl -s -i -X GET 'http://127.0.0.1:8000/api/v1/equipos/EQ-04'  
+HTTP/1.1 400 Bad Request
+content-type: application/json
+x-request-id: 4c8d36832096463d95b547a252297404
+{
+ "error": {
+  "codigo": "VALIDACION_FALLIDA",
+  "mensaje": "La solicitud no cumple el contrato.",
+  "requestId": "4c8d36832096463d95b547a252297404",
+  "detalles": [
+   {
+    "campo": "path.equipoId",
+    "problema": "String should match pattern '^EQ-\\d{3}$'"
+   }
+  ]
+ }
+}
+
+$ curl -s -i -X GET 'http://127.0.0.1:8000/api/v1/equipos/EQ-999'  
+HTTP/1.1 404 Not Found
+content-type: application/json
+x-request-id: 6e198c5b2a50477da316c3d97e73b4ca
+{
+ "error": {
+  "codigo": "RECURSO_NO_ENCONTRADO",
+  "mensaje": "No existe el equipo EQ-999.",
+  "requestId": "6e198c5b2a50477da316c3d97e73b4ca"
+ }
+}
+
+$ curl -s -i -X GET 'http://127.0.0.1:8000/api/v1/equipos/EQ-004/jugadores?posicion=ARQUERO'  
+HTTP/1.1 200 OK
+content-type: application/json
+x-request-id: 3cad9a01245f456ab533a9455f12f354
+{
+ "data": [
+  {
+   "jugadorId": "JUG-0073",
+   "equipoId": "EQ-004",
+   "nombre": "Nombre0073",
+   "apellido": "Apellido0073",
+   "posicion": "ARQUERO",
+   "numeroCamiseta": 1,
+   "fechaNacimiento": "2004-01-02T00:00:00Z",
+   "alturaCm": 195,
+   "pieHabil": "DERECHO",
+   "partidosInternacionales": 149,
+   "golesInternacionales": 9,
+   "estadoPlantel": "CONVOCADO"
+  },
+  {
+   "jugadorId": "JUG-0074",
+   "equipoId": "EQ-004",
+   "nombre": "Nombre0074",
+   "apellido": "Apellido0074",
+   "posicion": "ARQUERO",
+   "numeroCamiseta": 2,
+   "fechaNacimiento": "2005-02-07T00:00:00Z",
+   "alturaCm": 185,
+   "pieHabil": "IZQUIERDO",
+   "partidosInternacionales": 156,
+   "golesInternacionales": 12,
+   "estadoPlantel": "CONVOCADO"
+  },
+  {
+   "jugadorId": "JUG-0075",
+   "equipoId": "EQ-004",
+   "nombre": "Nombre0075",
+   "apellido": "Apellido0075",
+   "posicion": "ARQUERO",
+   "numeroCamiseta": 3,
+   "fechaNacimiento": "2006-03-12T00:00:00Z",
+   "alturaCm": 188,
+   "pieHabil": "DERECHO",
+   "partidosInternacionales": 163,
+   "golesInternacionales": 0,
+   "estadoPlantel": "CONVOCADO"
+  }
+ ],
+ "meta": {
+  "requestId": "3cad9a01245f456ab533a9455f12f354",
+  "fuentes": [
+   {
+    "fuente": "mongodb",
+    "operacion": "existe_equipo",
+    "resultado": "ok",
+    "ms": 1.74
+   },
+   {
+    "fuente": "mongodb",
+    "operacion": "plantel",
+    "resultado": "ok",
+    "ms": 3.65
+   }
+  ],
+  "paginacion": {
+   "pagina": 1,
+   "tamanio": 24,
+   "total": 3,
+   "siguienteCursor": null
+  },
+  "cache": null
+ }
+}
+
+$ curl -s -i -X GET 'http://127.0.0.1:8000/api/v1/equipos/EQ-004/partidos'  
+HTTP/1.1 200 OK
+content-type: application/json
+x-request-id: a141882f7f2f4bb0a5f2ee517ef658a2
+{
+ "data": [
+  {
+   "partidoId": "PAR-002",
+   "grupo": "G01",
+   "estado": "FINALIZADO",
+   "inicio": "2030-06-10T18:00:00Z",
+   "rol": "VISITANTE",
+   "estadioId": "EST-02",
+   "rivalId": "EQ-003"
+  },
+  {
+   "partidoId": "PAR-034",
+   "grupo": "G01",
+   "estado": "FINALIZADO",
+   "inicio": "2030-06-14T18:00:00Z",
+   "rol": "VISITANTE",
+   "estadioId": "EST-02",
+   "rivalId": "EQ-002"
+  }
+ ],
+ "meta": {
+  "requestId": "a141882f7f2f4bb0a5f2ee517ef658a2",
+  "fuentes": [
+   {
+    "fuente": "neo4j",
+    "operacion": "agenda",
+    "resultado": "ok",
+    "ms": 9.08
+   }
+  ],
+  "paginacion": null,
+  "cache": null
+ }
+}
+
+$ curl -s -i -X GET 'http://127.0.0.1:8000/api/v1/partidos/PAR-002'  
+HTTP/1.1 200 OK
+content-type: application/json
+x-request-id: 346a0b01db784fef93497d99ebab40ba
+{
+ "data": {
+  "partidoId": "PAR-002",
+  "grupo": "G01",
+  "fase": "GRUPOS_MUESTRA",
+  "estado": "FINALIZADO",
+  "jornada": 1,
+  "inicio": "2030-06-10T18:00:00Z",
+  "estadio": {
+   "estadioId": "EST-02",
+   "nombre": "Estadio Sintetico 02",
+   "ciudad": "Ciudad Sede 02"
+  },
+  "equipos": [
+   {
+    "equipoId": "EQ-003",
+    "codigo": "F03",
+    "nombre": "Seleccion Sintetica 03",
+    "rol": "LOCAL"
+   },
+   {
+    "equipoId": "EQ-004",
+    "codigo": "F04",
+    "nombre": "Seleccion Sintetica 04",
+    "rol": "VISITANTE"
+   }
+  ],
+  "eventos": [
+   {
+    "eventoId": "EVT-PAR-002-LOCAL",
+    "tipo": "SUSTITUCION",
+    "minuto": 60,
+    "involucrados": [
+     {
+      "jugadorId": "JUG-0068",
+      "nombre": "Nombre0068",
+      "apellido": "Apellido0068",
+      "rol": "SALE"
+     },
+     {
+      "jugadorId": "JUG-0069",
+      "nombre": "Nombre0069",
+      "apellido": "Apellido0069",
+      "rol": "ENTRA"
+     }
+    ]
+   },
+   {
+    "eventoId": "EVT-PAR-002-VISITANTE",
+    "tipo": "SUSTITUCION",
+    "minuto": 65,
+    "involucrados": [
+     {
+      "jugadorId": "JUG-0092",
+      "nombre": "Nombre0092",
+      "apellido": "Apellido0092",
+      "rol": "SALE"
+     },
+     {
+      "jugadorId": "JUG-0093",
+      "nombre": "Nombre0093",
+      "apellido": "Apellido0093",
+      "rol": "ENTRA"
+     }
+    ]
+   }
+  ]
+ },
+ "meta": {
+  "requestId": "346a0b01db784fef93497d99ebab40ba",
+  "fuentes": [
+   {
+    "fuente": "neo4j",
+    "operacion": "partido",
+    "resultado": "ok",
+    "ms": 8.6
+   },
+   {
+    "fuente": "neo4j",
+    "operacion": "eventos",
+    "resultado": "ok",
+    "ms": 7.69
+   }
+  ],
+  "paginacion": null,
+  "cache": null
+ }
+}
+
+$ curl -s -i -X GET 'http://127.0.0.1:8000/api/v1/partidos/PAR-999'  
+HTTP/1.1 404 Not Found
+content-type: application/json
+x-request-id: 0fa17496571c4b96bcbeb95dbfe2020f
+{
+ "error": {
+  "codigo": "RECURSO_NO_ENCONTRADO",
+  "mensaje": "No existe el partido PAR-999.",
+  "requestId": "0fa17496571c4b96bcbeb95dbfe2020f"
+ }
+}
+
+$ curl -s -i -X GET 'http://127.0.0.1:8000/api/v1/partidos/PAR-001/comentarios?desde=2030-06-10T18:00:30Z&hasta=2030-06-10T18:02:10Z&limite=3'  
+HTTP/1.1 200 OK
+content-type: application/json
+x-request-id: 4e7650216cc64837b9dcc27c568c1700
+{
+ "data": {
+  "partidoId": "PAR-001",
+  "desde": "2030-06-10T18:00:30.000Z",
+  "hasta": "2030-06-10T18:02:10.000Z",
+  "particiones": 12,
+  "items": [
+   {
+    "comentarioId": "MUESTRA-009",
+    "usuarioId": "USR-00002",
+    "contenido": "Sigue el partido",
+    "estado": "visible",
+    "likes": 1,
+    "creadoEn": "2030-06-10T18:02:05.000Z"
+   },
+   {
+    "comentarioId": "MUESTRA-008",
+    "usuarioId": "USR-00001",
+    "contenido": "Se termina este minuto",
+    "estado": "visible",
+    "likes": 1,
+    "creadoEn": "2030-06-10T18:01:59.000Z"
+   },
+   {
+    "comentarioId": "MUESTRA-007",
+    "usuarioId": "USR-00003",
+    "contenido": "Comentario en revision",
+    "estado": "pendiente",
+    "likes": 0,
+    "creadoEn": "2030-06-10T18:01:45.000Z"
+   }
+  ]
+ },
+ "meta": {
+  "requestId": "4e7650216cc64837b9dcc27c568c1700",
+  "fuentes": [
+   {
+    "fuente": "cassandra",
+    "operacion": "listar_ventana",
+    "resultado": "ok",
+    "ms": 14.58
+   }
+  ],
+  "paginacion": {
+   "pagina": null,
+   "tamanio": 3,
+   "total": null,
+   "siguienteCursor": "1907344905000_MUESTRA-007"
+  },
+  "cache": null
+ }
+}
+
+$ curl -s -i -X GET 'http://127.0.0.1:8000/api/v1/partidos/PAR-001/comentarios?desde=2030-06-10T18:00:00Z&hasta=2030-06-10T18:20:00Z'  
+HTTP/1.1 400 Bad Request
+content-type: application/json
+x-request-id: 4b997c80a7684531a471d43399ce312b
+{
+ "error": {
+  "codigo": "VALIDACION_FALLIDA",
+  "mensaje": "La ventana de comentarios no puede superar 5 minutos.",
+  "requestId": "4b997c80a7684531a471d43399ce312b"
+ }
+}
+
+$ curl -s -i -X POST 'http://127.0.0.1:8000/api/v1/partidos/PAR-064/comentarios' -H 'Content-Type: application/json' -d '{"usuarioId":"USR-00003","contenido":"Evidencia del Hito 10"}' -H 'Idempotency-Key: evidencia-1792155939'
+HTTP/1.1 201 Created
+content-type: application/json
+x-request-id: c87d9add97584820a2e4d5d9b0d6e630
+{
+ "data": {
+  "comentarioId": "API-e61aa6061c224456ae1678689eb453d9",
+  "usuarioId": "USR-00003",
+  "contenido": "Evidencia del Hito 10",
+  "estado": "visible",
+  "likes": 0,
+  "creadoEn": "2026-10-16T13:05:41.699Z",
+  "partidoId": "PAR-064",
+  "minuto": "2026-10-16T13:05:00.000Z",
+  "segmento": 1
+ },
+ "meta": {
+  "requestId": "c87d9add97584820a2e4d5d9b0d6e630",
+  "fuentes": [
+   {
+    "fuente": "redis",
+    "operacion": "reservar_idempotencia",
+    "resultado": "ok",
+    "ms": 1.57
+   },
+   {
+    "fuente": "neo4j",
+    "operacion": "partido",
+    "resultado": "ok",
+    "ms": 8.97
+   },
+   {
+    "fuente": "cassandra",
+    "operacion": "insertar_comentario",
+    "resultado": "ok",
+    "ms": 4.98
+   },
+   {
+    "fuente": "redis",
+    "operacion": "completar_idempotencia",
+    "resultado": "ok",
+    "ms": 1.42
+   }
+  ],
+  "paginacion": null,
+  "cache": null
+ }
+}
+
+$ curl -s -i -X POST 'http://127.0.0.1:8000/api/v1/partidos/PAR-064/comentarios' -H 'Content-Type: application/json' -d '{"usuarioId":"USR-00003","contenido":"Evidencia del Hito 10"}' -H 'Idempotency-Key: evidencia-1792155939'
+HTTP/1.1 200 OK
+content-type: application/json
+idempotent-replayed: true
+x-request-id: 5f0319b52cd74ca281090c318f6a9522
+{
+ "data": {
+  "comentarioId": "API-e61aa6061c224456ae1678689eb453d9",
+  "usuarioId": "USR-00003",
+  "contenido": "Evidencia del Hito 10",
+  "estado": "visible",
+  "likes": 0,
+  "creadoEn": "2026-10-16T13:05:41.699Z",
+  "partidoId": "PAR-064",
+  "minuto": "2026-10-16T13:05:00.000Z",
+  "segmento": 1
+ },
+ "meta": {
+  "requestId": "5f0319b52cd74ca281090c318f6a9522",
+  "fuentes": [
+   {
+    "fuente": "redis",
+    "operacion": "reservar_idempotencia",
+    "resultado": "ok",
+    "ms": 1.94
+   }
+  ],
+  "paginacion": null,
+  "cache": null
+ }
+}
+
+$ curl -s -i -X POST 'http://127.0.0.1:8000/api/v1/partidos/PAR-064/comentarios' -H 'Content-Type: application/json' -d '{"usuarioId":"USR-00003","contenido":"Texto distinto"}' -H 'Idempotency-Key: evidencia-1792155939'
+HTTP/1.1 409 Conflict
+content-type: application/json
+x-request-id: 59ee0e711e1b44889187c2f9f35072f7
+{
+ "error": {
+  "codigo": "CONFLICTO",
+  "mensaje": "La Idempotency-Key ya se utilizó con otro contenido.",
+  "requestId": "59ee0e711e1b44889187c2f9f35072f7"
+ }
+}
+
+$ curl -s -i -X GET 'http://127.0.0.1:8000/api/v1/partidos/PAR-001/estadisticas?intervalo=5m'  
+HTTP/1.1 200 OK
+content-type: application/json
+x-request-id: 4e81e4f5caef440d84a27d665c0b45ba
+{
+ "data": {
+  "partidoId": "PAR-001",
+  "equipoId": null,
+  "desde": "2026-10-16T12:48:41.000Z",
+  "hasta": "2026-10-16T12:58:41.000Z",
+  "intervalo": "5m",
+  "puntos": [
+   {
+    "inicio": "2026-10-16T12:45:00Z",
+    "equipoId": "EQ-001",
+    "muestras": 15,
+    "posesionMedia": 50.7,
+    "tiros": 1,
+    "pasesAcumulados": 127
+   },
+   {
+    "inicio": "2026-10-16T12:45:00Z",
+    "equipoId": "EQ-002",
+    "muestras": 15,
+    "posesionMedia": 49.3,
+    "tiros": 0,
+    "pasesAcumulados": 105
+   },
+   {
+    "inicio": "2026-10-16T12:50:00Z",
+    "equipoId": "EQ-001",
+    "muestras": 60,
+    "posesionMedia": 50.2,
+    "tiros": 1,
+    "pasesAcumulados": 157
+   },
+   {
+    "inicio": "2026-10-16T12:50:00Z",
+    "equipoId": "EQ-002",
+    "muestras": 60,
+    "posesionMedia": 49.8,
+    "tiros": 1,
+    "pasesAcumulados": 130
+   },
+   {
+    "inicio": "2026-10-16T12:55:00Z",
+    "equipoId": "EQ-001",
+    "muestras": 45,
+    "posesionMedia": 49.733,
+    "tiros": 0,
+    "pasesAcumulados": 179
+   },
+   {
+    "inicio": "2026-10-16T12:55:00Z",
+    "equipoId": "EQ-002",
+    "muestras": 45,
+    "posesionMedia": 50.267,
+    "tiros": 1,
+    "pasesAcumulados": 149
+   }
+  ]
+ },
+ "meta": {
+  "requestId": "4e81e4f5caef440d84a27d665c0b45ba",
+  "fuentes": [
+   {
+    "fuente": "influxdb",
+    "operacion": "ultimo_instante",
+    "resultado": "ok",
+    "ms": 8.66
+   },
+   {
+    "fuente": "influxdb",
+    "operacion": "resumen_ventana",
+    "resultado": "ok",
+    "ms": 10.1
+   }
+  ],
+  "paginacion": null,
+  "cache": null
+ }
+}
+
+$ curl -s -i -X GET 'http://127.0.0.1:8000/api/v1/partidos/PAR-001/estadisticas?desde=2026-10-16T13:30:00Z&hasta=2026-10-16T13:00:00Z'  
+HTTP/1.1 400 Bad Request
+content-type: application/json
+x-request-id: 70ab6a03d88f4aacbd15751fd115bd71
+{
+ "error": {
+  "codigo": "VALIDACION_FALLIDA",
+  "mensaje": "'hasta' debe ser posterior a 'desde'.",
+  "requestId": "70ab6a03d88f4aacbd15751fd115bd71"
+ }
+}
+
+$ curl -s -i -X POST 'http://127.0.0.1:8000/api/v1/sesiones' -H 'Content-Type: application/json' -d '{"usuarioId":"USR-00001"}' 
+HTTP/1.1 201 Created
+content-type: application/json
+x-request-id: f83ec35dedda443e8080ed497a52e71a
+{
+ "data": {
+  "sesionId": "SES-dabb472300c35baca37ac7b4",
+  "usuarioId": "USR-00001",
+  "estado": "activa",
+  "rol": "lector",
+  "ultimaActividad": 1792155942,
+  "expiraEnSegundos": 1800
+ },
+ "meta": {
+  "requestId": "f83ec35dedda443e8080ed497a52e71a",
+  "fuentes": [
+   {
+    "fuente": "redis",
+    "operacion": "crear_sesion",
+    "resultado": "ok",
+    "ms": 1.58
+   }
+  ],
+  "paginacion": null,
+  "cache": null
+ }
+}
+
+$ curl -s -i -X GET 'http://127.0.0.1:8000/api/v1/sesiones/SES-000000000000000000000000'  
+HTTP/1.1 404 Not Found
+content-type: application/json
+x-request-id: 10a56602a09247a6833cf8629ba9dac4
+{
+ "error": {
+  "codigo": "SESION_NO_VIGENTE",
+  "mensaje": "No existe una sesión vigente con ID SES-000000000000000000000000 (cerrada, vencida o inexistente).",
+  "requestId": "10a56602a09247a6833cf8629ba9dac4"
+ }
+}
+
+$ curl -s -i -X GET 'http://127.0.0.1:8000/api/v1/actas/PAR-001'  
+HTTP/1.1 200 OK
+content-type: application/json
+x-request-id: be2c97c4704f4928832e7f6f33448c6c
+{
+ "data": {
+  "id": "1",
+  "codigo": "PAR-001",
+  "estadioCodigo": "EST-01",
+  "estado": "PENDIENTE",
+  "arbitro": {
+   "id": "1",
+   "codigo": "ARB-001",
+   "nombre": "Arbitro Sintetico 01",
+   "nacionalidad": "F01",
+   "licencia": "LIC-DEMO-001"
+  },
+  "eventos": [
+   {
+    "id": "1||1",
+    "tipo": "TARJETA",
+    "minuto": 15,
+    "jugador": {
+     "id": "2",
+     "codigo": "JUG-0001",
+     "nombre": "Nombre0001 Apellido0001",
+     "numero": 1,
+     "posicion": "ARQUERO"
+    }
+   },
+   {
+    "id": "1||2",
+    "tipo": "CAMBIO",
+    "minuto": 75,
+    "jugador": {
+     "id": "2",
+     "codigo": "JUG-0001",
+     "nombre": "Nombre0001 Apellido0001",
+     "numero": 1,
+     "posicion": "ARQUERO"
+    }
+   }
+  ]
+ },
+ "meta": {
+  "requestId": "be2c97c4704f4928832e7f6f33448c6c",
+  "fuentes": [
+   {
+    "fuente": "iris",
+    "operacion": "leer_acta",
+    "resultado": "ok",
+    "ms": 4.46
+   }
+  ],
+  "paginacion": null,
+  "cache": null
+ }
+}
+
+$ curl -s -i -X PUT 'http://127.0.0.1:8000/api/v1/actas/PAR-001/estado' -H 'Content-Type: application/json' -d '{"estado":"FINALIZADO"}' 
+HTTP/1.1 409 Conflict
+content-type: application/json
+x-request-id: f9fd667ba1f040f584a8adb17ea4527c
+{
+ "error": {
+  "codigo": "TRANSICION_INVALIDA",
+  "mensaje": "Transición no permitida: PENDIENTE -> FINALIZADO.",
+  "requestId": "f9fd667ba1f040f584a8adb17ea4527c"
+ }
+}
+
+$ curl -s -i -X PUT 'http://127.0.0.1:8000/api/v1/actas/PAR-001/estado' -H 'Content-Type: application/json' -d '{"estado":"PENDIENTE"}' 
+HTTP/1.1 200 OK
+content-type: application/json
+x-request-id: 23f63534ff62430294fe62c5653c5617
+{
+ "data": {
+  "cambio": false,
+  "acta": {
+   "id": "1",
+   "codigo": "PAR-001",
+   "estadioCodigo": "EST-01",
+   "estado": "PENDIENTE",
+   "arbitro": {
+    "id": "1",
+    "codigo": "ARB-001",
+    "nombre": "Arbitro Sintetico 01",
+    "nacionalidad": "F01",
+    "licencia": "LIC-DEMO-001"
+   },
+   "eventos": [
+    {
+     "id": "1||1",
+     "tipo": "TARJETA",
+     "minuto": 15,
+     "jugador": {
+      "id": "2",
+      "codigo": "JUG-0001",
+      "nombre": "Nombre0001 Apellido0001",
+      "numero": 1,
+      "posicion": "ARQUERO"
+     }
+    },
+    {
+     "id": "1||2",
+     "tipo": "CAMBIO",
+     "minuto": 75,
+     "jugador": {
+      "id": "2",
+      "codigo": "JUG-0001",
+      "nombre": "Nombre0001 Apellido0001",
+      "numero": 1,
+      "posicion": "ARQUERO"
+     }
+    }
+   ]
+  }
+ },
+ "meta": {
+  "requestId": "23f63534ff62430294fe62c5653c5617",
+  "fuentes": [
+   {
+    "fuente": "iris",
+    "operacion": "leer_acta",
+    "resultado": "ok",
+    "ms": 2.03
+   }
+  ],
+  "paginacion": null,
+  "cache": null
+ }
+}

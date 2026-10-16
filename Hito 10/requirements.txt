@@ -1,0 +1,12 @@
+fastapi==0.143.2
+uvicorn==0.54.0
+pymongo==4.19.0
+neo4j==6.4.1
+cassandra-driver==3.30.1
+# Restituye asyncore, que cassandra-driver necesita desde Python 3.12.
+pyasyncore==1.0.5
+redis==8.1.0
+httpx==0.28.1
+intersystems-irispython==5.4.1
+PyYAML==6.0.3
+pytest==9.1.1

@@ -1,0 +1,18 @@
+# Ejecutado: 2026-10-16T13:05:17Z - scripts/verificar_conectividad.py (API detenida o no, usa los adaptadores)
+Timeout por operación: 3.0 s
+ok                 32.93 ms  mongodb    127.0.0.1:27017/fixture2030
+ok                 11.56 ms  neo4j      bolt://127.0.0.1:7687 (db neo4j)
+ok               1405.26 ms  cassandra  127.0.0.1:9042/fixture2030_comentarios
+ok                 14.20 ms  redis      127.0.0.1:16379 (prefijo fixture2030:h10)
+ok                 15.35 ms  influxdb   http://127.0.0.1:8181 (db fixture2030_h8, token configurado)
+ok                 33.25 ms  iris       127.0.0.1:1972/USER (usuario fixture_api)
+exit=0
+
+# Contenedores (docker ps)
+NAMES                       IMAGE                                            STATUS                    PORTS
+grupo13-hito9-iris-1        intersystems/iris-community:latest-cd            Up 11 hours (healthy)     127.0.0.1:1972->1972/tcp, 127.0.0.1:52773->52773/tcp
+grupo13-hito7-redis-1       redis:latest                                     Up 11 hours (healthy)     127.0.0.1:16379->6379/tcp
+grupo13-hito6-cassandra-1   cassandra:latest                                 Up 11 hours               127.0.0.1:9042->9042/tcp
+fixture2030-mongodb         mongodb/mongodb-community-server:8.0-ubi8-slim   Up 11 hours (healthy)     0.0.0.0:27017->27017/tcp, [::]:27017->27017/tcp
+grupo13-hito8-influxdb-1    influxdb:3-core                                  Up 11 hours               127.0.0.1:8181->8181/tcp
+grupo13-hito5-neo4j-1       neo4j:latest                                     Up 11 hours (unhealthy)   127.0.0.1:7474->7474/tcp, 127.0.0.1:7687->7687/tcp

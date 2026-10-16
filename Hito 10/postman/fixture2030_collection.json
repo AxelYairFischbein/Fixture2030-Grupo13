@@ -1,0 +1,819 @@
+{
+  "info": {
+    "name": "Fixture 2030 - API integrada (Hito 10)",
+    "_postman_id": "8a6c2f0e-3b7d-4c55-9a1e-fixture2030h10",
+    "description": "Rutas principales y escenarios de error. Ejecutar en orden (las variables cursor, sesionId y comentarioId se encadenan). idemKey se genera al inicio de cada corrida.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "if (!pm.collectionVariables.get('idemKey') || pm.info.requestName === 'Conectividad de las seis fuentes') {",
+          "  pm.collectionVariables.set('idemKey', 'postman-' + Date.now());",
+          "}"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:8000/api/v1"
+    },
+    {
+      "key": "idemKey",
+      "value": ""
+    },
+    {
+      "key": "cursor",
+      "value": ""
+    },
+    {
+      "key": "sesionId",
+      "value": ""
+    },
+    {
+      "key": "comentarioId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Salud",
+      "item": [
+        {
+          "name": "Conectividad de las seis fuentes",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('X-Request-ID presente', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/salud"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Equipos · MongoDB",
+      "item": [
+        {
+          "name": "Listado UEFA página 1",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('X-Request-ID presente', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                  "pm.test('paginación', () => pm.expect(pm.response.json().meta.paginacion.total).to.eql(10));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/equipos?confederacion=UEFA&pagina=1&tamanio=5"
+          }
+        },
+        {
+          "name": "Invalidar caché EQ-001 (idempotente)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 204', () => pm.response.to.have.status(204));",
+                  "pm.test('X-Request-ID presente', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/equipos/EQ-001/cache"
+          }
+        },
+        {
+          "name": "Ficha EQ-001 (MISS)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('X-Request-ID presente', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                  "pm.test('cache MISS', () => pm.expect(pm.response.headers.get('X-Cache')).to.eql('MISS'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/equipos/EQ-001"
+          }
+        },
+        {
+          "name": "Ficha EQ-001 (HIT)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('X-Request-ID presente', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                  "pm.test('cache HIT', () => pm.expect(pm.response.headers.get('X-Cache')).to.eql('HIT'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/equipos/EQ-001"
+          }
+        },
+        {
+          "name": "Error: ID con formato inválido",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  "pm.test('X-Request-ID presente', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                  "pm.test('código', () => pm.expect(pm.response.json().error.codigo).to.eql('VALIDACION_FALLIDA'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/equipos/equipo-1"
+          }
+        },
+        {
+          "name": "Error: equipo inexistente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 404', () => pm.response.to.have.status(404));",
+                  "pm.test('X-Request-ID presente', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                  "pm.test('código', () => pm.expect(pm.response.json().error.codigo).to.eql('RECURSO_NO_ENCONTRADO'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/equipos/EQ-999"
+          }
+        },
+        {
+          "name": "Plantel EQ-001, delanteros",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('X-Request-ID presente', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/equipos/EQ-001/jugadores?posicion=DELANTERO"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Partidos · Neo4j",
+      "item": [
+        {
+          "name": "Agenda de EQ-001",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('X-Request-ID presente', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/equipos/EQ-001/partidos"
+          }
+        },
+        {
+          "name": "Partido PAR-001 con eventos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('X-Request-ID presente', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                  "pm.test('dos eventos', () => pm.expect(pm.response.json().data.eventos.length).to.eql(2));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/partidos/PAR-001"
+          }
+        },
+        {
+          "name": "Error: partido inexistente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 404', () => pm.response.to.have.status(404));",
+                  "pm.test('X-Request-ID presente', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/partidos/PAR-999"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Comentarios · Cassandra",
+      "item": [
+        {
+          "name": "Ventana de 3 minutos (página 1)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('X-Request-ID presente', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                  "pm.collectionVariables.set('cursor', pm.response.json().meta.paginacion.siguienteCursor);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/partidos/PAR-001/comentarios?desde=2030-06-10T18:00:00Z&hasta=2030-06-10T18:03:00Z&limite=4"
+          }
+        },
+        {
+          "name": "Ventana de 3 minutos (página 2 con cursor)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('X-Request-ID presente', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/partidos/PAR-001/comentarios?desde=2030-06-10T18:00:00Z&hasta=2030-06-10T18:03:00Z&limite=4&cursor={{cursor}}"
+          }
+        },
+        {
+          "name": "Ventana válida sin comentarios",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('X-Request-ID presente', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                  "pm.test('vacío', () => pm.expect(pm.response.json().data.items.length).to.eql(0));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/partidos/PAR-050/comentarios?desde=2030-06-10T18:00:00Z&hasta=2030-06-10T18:01:00Z"
+          }
+        },
+        {
+          "name": "Error: ventana mayor a 5 minutos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  "pm.test('X-Request-ID presente', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/partidos/PAR-001/comentarios?desde=2030-06-10T18:00:00Z&hasta=2030-06-10T18:30:00Z"
+          }
+        },
+        {
+          "name": "Publicar comentario (nueva clave)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "pm.test('X-Request-ID presente', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                  "pm.collectionVariables.set('comentarioId', pm.response.json().data.comentarioId);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Idempotency-Key",
+                "value": "{{idemKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/partidos/PAR-064/comentarios",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"usuarioId\": \"USR-00007\", \"contenido\": \"Comentario desde la colección Postman\"}"
+            }
+          }
+        },
+        {
+          "name": "Repetir la misma publicación (sin duplicar)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('X-Request-ID presente', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                  "pm.test('mismo comentario', () => pm.expect(pm.response.json().data.comentarioId).to.eql(pm.collectionVariables.get('comentarioId')));",
+                  "pm.test('replay', () => pm.expect(pm.response.headers.get('Idempotent-Replayed')).to.eql('true'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Idempotency-Key",
+                "value": "{{idemKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/partidos/PAR-064/comentarios",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"usuarioId\": \"USR-00007\", \"contenido\": \"Comentario desde la colección Postman\"}"
+            }
+          }
+        },
+        {
+          "name": "Error: misma clave con otro contenido",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 409', () => pm.response.to.have.status(409));",
+                  "pm.test('X-Request-ID presente', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Idempotency-Key",
+                "value": "{{idemKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/partidos/PAR-064/comentarios",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"usuarioId\": \"USR-00007\", \"contenido\": \"Otro texto\"}"
+            }
+          }
+        },
+        {
+          "name": "Error: falta Idempotency-Key",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  "pm.test('X-Request-ID presente', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/partidos/PAR-064/comentarios",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"usuarioId\": \"USR-00007\", \"contenido\": \"Sin clave\"}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Estadísticas · InfluxDB",
+      "item": [
+        {
+          "name": "Últimos 10 minutos con datos, por minuto",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('X-Request-ID presente', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/partidos/PAR-001/estadisticas?intervalo=1m"
+          }
+        },
+        {
+          "name": "Ventana sin puntos (vacío válido)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('X-Request-ID presente', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/partidos/PAR-001/estadisticas?desde=2026-01-01T00:00:00Z&hasta=2026-01-01T01:00:00Z"
+          }
+        },
+        {
+          "name": "Error: demasiados intervalos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  "pm.test('X-Request-ID presente', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/partidos/PAR-001/estadisticas?desde=2026-10-01T00:00:00Z&hasta=2026-10-03T00:00:00Z&intervalo=10s"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Sesiones · Redis",
+      "item": [
+        {
+          "name": "Abrir sesión",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "pm.test('X-Request-ID presente', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                  "pm.collectionVariables.set('sesionId', pm.response.json().data.sesionId);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/sesiones",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"usuarioId\": \"USR-00001\"}"
+            }
+          }
+        },
+        {
+          "name": "Consultar sesión vigente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('X-Request-ID presente', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/sesiones/{{sesionId}}"
+          }
+        },
+        {
+          "name": "Cerrar sesión",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 204', () => pm.response.to.have.status(204));",
+                  "pm.test('X-Request-ID presente', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/sesiones/{{sesionId}}"
+          }
+        },
+        {
+          "name": "Cerrar otra vez (idempotente)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 204', () => pm.response.to.have.status(204));",
+                  "pm.test('X-Request-ID presente', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/sesiones/{{sesionId}}"
+          }
+        },
+        {
+          "name": "Error: sesión cerrada ya no vigente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 404', () => pm.response.to.have.status(404));",
+                  "pm.test('X-Request-ID presente', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                  "pm.test('código', () => pm.expect(pm.response.json().error.codigo).to.eql('SESION_NO_VIGENTE'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/sesiones/{{sesionId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Actas · IRIS",
+      "item": [
+        {
+          "name": "Acta PAR-001",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('X-Request-ID presente', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/actas/PAR-001"
+          }
+        },
+        {
+          "name": "Repetir estado actual (sin cambio)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('X-Request-ID presente', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                  "pm.test('sin cambio', () => pm.expect(pm.response.json().data.cambio).to.eql(false));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/actas/PAR-001/estado",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"estado\": \"PENDIENTE\"}"
+            }
+          }
+        },
+        {
+          "name": "Error: transición inválida (no modifica)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 409', () => pm.response.to.have.status(409));",
+                  "pm.test('X-Request-ID presente', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                  "pm.test('código', () => pm.expect(pm.response.json().error.codigo).to.eql('TRANSICION_INVALIDA'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/actas/PAR-001/estado",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"estado\": \"FINALIZADO\"}"
+            }
+          }
+        },
+        {
+          "name": "Error: estado fuera del contrato",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  "pm.test('X-Request-ID presente', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/actas/PAR-001/estado",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"estado\": \"SUSPENDIDO\"}"
+            }
+          }
+        },
+        {
+          "name": "Error: acta inexistente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 404', () => pm.response.to.have.status(404));",
+                  "pm.test('X-Request-ID presente', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/actas/NO-EXISTE"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+.local/
+.env
+*.key
+*.token
+*.IRIS.DAT
+IRIS.DAT
+*.WIJ
+*.JRN
+*.pyc
+__pycache__/
