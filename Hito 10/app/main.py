@@ -7,6 +7,7 @@ from fastapi import FastAPI
 
 from app.adapters.cassandra_adaptador import AdaptadorCassandra
 from app.adapters.influx_adaptador import AdaptadorInflux
+from app.adapters.iris_adaptador import AdaptadorIris
 from app.adapters.mongo_adaptador import AdaptadorMongo
 from app.adapters.neo4j_adaptador import AdaptadorNeo4j
 from app.adapters.redis_adaptador import AdaptadorRedis
@@ -15,6 +16,7 @@ from app.config.settings import Settings, cargar_settings
 from app.manejadores import registrar_manejadores
 from app.middleware import RequestIdMiddleware
 from app.routes import (
+    actas,
     cache,
     comentarios,
     equipos,
@@ -43,6 +45,8 @@ def create_app(settings: Settings | None = None, iniciar_catalogo: bool = True) 
         app.state.adaptador_cassandra = AdaptadorCassandra(settings)
         # InfluxDB lee el token al crearse: si falta, la API no arranca (nombra la variable).
         app.state.adaptador_influx = AdaptadorInflux(settings)
+        # IRIS conecta en el primer uso: la API arranca aunque esté caído.
+        app.state.adaptador_iris = AdaptadorIris(settings)
         app.state.catalogo_partidos = CatalogoPartidos(app.state.adaptador_neo4j, settings)
         if iniciar_catalogo:
             # Con Neo4j caído la API arranca igual y el catálogo queda "no_cargado" (§3.2).
@@ -56,10 +60,11 @@ def create_app(settings: Settings | None = None, iniciar_catalogo: bool = True) 
             app.state.adaptador_neo4j.cerrar()
             app.state.adaptador_cassandra.cerrar()
             app.state.adaptador_influx.cerrar()
+            app.state.adaptador_iris.cerrar()
 
     app = FastAPI(
         title="Fixture 2030 · API integrada",
-        version="0.6.0",
+        version="0.7.0",
         description="API REST del Hito 10 (Grupo 13) sobre MongoDB, Neo4j, Cassandra, "
                     "Redis, InfluxDB e InterSystems IRIS.",
         lifespan=lifespan,
@@ -75,6 +80,7 @@ def create_app(settings: Settings | None = None, iniciar_catalogo: bool = True) 
     app.include_router(cache.router)
     app.include_router(comentarios.router)
     app.include_router(estadisticas.router)
+    app.include_router(actas.router)
     return app
 
 

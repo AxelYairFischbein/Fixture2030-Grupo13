@@ -1,0 +1,253 @@
+﻿# IRIS (Fase 7) · Lista de control (plan_de_implementacion.md)
+# Generado: 2026-10-16T15:57:28Z · API en http://127.0.0.1:8014 · respuestas crudas de curl.exe -i
+# Partido temporal creado para las transiciones: PAR-980 (PENDIENTE, EST-01, sin eventos)
+
+### Salud con IRIS arriba
+GET /api/v1/salud
+HTTP/1.1 200 OK
+date: Fri, 16 Oct 2026 15:57:44 GMT
+server: uvicorn
+content-length: 274
+content-type: application/json
+x-request-id: 8e031d0e-c2e3-4804-b5bb-3c4c259d08d2
+
+{"estado":"degradado","dependencias":{"mongodb":"no_disponible","neo4j":"disponible","cassandra":"disponible","redis":"disponible","influxdb":"disponible","iris":"disponible"},"catalogoPartidos":{"estado":"cargado","partidos":64,"ultimaCarga":"2026-10-16T15:57:40.884611Z"}}
+(tiempo_total_s=2.085579)
+
+### CU-18 · PAR-001 -> PENDIENTE, EST-01, ARB-001 y dos eventos (sin ID ni licencia)
+GET /api/v1/partidos/PAR-001/acta
+HTTP/1.1 200 OK
+date: Fri, 16 Oct 2026 15:57:46 GMT
+server: uvicorn
+content-length: 420
+content-type: application/json
+x-request-id: 99eb1a20-5b5a-437c-945c-36684c1c2e86
+
+{"partidoId":"PAR-001","estadioId":"EST-01","estado":"PENDIENTE","arbitro":{"codigo":"ARB-001","nombre":"Arbitro Sintetico 01","nacionalidad":"F01"},"eventos":[{"tipo":"TARJETA","minuto":15,"jugador":{"codigo":"JUG-0001","nombre":"Nombre0001 Apellido0001","numero":1,"posicion":"ARQUERO"}},{"tipo":"CAMBIO","minuto":75,"jugador":{"codigo":"JUG-0001","nombre":"Nombre0001 Apellido0001","numero":1,"posicion":"ARQUERO"}}]}
+(tiempo_total_s=0.056203)
+
+### CU-18 · PAR-002 existe en Neo4j y no tiene acta -> 404 ACTA_NO_ENCONTRADA
+GET /api/v1/partidos/PAR-002/acta
+HTTP/1.1 404 Not Found
+date: Fri, 16 Oct 2026 15:57:46 GMT
+server: uvicorn
+x-request-id: 2d23d13e-4646-4a48-9a9e-695a500af066
+content-length: 218
+content-type: application/json
+
+{"error":{"codigo":"ACTA_NO_ENCONTRADA","mensaje":"No existe un acta para el partido indicado.","requestId":"2d23d13e-4646-4a48-9a9e-695a500af066","detalles":[{"campo":"partidoId","problema":"PAR-002 no tiene acta"}]}}
+(tiempo_total_s=0.008375)
+
+### CU-18 · PAR-1 -> 400 VALIDACION (sin consultar IRIS)
+GET /api/v1/partidos/PAR-1/acta
+HTTP/1.1 400 Bad Request
+date: Fri, 16 Oct 2026 15:57:46 GMT
+server: uvicorn
+x-request-id: 413cb1f5-f852-4ec9-a213-8d565fc34b0c
+content-length: 215
+content-type: application/json
+
+{"error":{"codigo":"VALIDACION","mensaje":"La solicitud tiene datos inválidos.","requestId":"413cb1f5-f852-4ec9-a213-8d565fc34b0c","detalles":[{"campo":"partidoId","problema":"no cumple el formato ^PAR-\\d{3}$"}]}}
+(tiempo_total_s=0.007723)
+
+### CU-18 · temporal PAR-980 -> PENDIENTE y eventos []
+GET /api/v1/partidos/PAR-980/acta
+HTTP/1.1 200 OK
+date: Fri, 16 Oct 2026 15:57:46 GMT
+server: uvicorn
+content-length: 162
+content-type: application/json
+x-request-id: 22e2c99c-ea13-4868-9ffd-c188e766fb0c
+
+{"partidoId":"PAR-980","estadioId":"EST-01","estado":"PENDIENTE","arbitro":{"codigo":"ARB-001","nombre":"Arbitro Sintetico 01","nacionalidad":"F01"},"eventos":[]}
+(tiempo_total_s=0.014916)
+
+### CU-19 · PAR-980 EN_JUEGO -> 200 cambio true
+POST /api/v1/partidos/PAR-980/acta/transiciones  [X-Session-Id: SES-PRUEBA-de65…]  body: {"nuevoEstado":"EN_JUEGO"}
+HTTP/1.1 200 OK
+date: Fri, 16 Oct 2026 15:57:46 GMT
+server: uvicorn
+content-length: 92
+content-type: application/json
+x-request-id: 6594c2da-30fb-4169-9040-aeefe5c3b4e9
+
+{"partidoId":"PAR-980","estadoAnterior":"PENDIENTE","estadoActual":"EN_JUEGO","cambio":true}
+(tiempo_total_s=0.016715)
+
+### CU-19 · repetir EN_JUEGO -> 200 cambio false (no llama a CambiarEstado)
+POST /api/v1/partidos/PAR-980/acta/transiciones  [X-Session-Id: SES-PRUEBA-de65…]  body: {"nuevoEstado":"EN_JUEGO"}
+HTTP/1.1 200 OK
+date: Fri, 16 Oct 2026 15:57:46 GMT
+server: uvicorn
+content-length: 92
+content-type: application/json
+x-request-id: e0443a44-69dd-4284-add3-c874459cfe85
+
+{"partidoId":"PAR-980","estadoAnterior":"EN_JUEGO","estadoActual":"EN_JUEGO","cambio":false}
+(tiempo_total_s=0.009200)
+
+### CU-19 · FINALIZADO -> 200 cambio true
+POST /api/v1/partidos/PAR-980/acta/transiciones  [X-Session-Id: SES-PRUEBA-de65…]  body: {"nuevoEstado":"FINALIZADO"}
+HTTP/1.1 200 OK
+date: Fri, 16 Oct 2026 15:57:46 GMT
+server: uvicorn
+content-length: 93
+content-type: application/json
+x-request-id: c846e48e-7ba0-44a7-bd79-b89caceaa5cb
+
+{"partidoId":"PAR-980","estadoAnterior":"EN_JUEGO","estadoActual":"FINALIZADO","cambio":true}
+(tiempo_total_s=0.010692)
+
+### CU-19 · volver a EN_JUEGO -> 409 TRANSICION_NO_PERMITIDA con el estado actual
+POST /api/v1/partidos/PAR-980/acta/transiciones  [X-Session-Id: SES-PRUEBA-de65…]  body: {"nuevoEstado":"EN_JUEGO"}
+HTTP/1.1 409 Conflict
+date: Fri, 16 Oct 2026 15:57:46 GMT
+server: uvicorn
+x-request-id: 47cc99f6-6275-44b9-a85a-68de5d30b59d
+content-length: 284
+content-type: application/json
+
+{"error":{"codigo":"TRANSICION_NO_PERMITIDA","mensaje":"El estado actual del partido no admite la transición pedida.","requestId":"47cc99f6-6275-44b9-a85a-68de5d30b59d","detalles":[{"campo":"nuevoEstado","problema":"no se permite FINALIZADO -> EN_JUEGO; estado actual FINALIZADO"}]}}
+(tiempo_total_s=0.009380)
+
+### CU-18 · el estado quedó FINALIZADO
+GET /api/v1/partidos/PAR-980/acta
+HTTP/1.1 200 OK
+date: Fri, 16 Oct 2026 15:57:46 GMT
+server: uvicorn
+content-length: 163
+content-type: application/json
+x-request-id: 4f5749e6-b827-49e7-a12b-47c0c9646358
+
+{"partidoId":"PAR-980","estadioId":"EST-01","estado":"FINALIZADO","arbitro":{"codigo":"ARB-001","nombre":"Arbitro Sintetico 01","nacionalidad":"F01"},"eventos":[]}
+(tiempo_total_s=0.007142)
+
+### CU-19 · repetir FINALIZADO -> 200 cambio false
+POST /api/v1/partidos/PAR-980/acta/transiciones  [X-Session-Id: SES-PRUEBA-de65…]  body: {"nuevoEstado":"FINALIZADO"}
+HTTP/1.1 200 OK
+date: Fri, 16 Oct 2026 15:57:46 GMT
+server: uvicorn
+content-length: 96
+content-type: application/json
+x-request-id: 5129d0f2-2404-426d-ac4e-89eaefe17db6
+
+{"partidoId":"PAR-980","estadoAnterior":"FINALIZADO","estadoActual":"FINALIZADO","cambio":false}
+(tiempo_total_s=0.010368)
+
+### CU-19 · nuevoEstado PENDIENTE -> 400 VALIDACION (sin consultar Redis ni IRIS)
+POST /api/v1/partidos/PAR-980/acta/transiciones  [X-Session-Id: SES-PRUEBA-de65…]  body: {"nuevoEstado":"PENDIENTE"}
+HTTP/1.1 400 Bad Request
+date: Fri, 16 Oct 2026 15:57:46 GMT
+server: uvicorn
+x-request-id: 8c8c629b-b099-4c9b-88cc-fcb7b9847eee
+content-length: 227
+content-type: application/json
+
+{"error":{"codigo":"VALIDACION","mensaje":"La solicitud tiene datos inválidos.","requestId":"8c8c629b-b099-4c9b-88cc-fcb7b9847eee","detalles":[{"campo":"nuevoEstado","problema":"debe ser uno de: 'EN_JUEGO' or 'FINALIZADO'"}]}}
+(tiempo_total_s=0.005047)
+
+### CU-19 · sin X-Session-Id -> 401 SESION_REQUERIDA
+POST /api/v1/partidos/PAR-980/acta/transiciones  body: {"nuevoEstado":"EN_JUEGO"}
+HTTP/1.1 401 Unauthorized
+date: Fri, 16 Oct 2026 15:57:46 GMT
+server: uvicorn
+x-request-id: 04c1fdfd-026f-445a-a5a5-a4fcff415138
+content-length: 167
+content-type: application/json
+
+{"error":{"codigo":"SESION_REQUERIDA","mensaje":"La operación requiere el encabezado X-Session-Id.","requestId":"04c1fdfd-026f-445a-a5a5-a4fcff415138","detalles":[]}}
+(tiempo_total_s=0.004716)
+
+### CU-19 · sesión de lector -> 403 ROL_NO_AUTORIZADO
+POST /api/v1/partidos/PAR-980/acta/transiciones  [X-Session-Id: SES-PRUEBA-671f…]  body: {"nuevoEstado":"EN_JUEGO"}
+HTTP/1.1 403 Forbidden
+date: Fri, 16 Oct 2026 15:57:46 GMT
+server: uvicorn
+x-request-id: 9a05ad39-c373-49b2-992c-d66ea9d56051
+content-length: 235
+content-type: application/json
+
+{"error":{"codigo":"ROL_NO_AUTORIZADO","mensaje":"La sesión no tiene el rol necesario para esta operación.","requestId":"9a05ad39-c373-49b2-992c-d66ea9d56051","detalles":[{"campo":"X-Session-Id","problema":"requiere rol operador"}]}}
+(tiempo_total_s=0.008443)
+
+### CU-19 · PAR-002 sin acta -> 404 ACTA_NO_ENCONTRADA
+POST /api/v1/partidos/PAR-002/acta/transiciones  [X-Session-Id: SES-PRUEBA-de65…]  body: {"nuevoEstado":"EN_JUEGO"}
+HTTP/1.1 404 Not Found
+date: Fri, 16 Oct 2026 15:57:46 GMT
+server: uvicorn
+x-request-id: 4828ac2b-c138-4410-884a-fb256284bca3
+content-length: 218
+content-type: application/json
+
+{"error":{"codigo":"ACTA_NO_ENCONTRADA","mensaje":"No existe un acta para el partido indicado.","requestId":"4828ac2b-c138-4410-884a-fb256284bca3","detalles":[{"campo":"partidoId","problema":"PAR-002 no tiene acta"}]}}
+(tiempo_total_s=0.011501)
+
+### CU-18 · PAR-001 sigue PENDIENTE
+GET /api/v1/partidos/PAR-001/acta
+HTTP/1.1 200 OK
+date: Fri, 16 Oct 2026 15:57:46 GMT
+server: uvicorn
+content-length: 420
+content-type: application/json
+x-request-id: eb910e35-4758-4c12-aff8-44b861ae5ee3
+
+{"partidoId":"PAR-001","estadioId":"EST-01","estado":"PENDIENTE","arbitro":{"codigo":"ARB-001","nombre":"Arbitro Sintetico 01","nacionalidad":"F01"},"eventos":[{"tipo":"TARJETA","minuto":15,"jugador":{"codigo":"JUG-0001","nombre":"Nombre0001 Apellido0001","numero":1,"posicion":"ARQUERO"}},{"tipo":"CAMBIO","minuto":75,"jugador":{"codigo":"JUG-0001","nombre":"Nombre0001 Apellido0001","numero":1,"posicion":"ARQUERO"}}]}
+(tiempo_total_s=0.007986)
+
+## IRIS detenido (docker compose stop iris en Hito 9)
+
+### CU-18 con IRIS detenido -> 503
+GET /api/v1/partidos/PAR-001/acta
+HTTP/1.1 503 Service Unavailable
+date: Fri, 16 Oct 2026 15:57:50 GMT
+server: uvicorn
+x-request-id: 159cb5e3-58a7-4da8-9b02-2107809f8cc1
+content-length: 176
+content-type: application/json
+
+{"error":{"codigo":"DEPENDENCIA_NO_DISPONIBLE","mensaje":"Una fuente de datos necesaria no está disponible.","requestId":"159cb5e3-58a7-4da8-9b02-2107809f8cc1","detalles":[]}}
+(tiempo_total_s=0.007800)
+
+### CU-19 con IRIS detenido -> 503 (sin cambios)
+POST /api/v1/partidos/PAR-980/acta/transiciones  [X-Session-Id: SES-PRUEBA-de65…]  body: {"nuevoEstado":"EN_JUEGO"}
+HTTP/1.1 503 Service Unavailable
+date: Fri, 16 Oct 2026 15:57:50 GMT
+server: uvicorn
+x-request-id: e30212b8-7f4f-426a-916d-9c1845b04f05
+content-length: 176
+content-type: application/json
+
+{"error":{"codigo":"DEPENDENCIA_NO_DISPONIBLE","mensaje":"Una fuente de datos necesaria no está disponible.","requestId":"e30212b8-7f4f-426a-916d-9c1845b04f05","detalles":[]}}
+(tiempo_total_s=2.185475)
+
+### Salud con IRIS detenido -> 200 degradado
+GET /api/v1/salud
+HTTP/1.1 200 OK
+date: Fri, 16 Oct 2026 15:57:53 GMT
+server: uvicorn
+content-length: 277
+content-type: application/json
+x-request-id: afd3b0e7-dfe6-4b95-834f-20d620da71dd
+
+{"estado":"degradado","dependencias":{"mongodb":"no_disponible","neo4j":"disponible","cassandra":"disponible","redis":"disponible","influxdb":"disponible","iris":"no_disponible"},"catalogoPartidos":{"estado":"cargado","partidos":64,"ultimaCarga":"2026-10-16T15:57:40.884611Z"}}
+(tiempo_total_s=4.128814)
+
+### CU-18 después de volver a levantar IRIS -> 200 (la API reconecta)
+GET /api/v1/partidos/PAR-001/acta
+HTTP/1.1 200 OK
+date: Fri, 16 Oct 2026 15:58:15 GMT
+server: uvicorn
+content-length: 420
+content-type: application/json
+x-request-id: 51fb7188-eb37-424f-9485-7a17116d67d4
+
+{"partidoId":"PAR-001","estadioId":"EST-01","estado":"PENDIENTE","arbitro":{"codigo":"ARB-001","nombre":"Arbitro Sintetico 01","nacionalidad":"F01"},"eventos":[{"tipo":"TARJETA","minuto":15,"jugador":{"codigo":"JUG-0001","nombre":"Nombre0001 Apellido0001","numero":1,"posicion":"ARQUERO"}},{"tipo":"CAMBIO","minuto":75,"jugador":{"codigo":"JUG-0001","nombre":"Nombre0001 Apellido0001","numero":1,"posicion":"ARQUERO"}}]}
+(tiempo_total_s=0.024041)
+
+(Se borró el partido temporal PAR-980; PAR-001 no se modificó.)
+
+### Ningún archivo de app/routes ni app/services importa iris
+Sin coincidencias de 'import iris' / 'from iris' en app/routes ni app/services.
+
+### La contraseña de IRIS no aparece en docs/evidencia/iris_*, tests/, app/, iris/ ni git diff
+Sin coincidencias.

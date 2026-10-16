@@ -14,6 +14,7 @@ from fastapi import Depends
 from app.dependencias import (
     obtener_adaptador_cassandra,
     obtener_adaptador_influx,
+    obtener_adaptador_iris,
     obtener_adaptador_mongo,
     obtener_adaptador_neo4j,
     obtener_adaptador_redis,
@@ -64,11 +65,12 @@ def obtener_servicio_salud(
     adaptador_neo4j: Annotated[object, Depends(obtener_adaptador_neo4j)],
     adaptador_cassandra: Annotated[object, Depends(obtener_adaptador_cassandra)],
     adaptador_influx: Annotated[object, Depends(obtener_adaptador_influx)],
+    adaptador_iris: Annotated[object, Depends(obtener_adaptador_iris)],
     catalogo: Annotated[object, Depends(obtener_catalogo_partidos)],
 ) -> ServicioSalud:
     return ServicioSalud(
         {"mongodb": adaptador_mongo.ping, "redis": adaptador_redis.ping,
          "neo4j": adaptador_neo4j.ping, "cassandra": adaptador_cassandra.ping,
-         "influxdb": adaptador_influx.ping},
+         "influxdb": adaptador_influx.ping, "iris": adaptador_iris.ping},
         catalogo.estado,
     )

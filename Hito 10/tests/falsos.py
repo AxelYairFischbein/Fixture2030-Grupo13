@@ -470,3 +470,69 @@ class InfluxFalso:
 
     def cerrar(self) -> None:
         pass
+
+
+TRANSICIONES_IRIS = {("PENDIENTE", "EN_JUEGO"), ("EN_JUEGO", "FINALIZADO")}
+
+
+def _acta(partido_id: str, estado: str, eventos: list[dict]) -> dict:
+    return {
+        "partidoId": partido_id, "estadioId": "EST-01", "estado": estado,
+        "arbitro": {"codigo": "ARB-001", "nombre": "Arbitro Sintetico 01", "nacionalidad": "F01"},
+        "eventos": eventos,
+    }
+
+
+def _evento_acta(tipo: str, minuto: int) -> dict:
+    return {"tipo": tipo, "minuto": minuto,
+            "jugador": {"codigo": "JUG-0001", "nombre": "Nombre0001 Apellido0001",
+                        "numero": 1, "posicion": "ARQUERO"}}
+
+
+class IrisFalso:
+    """Imita el contrato de AdaptadorIris con la máquina de estados de CambiarEstado().
+
+    PAR-001 es la muestra del Hito 9 (PENDIENTE, dos eventos); PAR-900 es un acta sin
+    eventos. `falla` hace fallar cualquier operación; `llamadas` registra cada una y
+    `cambios` cuenta las llamadas a CambiarEstado.
+    """
+
+    def __init__(self) -> None:
+        self.actas = {
+            "PAR-001": _acta("PAR-001", "PENDIENTE",
+                             [_evento_acta("TARJETA", 15), _evento_acta("CAMBIO", 75)]),
+            "PAR-900": _acta("PAR-900", "PENDIENTE", []),
+        }
+        self.falla: Exception | None = None
+        self.llamadas: list[str] = []
+        self.cambios = 0
+
+    def _registrar(self, operacion: str) -> None:
+        self.llamadas.append(operacion)
+        if self.falla is not None:
+            raise self.falla
+
+    def leer_acta(self, partido_id):
+        self._registrar("leer_acta")
+        acta = self.actas.get(partido_id)
+        return None if acta is None else {**acta, "eventos": list(acta["eventos"])}
+
+    def transicionar(self, partido_id, nuevo_estado):
+        self._registrar("transicionar")
+        acta = self.actas.get(partido_id)
+        if acta is None:
+            return {"resultado": "NO_ENCONTRADO", "anterior": None, "actual": None}
+        anterior = acta["estado"]
+        if anterior == nuevo_estado:
+            return {"resultado": "SIN_CAMBIO", "anterior": anterior, "actual": anterior}
+        self.cambios += 1
+        if (anterior, nuevo_estado) not in TRANSICIONES_IRIS:
+            return {"resultado": "TRANSICION_NO_PERMITIDA", "anterior": anterior, "actual": anterior}
+        acta["estado"] = nuevo_estado
+        return {"resultado": "OK", "anterior": anterior, "actual": nuevo_estado}
+
+    def ping(self) -> bool:
+        return self.falla is None
+
+    def cerrar(self) -> None:
+        pass

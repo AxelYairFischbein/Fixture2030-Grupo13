@@ -16,3 +16,5 @@ neo4j==6.4.1
 # adaptador usa igualmente AsyncioConnection.
 cassandra-driver==3.30.1
 pyasyncore==1.0.5
+# Fase 7: InterSystems IRIS (Hito 9). El paquete se importa como `iris`.
+intersystems-irispython==5.4.1

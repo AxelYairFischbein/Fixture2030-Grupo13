@@ -80,6 +80,9 @@ class Settings(BaseSettings):
     iris_user: str
     iris_password: SecretStr
     iris_timeout_s: float = 3.0
+    # Espera máxima del bloqueo del Partido en CU-19 (FixtureH10.Servicio.Transicionar).
+    # Menor que iris_timeout_s: un bloqueo no obtenido se informa como 504 sin cambios.
+    iris_espera_bloqueo_s: PositiveInt = 2
 
 
 def cargar_settings(**opciones) -> Settings:
