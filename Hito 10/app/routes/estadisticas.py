@@ -9,7 +9,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Path, Query
 
 from app.schemas.equipos import PATRON_EQUIPO
-from app.schemas.errores import respuestas_error
+from app.schemas.errores import CAIDA_O_CATALOGO, respuestas_error
 from app.schemas.estadisticas import (
     ComparacionPartido,
     EstadoReciente,
@@ -45,7 +45,8 @@ AGREGACIONES = (
                 "`items: []` y `ultimaObservacion: null` (no hay observaciones; no significa "
                 "estadísticas en cero). Partido fuera del catálogo → 404 PARTIDO_NO_ENCONTRADO; "
                 "equipo que no lo disputa → 404 EQUIPO_NO_PARTICIPA.",
-    responses=respuestas_error(400, 404, 500, 503, 504),
+    responses=respuestas_error(400, 404, 500, 503, 504, ejemplos={
+        404: ["PARTIDO_NO_ENCONTRADO", "EQUIPO_NO_PARTICIPA"], 503: CAIDA_O_CATALOGO}),
 )
 def ver_recientes(
     partidoId: PartidoId,
@@ -65,7 +66,8 @@ def ver_recientes(
     description="Una fila por equipo con medidas agregadas sobre [desde, hasta), ventana de "
                 "como máximo 5 min. " + AGREGACIONES + " Partido sin puntos → 200 con "
                 "`equipos: []`.",
-    responses=respuestas_error(400, 404, 500, 503, 504),
+    responses=respuestas_error(400, 404, 500, 503, 504, ejemplos={
+        404: ["PARTIDO_NO_ENCONTRADO"], 503: CAIDA_O_CATALOGO}),
 )
 def comparar_equipos(
     partidoId: PartidoId,
@@ -87,7 +89,8 @@ def comparar_equipos(
                 "cortado por la ventana espera solo las muestras de la parte incluida. "
                 "`equipoId` opcional: si no disputa el partido → 404 EQUIPO_NO_PARTICIPA. "
                 "Partido sin puntos → 200 con `series: []`.",
-    responses=respuestas_error(400, 404, 500, 503, 504),
+    responses=respuestas_error(400, 404, 500, 503, 504, ejemplos={
+        404: ["PARTIDO_NO_ENCONTRADO", "EQUIPO_NO_PARTICIPA"], 503: CAIDA_O_CATALOGO}),
 )
 def ver_evolucion(
     partidoId: PartidoId,

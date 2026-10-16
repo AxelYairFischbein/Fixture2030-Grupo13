@@ -1,0 +1,3675 @@
+{
+  "info": {
+    "_postman_id": "5d2c8a3e-1f4b-4c6e-9a7d-2030f1a13013",
+    "name": "Fixture 2030 · API integrada (Hito 10)",
+    "description": "Colección del Hito 10 (Grupo 13): por cada caso de uso de docs/casos_de_uso.md, la request exitosa y sus escenarios de error, con tests de código HTTP y estructura.\n\nPreparación:\n1. Levantar los contenedores de los Hitos 4 a 9 y la API (scripts/iniciar_api.ps1).\n2. Ejecutar scripts/crear_sesiones_prueba.ps1 e importar el entorno .local/postman_entorno_local.json (contiene los IDs de sesión: no se versiona).\n3. Opcional: crear un acta temporal para CU-19 (python -m tests.integracion.iris_temporal crear) y cargarla en la variable partidoTemporal; borrarla después con ... borrar PAR-9xx.\n\nEfectos: CU-09 publica un comentario nuevo en partidoComentarios en cada ejecución; CU-20 lo oculta y lo restaura; CU-14 invalida la copia cacheada de EQ-001; CU-13 cierra sesionLector (volver a crear las sesiones para repetir). PAR-001 solo se lee.\n\nscripts/ejecutar_pruebas.ps1 hace todo esto con newman. La carpeta \"Dependencias caídas (manual)\" no se ejecuta automáticamente.\n\nRegenerar: python scripts/generar_coleccion_postman.py (no editar el JSON a mano).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Salud",
+      "description": "GET /api/v1/salud: estado por dependencia y del catálogo de partidos.",
+      "item": [
+        {
+          "name": "Salud de la API",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Campos del contrato', () => pm.expect(pm.response.json()).to.include.all.keys([\"estado\", \"dependencias\", \"catalogoPartidos\"]));",
+                  "if (pm.response.code === 200) {",
+                  "    const s = pm.response.json();",
+                  "    pm.test('Las seis dependencias informadas', () => pm.expect(s.dependencias).to.have.all.keys(",
+                  "        ['mongodb', 'neo4j', 'cassandra', 'redis', 'influxdb', 'iris']));",
+                  "    pm.test('Catálogo cargado con 64 partidos', () => {",
+                  "        pm.expect(s.catalogoPartidos.estado).to.eql('cargado');",
+                  "        pm.expect(s.catalogoPartidos.partidos).to.eql(64);",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/salud"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Errores globales",
+      "description": "Ruta inexistente y método no admitido (§6.2).",
+      "item": [
+        {
+          "name": "Ruta inexistente → 404 RUTA_NO_ENCONTRADA",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 404', () => pm.response.to.have.status(404));",
+                  "pm.test('error.codigo = RUTA_NO_ENCONTRADA', () => pm.expect(pm.response.json().error.codigo).to.eql('RUTA_NO_ENCONTRADA'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/no-existe"
+          }
+        },
+        {
+          "name": "Método no admitido → 405 METODO_NO_PERMITIDO",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 405', () => pm.response.to.have.status(405));",
+                  "pm.test('error.codigo = METODO_NO_PERMITIDO', () => pm.expect(pm.response.json().error.codigo).to.eql('METODO_NO_PERMITIDO'));",
+                  "if (pm.response.code === 405) {",
+                  "    pm.test('Encabezado Allow con GET', () => pm.expect(pm.response.headers.get('Allow')).to.include('GET'));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/equipos/{{equipoId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "CU-01 · Ver ficha de un equipo",
+      "description": "Cache-aside Redis + MongoDB. Se invalida primero la copia (CU-14) para observar MISS y después HIT.",
+      "item": [
+        {
+          "name": "Preparación: invalidar la copia (CU-14)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 204', () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-Session-Id",
+                "value": "{{sesionOperador}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/cache/equipos/{{equipoId}}"
+          }
+        },
+        {
+          "name": "Ficha EQ-001 → 200 MISS",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Campos del contrato', () => pm.expect(pm.response.json()).to.include.all.keys([\"equipoId\", \"codigo\", \"nombre\", \"confederacion\", \"region\", \"rankingReferencia\", \"sedeBase\", \"participacionesMundiales\", \"titulosMundiales\", \"estado\"]));",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test('X-Cache: MISS', () => pm.expect(pm.response.headers.get('X-Cache')).to.eql('MISS'));",
+                  "    pm.test('Mismo equipoId', () => pm.expect(pm.response.json().equipoId).to.eql(pm.variables.get('equipoId')));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/equipos/{{equipoId}}"
+          }
+        },
+        {
+          "name": "Repetida → 200 HIT",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Campos del contrato', () => pm.expect(pm.response.json()).to.include.all.keys([\"equipoId\", \"codigo\", \"nombre\", \"confederacion\", \"region\", \"rankingReferencia\", \"sedeBase\", \"participacionesMundiales\", \"titulosMundiales\", \"estado\"]));",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test('X-Cache: HIT', () => pm.expect(pm.response.headers.get('X-Cache')).to.eql('HIT'));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/equipos/{{equipoId}}"
+          }
+        },
+        {
+          "name": "Formato inválido EQ-1 → 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  "pm.test('error.codigo = VALIDACION', () => pm.expect(pm.response.json().error.codigo).to.eql('VALIDACION'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/equipos/EQ-1"
+          }
+        },
+        {
+          "name": "Inexistente EQ-999 → 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 404', () => pm.response.to.have.status(404));",
+                  "pm.test('error.codigo = EQUIPO_NO_ENCONTRADO', () => pm.expect(pm.response.json().error.codigo).to.eql('EQUIPO_NO_ENCONTRADO'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/equipos/EQ-999"
+          }
+        }
+      ]
+    },
+    {
+      "name": "CU-02 · Listar equipos de una confederación",
+      "description": "MongoDB, Hito 4 Q03.",
+      "item": [
+        {
+          "name": "CONMEBOL rankingMax=50 → 8 equipos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Campos del contrato', () => pm.expect(pm.response.json()).to.include.all.keys([\"items\", \"pagina\", \"limite\", \"total\"]));",
+                  "if (pm.response.code === 200) {",
+                  "    const p = pm.response.json();",
+                  "    pm.test('8 equipos (Q03)', () => { pm.expect(p.total).to.eql(8); pm.expect(p.items).to.have.length(8); });",
+                  "    pm.test('Orden rankingReferencia ASC', () => {",
+                  "        const r = p.items.map(e => e.rankingReferencia);",
+                  "        pm.expect(r).to.eql([...r].sort((a, b) => a - b));",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/equipos?confederacion=CONMEBOL&rankingMax=50"
+          }
+        },
+        {
+          "name": "Filtros sin coincidencias → 200 vacío",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Campos del contrato', () => pm.expect(pm.response.json()).to.include.all.keys([\"items\", \"total\"]));",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test('items vacío', () => pm.expect(pm.response.json().items).to.eql([]));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/equipos?confederacion=OFC&rankingMax=1"
+          }
+        },
+        {
+          "name": "Sin confederacion → 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  "pm.test('error.codigo = VALIDACION', () => pm.expect(pm.response.json().error.codigo).to.eql('VALIDACION'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/equipos"
+          }
+        },
+        {
+          "name": "Confederación fuera del enum → 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  "pm.test('error.codigo = VALIDACION', () => pm.expect(pm.response.json().error.codigo).to.eql('VALIDACION'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/equipos?confederacion=FIFA"
+          }
+        },
+        {
+          "name": "limite=51 → 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  "pm.test('error.codigo = VALIDACION', () => pm.expect(pm.response.json().error.codigo).to.eql('VALIDACION'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/equipos?confederacion=UEFA&limite=51"
+          }
+        }
+      ]
+    },
+    {
+      "name": "CU-03 · Ver plantel de un equipo",
+      "description": "MongoDB, Hito 4 Q06/Q07.",
+      "item": [
+        {
+          "name": "Plantel EQ-002 → 24 jugadores",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Campos del contrato', () => pm.expect(pm.response.json()).to.include.all.keys([\"equipoId\", \"items\", \"pagina\", \"limite\", \"total\"]));",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test('24 jugadores', () => pm.expect(pm.response.json().items).to.have.length(24));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/equipos/EQ-002/jugadores"
+          }
+        },
+        {
+          "name": "EQ-001 página 2 con limite=5 → 5 jugadores",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Campos del contrato', () => pm.expect(pm.response.json()).to.include.all.keys([\"items\", \"pagina\"]));",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test('5 jugadores de la página 2', () => { pm.expect(pm.response.json().items).to.have.length(5); pm.expect(pm.response.json().pagina).to.eql(2); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/equipos/{{equipoId}}/jugadores?pagina=2&limite=5"
+          }
+        },
+        {
+          "name": "Filtro posicion=ARQUERO → 3",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Campos del contrato', () => pm.expect(pm.response.json()).to.include.all.keys([\"items\"]));",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test('3 arqueros', () => pm.expect(pm.response.json().items.filter(j => j.posicion === 'ARQUERO')).to.have.length(3));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/equipos/EQ-002/jugadores?posicion=ARQUERO"
+          }
+        },
+        {
+          "name": "Equipo inexistente EQ-999 → 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 404', () => pm.response.to.have.status(404));",
+                  "pm.test('error.codigo = EQUIPO_NO_ENCONTRADO', () => pm.expect(pm.response.json().error.codigo).to.eql('EQUIPO_NO_ENCONTRADO'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/equipos/EQ-999/jugadores"
+          }
+        },
+        {
+          "name": "Posición fuera del enum → 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  "pm.test('error.codigo = VALIDACION', () => pm.expect(pm.response.json().error.codigo).to.eql('VALIDACION'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/equipos/EQ-002/jugadores?posicion=PORTERO"
+          }
+        },
+        {
+          "name": "limite=25 → 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  "pm.test('error.codigo = VALIDACION', () => pm.expect(pm.response.json().error.codigo).to.eql('VALIDACION'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/equipos/EQ-002/jugadores?limite=25"
+          }
+        }
+      ]
+    },
+    {
+      "name": "CU-04 · Ver ficha de un jugador",
+      "description": "MongoDB, Hito 4 Q02.",
+      "item": [
+        {
+          "name": "Ficha JUG-0313 → 200",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Campos del contrato', () => pm.expect(pm.response.json()).to.include.all.keys([\"jugadorId\", \"equipoId\", \"nombre\", \"apellido\", \"fechaNacimiento\", \"nacionalidadCodigo\", \"posicion\", \"numeroCamiseta\", \"pieHabil\", \"alturaCm\", \"partidosInternacionales\", \"golesInternacionales\", \"estadoPlantel\"]));",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test('equipoId EQ-014', () => pm.expect(pm.response.json().equipoId).to.eql('EQ-014'));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/jugadores/{{jugadorId}}"
+          }
+        },
+        {
+          "name": "Inexistente JUG-9999 → 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 404', () => pm.response.to.have.status(404));",
+                  "pm.test('error.codigo = JUGADOR_NO_ENCONTRADO', () => pm.expect(pm.response.json().error.codigo).to.eql('JUGADOR_NO_ENCONTRADO'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/jugadores/JUG-9999"
+          }
+        },
+        {
+          "name": "Formato inválido JUG-1 → 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  "pm.test('error.codigo = VALIDACION', () => pm.expect(pm.response.json().error.codigo).to.eql('VALIDACION'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/jugadores/JUG-1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "CU-05 · Ver agenda y rivales de un equipo",
+      "description": "Neo4j, Hito 5 Q04 + Q06.",
+      "item": [
+        {
+          "name": "Agenda EQ-001 → PAR-001 y PAR-033",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Campos del contrato', () => pm.expect(pm.response.json()).to.include.all.keys([\"equipoId\", \"items\"]));",
+                  "if (pm.response.code === 200) {",
+                  "    const items = pm.response.json().items;",
+                  "    pm.test('PAR-001 vs EQ-002 y PAR-033 vs EQ-003', () => {",
+                  "        pm.expect(items.map(p => p.partidoId)).to.eql(['PAR-001', 'PAR-033']);",
+                  "        pm.expect(items.map(p => p.rival.equipoId)).to.eql(['EQ-002', 'EQ-003']);",
+                  "    });",
+                  "    pm.test('Sin estado del partido (fuente IRIS)', () => items.forEach(p => pm.expect(p).to.not.have.property('estado')));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/equipos/{{equipoId}}/partidos"
+          }
+        },
+        {
+          "name": "Inexistente EQ-999 → 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 404', () => pm.response.to.have.status(404));",
+                  "pm.test('error.codigo = EQUIPO_NO_ENCONTRADO', () => pm.expect(pm.response.json().error.codigo).to.eql('EQUIPO_NO_ENCONTRADO'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/equipos/EQ-999/partidos"
+          }
+        },
+        {
+          "name": "limite=0 → 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  "pm.test('error.codigo = VALIDACION', () => pm.expect(pm.response.json().error.codigo).to.eql('VALIDACION'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/equipos/{{equipoId}}/partidos?limite=0"
+          }
+        }
+      ]
+    },
+    {
+      "name": "CU-06 · Ver eventos y participantes de un partido",
+      "description": "Neo4j, Hito 5 Q07.",
+      "item": [
+        {
+          "name": "Eventos PAR-001 → 2 sustituciones",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Campos del contrato', () => pm.expect(pm.response.json()).to.include.all.keys([\"partidoId\", \"items\"]));",
+                  "if (pm.response.code === 200) {",
+                  "    const items = pm.response.json().items;",
+                  "    pm.test('Minutos 60 y 65 con SALE y ENTRA', () => {",
+                  "        pm.expect(items.map(e => e.minuto)).to.eql([60, 65]);",
+                  "        items.forEach(e => pm.expect(e.participantes.map(p => p.rol)).to.eql(['SALE', 'ENTRA']));",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/partidos/{{partidoId}}/eventos"
+          }
+        },
+        {
+          "name": "Inexistente PAR-999 → 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 404', () => pm.response.to.have.status(404));",
+                  "pm.test('error.codigo = PARTIDO_NO_ENCONTRADO', () => pm.expect(pm.response.json().error.codigo).to.eql('PARTIDO_NO_ENCONTRADO'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/partidos/PAR-999/eventos"
+          }
+        },
+        {
+          "name": "Formato inválido PAR-1 → 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  "pm.test('error.codigo = VALIDACION', () => pm.expect(pm.response.json().error.codigo).to.eql('VALIDACION'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/partidos/PAR-1/eventos"
+          }
+        }
+      ]
+    },
+    {
+      "name": "CU-07 · Ver partidos de un rango de fechas",
+      "description": "Neo4j, Hito 5 Q09. Rango [desde, hasta) de hasta 7 días con zona horaria.",
+      "item": [
+        {
+          "name": "10/06/2030 → PAR-001…PAR-008",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Campos del contrato', () => pm.expect(pm.response.json()).to.include.all.keys([\"items\"]));",
+                  "if (pm.response.code === 200) {",
+                  "    const ids = pm.response.json().items.map(p => p.partidoId);",
+                  "    pm.test('PAR-001…PAR-008', () => pm.expect(ids).to.eql(",
+                  "        ['PAR-001', 'PAR-002', 'PAR-003', 'PAR-004', 'PAR-005', 'PAR-006', 'PAR-007', 'PAR-008']));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/partidos?desde=2030-06-10T00:00:00Z&hasta=2030-06-11T00:00:00Z"
+          }
+        },
+        {
+          "name": "Filtro estadioId=EST-01 → solo PAR-001",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Campos del contrato', () => pm.expect(pm.response.json()).to.include.all.keys([\"items\"]));",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test('PAR-001', () => pm.expect(pm.response.json().items.map(p => p.partidoId)).to.eql(['PAR-001']));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/partidos?desde=2030-06-10T00:00:00Z&hasta=2030-06-11T00:00:00Z&estadioId=EST-01"
+          }
+        },
+        {
+          "name": "Estadio sin partidos EST-99 → 200 vacío",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test('items vacío', () => pm.expect(pm.response.json().items).to.eql([]));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/partidos?desde=2030-06-10T00:00:00Z&hasta=2030-06-11T00:00:00Z&estadioId=EST-99"
+          }
+        },
+        {
+          "name": "Intervalo invertido → 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  "pm.test('error.codigo = VALIDACION', () => pm.expect(pm.response.json().error.codigo).to.eql('VALIDACION'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/partidos?desde=2030-06-11T00:00:00Z&hasta=2030-06-10T00:00:00Z"
+          }
+        },
+        {
+          "name": "Intervalo de más de 7 días → 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  "pm.test('error.codigo = VALIDACION', () => pm.expect(pm.response.json().error.codigo).to.eql('VALIDACION'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/partidos?desde=2030-06-10T00:00:00Z&hasta=2030-06-18T00:00:00Z"
+          }
+        },
+        {
+          "name": "Fecha sin zona horaria → 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  "pm.test('error.codigo = VALIDACION', () => pm.expect(pm.response.json().error.codigo).to.eql('VALIDACION'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/partidos?desde=2030-06-10T00:00:00&hasta=2030-06-11T00:00:00Z"
+          }
+        },
+        {
+          "name": "Sin hasta → 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  "pm.test('error.codigo = VALIDACION', () => pm.expect(pm.response.json().error.codigo).to.eql('VALIDACION'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/partidos?desde=2030-06-10T00:00:00Z"
+          }
+        }
+      ]
+    },
+    {
+      "name": "CU-08 · Leer comentarios de un partido",
+      "description": "Cassandra, Hito 6 Q1/Q2, sobre la muestra de PAR-001. X-Session-Id opcional: sin rol moderador solo visibles.",
+      "item": [
+        {
+          "name": "Minuto anónimo → solo visibles",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Campos del contrato', () => pm.expect(pm.response.json()).to.include.all.keys([\"partidoId\", \"items\", \"siguienteCursor\"]));",
+                  "if (pm.response.code === 200) {",
+                  "    const items = pm.response.json().items;",
+                  "    pm.test('Hay comentarios de la muestra', () => pm.expect(items).to.not.be.empty);",
+                  "    pm.test('Todos visibles', () => items.forEach(c => pm.expect(c.estado).to.eql('visible')));",
+                  "    pm.test('Orden creadoEn DESC', () => {",
+                  "        const t = items.map(c => c.creadoEn);",
+                  "        pm.expect(t).to.eql([...t].sort().reverse());",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/partidos/{{partidoId}}/comentarios?minuto=2030-06-10T18:01:00Z"
+          }
+        },
+        {
+          "name": "Minuto con moderador → todos los estados",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Campos del contrato', () => pm.expect(pm.response.json()).to.include.all.keys([\"partidoId\", \"items\", \"siguienteCursor\"]));",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test('Incluye estados no visibles', () => pm.expect(pm.response.json().items.some(c => c.estado !== 'visible')).to.be.true);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Session-Id",
+                "value": "{{sesionModerador}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/partidos/{{partidoId}}/comentarios?minuto=2030-06-10T18:01:00Z"
+          }
+        },
+        {
+          "name": "Ventana con limite=3 → siguienteCursor",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Campos del contrato', () => pm.expect(pm.response.json()).to.include.all.keys([\"partidoId\", \"items\", \"siguienteCursor\"]));",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test('3 ítems y cursor', () => {",
+                  "        pm.expect(pm.response.json().items).to.have.length(3);",
+                  "        pm.expect(pm.response.json().siguienteCursor).to.be.a('string');",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Session-Id",
+                "value": "{{sesionModerador}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/partidos/{{partidoId}}/comentarios?desde=2030-06-10T18:00:30Z&hasta=2030-06-10T18:02:10Z&limite=3"
+          }
+        },
+        {
+          "name": "Sin minuto ni ventana (últimos 60 s) → 200",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Campos del contrato', () => pm.expect(pm.response.json()).to.include.all.keys([\"partidoId\", \"items\", \"siguienteCursor\"]));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/partidos/{{partidoId}}/comentarios"
+          }
+        },
+        {
+          "name": "Ventana de 6 min → 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  "pm.test('error.codigo = VALIDACION', () => pm.expect(pm.response.json().error.codigo).to.eql('VALIDACION'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/partidos/{{partidoId}}/comentarios?desde=2030-06-10T18:00:00Z&hasta=2030-06-10T18:06:00Z"
+          }
+        },
+        {
+          "name": "minuto y desde juntos → 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  "pm.test('error.codigo = VALIDACION', () => pm.expect(pm.response.json().error.codigo).to.eql('VALIDACION'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/partidos/{{partidoId}}/comentarios?minuto=2030-06-10T18:01:00Z&desde=2030-06-10T18:00:00Z&hasta=2030-06-10T18:01:00Z"
+          }
+        },
+        {
+          "name": "Cursor inválido → 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  "pm.test('error.codigo = VALIDACION', () => pm.expect(pm.response.json().error.codigo).to.eql('VALIDACION'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/partidos/{{partidoId}}/comentarios?minuto=2030-06-10T18:01:00Z&antesDe=basura"
+          }
+        },
+        {
+          "name": "Sesión inexistente → 401",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 401', () => pm.response.to.have.status(401));",
+                  "pm.test('error.codigo = SESION_NO_VIGENTE', () => pm.expect(pm.response.json().error.codigo).to.eql('SESION_NO_VIGENTE'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Session-Id",
+                "value": "SES-NO-EXISTE-00000000"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/partidos/{{partidoId}}/comentarios?minuto=2030-06-10T18:01:00Z"
+          }
+        },
+        {
+          "name": "Partido fuera del catálogo PAR-999 → 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 404', () => pm.response.to.have.status(404));",
+                  "pm.test('error.codigo = PARTIDO_NO_ENCONTRADO', () => pm.expect(pm.response.json().error.codigo).to.eql('PARTIDO_NO_ENCONTRADO'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/partidos/PAR-999/comentarios"
+          }
+        }
+      ]
+    },
+    {
+      "name": "CU-09 · Publicar un comentario",
+      "description": "Redis (sesión + idempotencia) + Cassandra. Cada ejecución publica un comentario nuevo en {{partidoComentarios}} (dato de prueba).",
+      "item": [
+        {
+          "name": "Publicar → 201",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('idempotencyKey', pm.variables.replaceIn('{{$guid}}'));",
+                  "pm.collectionVariables.set('contenidoComentario', 'Comentario de prueba Postman ' + new Date().toISOString());"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Campos del contrato', () => pm.expect(pm.response.json()).to.include.all.keys([\"comentarioId\", \"partidoId\", \"usuarioId\", \"creadoEn\", \"contenido\", \"estado\", \"likes\"]));",
+                  "if (pm.response.code === 201) {",
+                  "    const c = pm.response.json();",
+                  "    pm.collectionVariables.set('comentarioId', c.comentarioId);",
+                  "    pm.collectionVariables.set('creadoEn', c.creadoEn);",
+                  "    pm.collectionVariables.set('minutoComentario', c.creadoEn.substring(0, 16) + ':00Z');",
+                  "    pm.collectionVariables.set('diaComentario', c.creadoEn.substring(0, 10));",
+                  "    pm.test('comentarioId = Idempotency-Key', () => pm.expect(c.comentarioId).to.eql(",
+                  "        pm.collectionVariables.get('idempotencyKey').toLowerCase()));",
+                  "    pm.test('Nace visible, con 0 likes y autor de la sesión', () => {",
+                  "        pm.expect(c.estado).to.eql('visible');",
+                  "        pm.expect(c.likes).to.eql(0);",
+                  "        pm.expect(c.usuarioId).to.eql('USR-00001');",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Session-Id",
+                "value": "{{sesionLector}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{idempotencyKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/partidos/{{partidoComentarios}}/comentarios",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"contenido\": \"{{contenidoComentario}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Reintento con la misma clave → mismo comentario",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Campos del contrato', () => pm.expect(pm.response.json()).to.include.all.keys([\"comentarioId\", \"partidoId\", \"usuarioId\", \"creadoEn\", \"contenido\", \"estado\", \"likes\"]));",
+                  "if (pm.response.code === 201) {",
+                  "    pm.test('Mismo comentarioId y creadoEn', () => {",
+                  "        pm.expect(pm.response.json().comentarioId).to.eql(pm.collectionVariables.get('comentarioId'));",
+                  "        pm.expect(pm.response.json().creadoEn).to.eql(pm.collectionVariables.get('creadoEn'));",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Session-Id",
+                "value": "{{sesionLector}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{idempotencyKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/partidos/{{partidoComentarios}}/comentarios",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"contenido\": \"{{contenidoComentario}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Misma clave con otro contenido → 409",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 409', () => pm.response.to.have.status(409));",
+                  "pm.test('error.codigo = IDEMPOTENCY_KEY_REUTILIZADA', () => pm.expect(pm.response.json().error.codigo).to.eql('IDEMPOTENCY_KEY_REUTILIZADA'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Session-Id",
+                "value": "{{sesionLector}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{idempotencyKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/partidos/{{partidoComentarios}}/comentarios",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"contenido\": \"Otro texto\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "CU-08 del minuto → aparece una sola vez",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Campos del contrato', () => pm.expect(pm.response.json()).to.include.all.keys([\"partidoId\", \"items\", \"siguienteCursor\"]));",
+                  "if (pm.response.code === 200) {",
+                  "    const ids = pm.response.json().items.map(c => c.comentarioId);",
+                  "    pm.test('Incluye el comentario publicado una sola vez', () => pm.expect(ids.filter(i => i === pm.collectionVariables.get('comentarioId'))).to.have.length(1));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/partidos/{{partidoComentarios}}/comentarios?minuto={{minutoComentario}}"
+          }
+        },
+        {
+          "name": "CU-10 del autor → aparece una sola vez",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "if (pm.response.code === 200) {",
+                  "    const ids = pm.response.json().items.map(c => c.comentarioId);",
+                  "    pm.test('Incluye el comentario publicado una sola vez', () => pm.expect(ids.filter(i => i === pm.collectionVariables.get('comentarioId'))).to.have.length(1));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Session-Id",
+                "value": "{{sesionLector}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/usuarios/USR-00001/comentarios?dia={{diaComentario}}"
+          }
+        },
+        {
+          "name": "Sin X-Session-Id → 401",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 401', () => pm.response.to.have.status(401));",
+                  "pm.test('error.codigo = SESION_REQUERIDA', () => pm.expect(pm.response.json().error.codigo).to.eql('SESION_REQUERIDA'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/partidos/{{partidoComentarios}}/comentarios",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"contenido\": \"Sin sesión\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Sin Idempotency-Key → 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  "pm.test('error.codigo = VALIDACION', () => pm.expect(pm.response.json().error.codigo).to.eql('VALIDACION'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Session-Id",
+                "value": "{{sesionLector}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/partidos/{{partidoComentarios}}/comentarios",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"contenido\": \"Sin clave\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Campo extra en el body → 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  "pm.test('error.codigo = VALIDACION', () => pm.expect(pm.response.json().error.codigo).to.eql('VALIDACION'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Session-Id",
+                "value": "{{sesionLector}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/partidos/{{partidoComentarios}}/comentarios",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"contenido\": \"Hola\", \"usuarioId\": \"USR-00009\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Contenido de 281 caracteres → 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  "pm.test('error.codigo = VALIDACION', () => pm.expect(pm.response.json().error.codigo).to.eql('VALIDACION'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Session-Id",
+                "value": "{{sesionLector}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/partidos/{{partidoComentarios}}/comentarios",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"contenido\": \"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Partido fuera del catálogo PAR-999 → 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 404', () => pm.response.to.have.status(404));",
+                  "pm.test('error.codigo = PARTIDO_NO_ENCONTRADO', () => pm.expect(pm.response.json().error.codigo).to.eql('PARTIDO_NO_ENCONTRADO'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Session-Id",
+                "value": "{{sesionLector}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/partidos/PAR-999/comentarios",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"contenido\": \"Partido inexistente\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "CU-10 · Ver historial diario de un autor",
+      "description": "Redis (sesión y rol) + Cassandra, Hito 6 Q3. El propio autor o un moderador.",
+      "item": [
+        {
+          "name": "Historial propio (lector USR-00001) → 200",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Campos del contrato', () => pm.expect(pm.response.json()).to.include.all.keys([\"usuarioId\", \"dia\", \"items\", \"siguienteCursor\"]));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Session-Id",
+                "value": "{{sesionLector}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/usuarios/USR-00001/comentarios?dia=2030-06-10"
+          }
+        },
+        {
+          "name": "Moderador ve el historial de otro → 200",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Campos del contrato', () => pm.expect(pm.response.json()).to.include.all.keys([\"usuarioId\", \"dia\", \"items\"]));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Session-Id",
+                "value": "{{sesionModerador}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/usuarios/USR-00001/comentarios?dia=2030-06-10"
+          }
+        },
+        {
+          "name": "Día sin comentarios → 200 vacío",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test('items vacío', () => pm.expect(pm.response.json().items).to.eql([]));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Session-Id",
+                "value": "{{sesionLector}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/usuarios/USR-00001/comentarios?dia=2030-01-01"
+          }
+        },
+        {
+          "name": "Lector pide el historial de otro → 403",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 403', () => pm.response.to.have.status(403));",
+                  "pm.test('error.codigo = ROL_NO_AUTORIZADO', () => pm.expect(pm.response.json().error.codigo).to.eql('ROL_NO_AUTORIZADO'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Session-Id",
+                "value": "{{sesionLector}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/usuarios/USR-00003/comentarios?dia=2030-06-10"
+          }
+        },
+        {
+          "name": "Sin X-Session-Id → 401",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 401', () => pm.response.to.have.status(401));",
+                  "pm.test('error.codigo = SESION_REQUERIDA', () => pm.expect(pm.response.json().error.codigo).to.eql('SESION_REQUERIDA'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/usuarios/USR-00001/comentarios?dia=2030-06-10"
+          }
+        },
+        {
+          "name": "Día con formato inválido → 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  "pm.test('error.codigo = VALIDACION', () => pm.expect(pm.response.json().error.codigo).to.eql('VALIDACION'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Session-Id",
+                "value": "{{sesionLector}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/usuarios/USR-00001/comentarios?dia=10-06-2030"
+          }
+        },
+        {
+          "name": "usuarioId con formato inválido → 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  "pm.test('error.codigo = VALIDACION', () => pm.expect(pm.response.json().error.codigo).to.eql('VALIDACION'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Session-Id",
+                "value": "{{sesionLector}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/usuarios/USR-1/comentarios?dia=2030-06-10"
+          }
+        }
+      ]
+    },
+    {
+      "name": "CU-20 · Moderar un comentario",
+      "description": "Moderador sobre el comentario publicado en CU-09: lo oculta y después lo restaura.",
+      "item": [
+        {
+          "name": "Ocultar → 200 cambio=true",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Campos del contrato', () => pm.expect(pm.response.json()).to.include.all.keys([\"comentarioId\", \"partidoId\", \"usuarioId\", \"creadoEn\", \"estadoAnterior\", \"estado\", \"cambio\"]));",
+                  "if (pm.response.code === 200) {",
+                  "    const m = pm.response.json();",
+                  "    pm.test('visible → oculto', () => {",
+                  "        pm.expect(m.estadoAnterior).to.eql('visible');",
+                  "        pm.expect(m.estado).to.eql('oculto');",
+                  "        pm.expect(m.cambio).to.be.true;",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "X-Session-Id",
+                "value": "{{sesionModerador}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/partidos/{{partidoComentarios}}/comentarios/{{comentarioId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"creadoEn\": \"{{creadoEn}}\", \"estado\": \"oculto\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Repetir → 200 cambio=false",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Campos del contrato', () => pm.expect(pm.response.json()).to.include.all.keys([\"comentarioId\", \"partidoId\", \"usuarioId\", \"creadoEn\", \"estadoAnterior\", \"estado\", \"cambio\"]));",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test('cambio=false', () => pm.expect(pm.response.json().cambio).to.be.false);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "X-Session-Id",
+                "value": "{{sesionModerador}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/partidos/{{partidoComentarios}}/comentarios/{{comentarioId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"creadoEn\": \"{{creadoEn}}\", \"estado\": \"oculto\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "CU-08 anónimo → ya no aparece",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test('El comentario oculto no se muestra a la APP', () => pm.expect(pm.response.json().items",
+                  "        .map(c => c.comentarioId)).to.not.include(pm.collectionVariables.get('comentarioId')));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/partidos/{{partidoComentarios}}/comentarios?minuto={{minutoComentario}}"
+          }
+        },
+        {
+          "name": "CU-10 moderador → aparece oculto",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "if (pm.response.code === 200) {",
+                  "    const c = pm.response.json().items.find(i => i.comentarioId === pm.collectionVariables.get('comentarioId'));",
+                  "    pm.test('Mismo estado en comentarios_por_usuario', () => pm.expect(c.estado).to.eql('oculto'));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Session-Id",
+                "value": "{{sesionModerador}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/usuarios/USR-00001/comentarios?dia={{diaComentario}}"
+          }
+        },
+        {
+          "name": "Restaurar visible → 200",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Campos del contrato', () => pm.expect(pm.response.json()).to.include.all.keys([\"comentarioId\", \"partidoId\", \"usuarioId\", \"creadoEn\", \"estadoAnterior\", \"estado\", \"cambio\"]));",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test('oculto → visible', () => pm.expect(pm.response.json().estado).to.eql('visible'));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "X-Session-Id",
+                "value": "{{sesionModerador}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/partidos/{{partidoComentarios}}/comentarios/{{comentarioId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"creadoEn\": \"{{creadoEn}}\", \"estado\": \"visible\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "creadoEn equivocado → 404 sin escribir",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 404', () => pm.response.to.have.status(404));",
+                  "pm.test('error.codigo = COMENTARIO_NO_ENCONTRADO', () => pm.expect(pm.response.json().error.codigo).to.eql('COMENTARIO_NO_ENCONTRADO'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "X-Session-Id",
+                "value": "{{sesionModerador}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/partidos/{{partidoComentarios}}/comentarios/{{comentarioId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"creadoEn\": \"2030-01-01T00:00:00.000Z\", \"estado\": \"oculto\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Lector → 403",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 403', () => pm.response.to.have.status(403));",
+                  "pm.test('error.codigo = ROL_NO_AUTORIZADO', () => pm.expect(pm.response.json().error.codigo).to.eql('ROL_NO_AUTORIZADO'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "X-Session-Id",
+                "value": "{{sesionLector}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/partidos/{{partidoComentarios}}/comentarios/{{comentarioId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"creadoEn\": \"{{creadoEn}}\", \"estado\": \"oculto\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Sin X-Session-Id → 401",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 401', () => pm.response.to.have.status(401));",
+                  "pm.test('error.codigo = SESION_REQUERIDA', () => pm.expect(pm.response.json().error.codigo).to.eql('SESION_REQUERIDA'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/partidos/{{partidoComentarios}}/comentarios/{{comentarioId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"creadoEn\": \"{{creadoEn}}\", \"estado\": \"oculto\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Volver a pendiente → 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  "pm.test('error.codigo = VALIDACION', () => pm.expect(pm.response.json().error.codigo).to.eql('VALIDACION'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "X-Session-Id",
+                "value": "{{sesionModerador}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/partidos/{{partidoComentarios}}/comentarios/{{comentarioId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"creadoEn\": \"{{creadoEn}}\", \"estado\": \"pendiente\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Partido fuera del catálogo PAR-999 → 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 404', () => pm.response.to.have.status(404));",
+                  "pm.test('error.codigo = PARTIDO_NO_ENCONTRADO', () => pm.expect(pm.response.json().error.codigo).to.eql('PARTIDO_NO_ENCONTRADO'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "X-Session-Id",
+                "value": "{{sesionModerador}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/partidos/PAR-999/comentarios/{{comentarioId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"creadoEn\": \"{{creadoEn}}\", \"estado\": \"oculto\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "CU-11 · Consultar la sesión vigente",
+      "description": "Redis HGETALL + TTL. No renueva.",
+      "item": [
+        {
+          "name": "Sesión lector → 200",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Campos del contrato', () => pm.expect(pm.response.json()).to.include.all.keys([\"usuarioId\", \"rol\", \"estado\", \"expiraEnSegundos\"]));",
+                  "if (pm.response.code === 200) {",
+                  "    const s = pm.response.json();",
+                  "    pm.test('Rol lector y TTL > 0', () => { pm.expect(s.rol).to.eql('lector'); pm.expect(s.expiraEnSegundos).to.be.above(0); });",
+                  "    pm.test('No expone el ID ni ultima_actividad', () => {",
+                  "        pm.expect(s).to.not.have.property('sesionId');",
+                  "        pm.expect(s).to.not.have.property('ultima_actividad');",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Session-Id",
+                "value": "{{sesionLector}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/sesiones/actual"
+          }
+        },
+        {
+          "name": "Sin X-Session-Id → 401",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 401', () => pm.response.to.have.status(401));",
+                  "pm.test('error.codigo = SESION_REQUERIDA', () => pm.expect(pm.response.json().error.codigo).to.eql('SESION_REQUERIDA'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/sesiones/actual"
+          }
+        },
+        {
+          "name": "Sesión inexistente → 401",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 401', () => pm.response.to.have.status(401));",
+                  "pm.test('error.codigo = SESION_NO_VIGENTE', () => pm.expect(pm.response.json().error.codigo).to.eql('SESION_NO_VIGENTE'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Session-Id",
+                "value": "SES-NO-EXISTE-00000000"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/sesiones/actual"
+          }
+        },
+        {
+          "name": "Formato inválido → 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  "pm.test('error.codigo = VALIDACION', () => pm.expect(pm.response.json().error.codigo).to.eql('VALIDACION'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Session-Id",
+                "value": "x"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/sesiones/actual"
+          }
+        }
+      ]
+    },
+    {
+      "name": "CU-12 · Registrar actividad de la sesión",
+      "description": "EVAL atómico que renueva el TTL.",
+      "item": [
+        {
+          "name": "Renovar sesión lector → 200 (1800 s)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Campos del contrato', () => pm.expect(pm.response.json()).to.include.all.keys([\"expiraEnSegundos\"]));",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test('expiraEnSegundos = 1800', () => pm.expect(pm.response.json().expiraEnSegundos).to.eql(1800));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Session-Id",
+                "value": "{{sesionLector}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/sesiones/actual/actividad"
+          }
+        },
+        {
+          "name": "Sesión inexistente → 401 (no se recrea)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 401', () => pm.response.to.have.status(401));",
+                  "pm.test('error.codigo = SESION_NO_VIGENTE', () => pm.expect(pm.response.json().error.codigo).to.eql('SESION_NO_VIGENTE'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Session-Id",
+                "value": "SES-NO-EXISTE-00000000"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/sesiones/actual/actividad"
+          }
+        },
+        {
+          "name": "Sin X-Session-Id → 401",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 401', () => pm.response.to.have.status(401));",
+                  "pm.test('error.codigo = SESION_REQUERIDA', () => pm.expect(pm.response.json().error.codigo).to.eql('SESION_REQUERIDA'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/sesiones/actual/actividad"
+          }
+        }
+      ]
+    },
+    {
+      "name": "CU-14 · Invalidar la ficha cacheada de un equipo",
+      "description": "Redis DEL, rol operador.",
+      "item": [
+        {
+          "name": "Operador invalida EQ-001 → 204",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 204', () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-Session-Id",
+                "value": "{{sesionOperador}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/cache/equipos/{{equipoId}}"
+          }
+        },
+        {
+          "name": "Repetir (sin copia) → 204",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 204', () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-Session-Id",
+                "value": "{{sesionOperador}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/cache/equipos/{{equipoId}}"
+          }
+        },
+        {
+          "name": "CU-01 siguiente → MISS",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test('X-Cache: MISS', () => pm.expect(pm.response.headers.get('X-Cache')).to.eql('MISS'));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/equipos/{{equipoId}}"
+          }
+        },
+        {
+          "name": "Lector → 403",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 403', () => pm.response.to.have.status(403));",
+                  "pm.test('error.codigo = ROL_NO_AUTORIZADO', () => pm.expect(pm.response.json().error.codigo).to.eql('ROL_NO_AUTORIZADO'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-Session-Id",
+                "value": "{{sesionLector}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/cache/equipos/{{equipoId}}"
+          }
+        },
+        {
+          "name": "Sin X-Session-Id → 401",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 401', () => pm.response.to.have.status(401));",
+                  "pm.test('error.codigo = SESION_REQUERIDA', () => pm.expect(pm.response.json().error.codigo).to.eql('SESION_REQUERIDA'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/cache/equipos/{{equipoId}}"
+          }
+        },
+        {
+          "name": "Formato inválido EQ-1 → 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  "pm.test('error.codigo = VALIDACION', () => pm.expect(pm.response.json().error.codigo).to.eql('VALIDACION'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-Session-Id",
+                "value": "{{sesionOperador}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/cache/equipos/EQ-1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "CU-15 · Ver estado reciente de un equipo en un partido",
+      "description": "InfluxDB, Hito 8 P2. Ventana [hasta − 60 s, hasta) de la carga de muestra.",
+      "item": [
+        {
+          "name": "PAR-001 / EQ-001 → últimas 5 observaciones",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Campos del contrato', () => pm.expect(pm.response.json()).to.include.all.keys([\"partidoId\", \"equipoId\", \"estadioId\", \"items\", \"ultimaObservacion\"]));",
+                  "if (pm.response.code === 200) {",
+                  "    const r = pm.response.json();",
+                  "    pm.test('5 observaciones en orden time DESC', () => {",
+                  "        pm.expect(r.items).to.have.length(5);",
+                  "        const t = r.items.map(o => o.time);",
+                  "        pm.expect(t).to.eql([...t].sort().reverse());",
+                  "    });",
+                  "    pm.test('ultimaObservacion = primer time', () => pm.expect(r.ultimaObservacion).to.eql(r.items[0].time));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/partidos/{{partidoId}}/equipos/{{equipoId}}/estadisticas/recientes?hasta={{influxHasta}}"
+          }
+        },
+        {
+          "name": "Ventana sin puntos → 200 vacío y null",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test('items vacío y ultimaObservacion null', () => {",
+                  "        pm.expect(pm.response.json().items).to.eql([]);",
+                  "        pm.expect(pm.response.json().ultimaObservacion).to.be.null;",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/partidos/{{partidoId}}/equipos/{{equipoId}}/estadisticas/recientes?hasta=2020-01-01T00:00:00Z"
+          }
+        },
+        {
+          "name": "Equipo que no disputa el partido → 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 404', () => pm.response.to.have.status(404));",
+                  "pm.test('error.codigo = EQUIPO_NO_PARTICIPA', () => pm.expect(pm.response.json().error.codigo).to.eql('EQUIPO_NO_PARTICIPA'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/partidos/{{partidoId}}/equipos/EQ-003/estadisticas/recientes"
+          }
+        },
+        {
+          "name": "Partido fuera del catálogo PAR-999 → 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 404', () => pm.response.to.have.status(404));",
+                  "pm.test('error.codigo = PARTIDO_NO_ENCONTRADO', () => pm.expect(pm.response.json().error.codigo).to.eql('PARTIDO_NO_ENCONTRADO'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/partidos/PAR-999/equipos/{{equipoId}}/estadisticas/recientes"
+          }
+        },
+        {
+          "name": "limite=61 → 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  "pm.test('error.codigo = VALIDACION', () => pm.expect(pm.response.json().error.codigo).to.eql('VALIDACION'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/partidos/{{partidoId}}/equipos/{{equipoId}}/estadisticas/recientes?limite=61"
+          }
+        },
+        {
+          "name": "hasta sin zona horaria → 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  "pm.test('error.codigo = VALIDACION', () => pm.expect(pm.response.json().error.codigo).to.eql('VALIDACION'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/partidos/{{partidoId}}/equipos/{{equipoId}}/estadisticas/recientes?hasta=2026-10-16T00:17:00"
+          }
+        }
+      ]
+    },
+    {
+      "name": "CU-16 · Comparar los equipos de un partido",
+      "description": "InfluxDB, Hito 8 P3: reproduce los valores del Hito 8 sobre la ventana de la carga de muestra.",
+      "item": [
+        {
+          "name": "PAR-001 en la ventana de muestra → valores del Hito 8",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Campos del contrato', () => pm.expect(pm.response.json()).to.include.all.keys([\"partidoId\", \"desde\", \"hasta\", \"equipos\"]));",
+                  "if (pm.response.code === 200) {",
+                  "    const eq = pm.response.json().equipos;",
+                  "    pm.test('Dos equipos con todas las medidas', () => {",
+                  "        pm.expect(eq.map(e => e.equipoId)).to.eql(['EQ-001', 'EQ-002']);",
+                  "        eq.forEach(e => pm.expect(e).to.include.all.keys([\"muestras\", \"muestrasEsperadas\", \"posesionMedia\", \"pasesNuevos\", \"tiros\", \"intervalosInvalidos\", \"completo\"]));",
+                  "    });",
+                  "    pm.test('300 muestras, 30 y 25 pases, 1 tiro, 0 inválidos', () => {",
+                  "        pm.expect(eq.map(e => e.muestras)).to.eql([300, 300]);",
+                  "        pm.expect(eq.map(e => e.pasesNuevos)).to.eql([30, 25]);",
+                  "        pm.expect(eq.map(e => e.tiros)).to.eql([1, 1]);",
+                  "        pm.expect(eq.map(e => e.intervalosInvalidos)).to.eql([0, 0]);",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/partidos/{{partidoId}}/estadisticas/comparacion?desde={{influxDesde}}&hasta={{influxHasta}}"
+          }
+        },
+        {
+          "name": "Intervalo invertido → 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  "pm.test('error.codigo = VALIDACION', () => pm.expect(pm.response.json().error.codigo).to.eql('VALIDACION'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/partidos/{{partidoId}}/estadisticas/comparacion?desde={{influxHasta}}&hasta={{influxDesde}}"
+          }
+        },
+        {
+          "name": "Ventana de más de 5 min → 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  "pm.test('error.codigo = VALIDACION', () => pm.expect(pm.response.json().error.codigo).to.eql('VALIDACION'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/partidos/{{partidoId}}/estadisticas/comparacion?desde=2026-10-16T00:11:00Z&hasta=2026-10-16T00:17:00Z"
+          }
+        },
+        {
+          "name": "Sin desde → 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  "pm.test('error.codigo = VALIDACION', () => pm.expect(pm.response.json().error.codigo).to.eql('VALIDACION'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/partidos/{{partidoId}}/estadisticas/comparacion?hasta={{influxHasta}}"
+          }
+        },
+        {
+          "name": "Partido fuera del catálogo PAR-999 → 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 404', () => pm.response.to.have.status(404));",
+                  "pm.test('error.codigo = PARTIDO_NO_ENCONTRADO', () => pm.expect(pm.response.json().error.codigo).to.eql('PARTIDO_NO_ENCONTRADO'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/partidos/PAR-999/estadisticas/comparacion?desde={{influxDesde}}&hasta={{influxHasta}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "CU-17 · Ver evolución por minuto",
+      "description": "InfluxDB DATE_BIN, Hito 8 P4.",
+      "item": [
+        {
+          "name": "1m → 5 intervalos por equipo que suman lo de CU-16",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Campos del contrato', () => pm.expect(pm.response.json()).to.include.all.keys([\"partidoId\", \"desde\", \"hasta\", \"resolucion\", \"series\"]));",
+                  "if (pm.response.code === 200) {",
+                  "    const series = pm.response.json().series;",
+                  "    pm.test('Dos series de 5 intervalos', () => {",
+                  "        pm.expect(series.map(s => s.equipoId)).to.eql(['EQ-001', 'EQ-002']);",
+                  "        series.forEach(s => pm.expect(s.intervalos).to.have.length(5));",
+                  "    });",
+                  "    pm.test('Sumas de pases = CU-16 (30 y 25)', () => pm.expect(series.map(",
+                  "        s => s.intervalos.reduce((t, i) => t + i.pasesNuevos, 0))).to.eql([30, 25]));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/partidos/{{partidoId}}/estadisticas/evolucion?desde={{influxDesde}}&hasta={{influxHasta}}"
+          }
+        },
+        {
+          "name": "5m filtrado por EQ-002 → una serie",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test('Solo EQ-002', () => pm.expect(pm.response.json().series.map(s => s.equipoId)).to.eql(['EQ-002']));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/partidos/{{partidoId}}/estadisticas/evolucion?desde={{influxDesde}}&hasta={{influxHasta}}&resolucion=5m&equipoId=EQ-002"
+          }
+        },
+        {
+          "name": "Resolución 10m → 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  "pm.test('error.codigo = VALIDACION', () => pm.expect(pm.response.json().error.codigo).to.eql('VALIDACION'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/partidos/{{partidoId}}/estadisticas/evolucion?desde={{influxDesde}}&hasta={{influxHasta}}&resolucion=10m"
+          }
+        },
+        {
+          "name": "Ventana de 3 h → 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  "pm.test('error.codigo = VALIDACION', () => pm.expect(pm.response.json().error.codigo).to.eql('VALIDACION'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/partidos/{{partidoId}}/estadisticas/evolucion?desde=2026-10-15T21:17:00Z&hasta=2026-10-16T00:17:00Z"
+          }
+        },
+        {
+          "name": "equipoId que no disputa el partido → 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 404', () => pm.response.to.have.status(404));",
+                  "pm.test('error.codigo = EQUIPO_NO_PARTICIPA', () => pm.expect(pm.response.json().error.codigo).to.eql('EQUIPO_NO_PARTICIPA'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/partidos/{{partidoId}}/estadisticas/evolucion?desde={{influxDesde}}&hasta={{influxHasta}}&equipoId=EQ-003"
+          }
+        },
+        {
+          "name": "Partido fuera del catálogo PAR-999 → 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 404', () => pm.response.to.have.status(404));",
+                  "pm.test('error.codigo = PARTIDO_NO_ENCONTRADO', () => pm.expect(pm.response.json().error.codigo).to.eql('PARTIDO_NO_ENCONTRADO'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/partidos/PAR-999/estadisticas/evolucion?desde={{influxDesde}}&hasta={{influxHasta}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "CU-18 · Ver el acta de un partido",
+      "description": "IRIS, Hito 9. Única fuente del estado.",
+      "item": [
+        {
+          "name": "Acta PAR-001 → PENDIENTE, EST-01, 2 eventos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Campos del contrato', () => pm.expect(pm.response.json()).to.include.all.keys([\"partidoId\", \"estadioId\", \"estado\", \"arbitro\", \"eventos\"]));",
+                  "if (pm.response.code === 200) {",
+                  "    const a = pm.response.json();",
+                  "    pm.test('PENDIENTE en EST-01 con ARB-001 y dos eventos', () => {",
+                  "        pm.expect(a.estado).to.eql('PENDIENTE');",
+                  "        pm.expect(a.estadioId).to.eql('EST-01');",
+                  "        pm.expect(a.arbitro.codigo).to.eql('ARB-001');",
+                  "        pm.expect(a.eventos).to.have.length(2);",
+                  "    });",
+                  "    pm.test('Sin licencia del árbitro', () => pm.expect(a.arbitro).to.not.have.property('licencia'));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/partidos/{{partidoId}}/acta"
+          }
+        },
+        {
+          "name": "Partido sin acta PAR-002 → 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 404', () => pm.response.to.have.status(404));",
+                  "pm.test('error.codigo = ACTA_NO_ENCONTRADA', () => pm.expect(pm.response.json().error.codigo).to.eql('ACTA_NO_ENCONTRADA'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/partidos/{{partidoSinActa}}/acta"
+          }
+        },
+        {
+          "name": "Formato inválido PAR-1 → 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  "pm.test('error.codigo = VALIDACION', () => pm.expect(pm.response.json().error.codigo).to.eql('VALIDACION'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/partidos/PAR-1/acta"
+          }
+        }
+      ]
+    },
+    {
+      "name": "CU-19 · Cambiar el estado de un partido",
+      "description": "Redis (rol operador) + IRIS CambiarEstado(). Las transiciones reales usan {{partidoTemporal}} (PAR-9xx, creado por scripts/ejecutar_pruebas.ps1 o con python -m tests.integracion.iris_temporal crear); si está vacía se omiten. Sobre PAR-001 solo se prueban rechazos que no llegan a IRIS o no cambian nada.",
+      "item": [
+        {
+          "name": "Temporal PENDIENTE → EN_JUEGO → 200",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.variables.get('partidoTemporal')) {",
+                  "    console.log('partidoTemporal vacía: se omite la transición real de CU-19');",
+                  "    pm.execution.skipRequest();",
+                  "}"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Campos del contrato', () => pm.expect(pm.response.json()).to.include.all.keys([\"partidoId\", \"estadoAnterior\", \"estadoActual\", \"cambio\"]));",
+                  "if (pm.response.code === 200) {",
+                  "    const t = pm.response.json();",
+                  "    pm.test('PENDIENTE → EN_JUEGO con cambio', () => {",
+                  "        pm.expect(t.estadoAnterior).to.eql('PENDIENTE');",
+                  "        pm.expect(t.estadoActual).to.eql('EN_JUEGO');",
+                  "        pm.expect(t.cambio).to.be.true;",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Session-Id",
+                "value": "{{sesionOperador}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/partidos/{{partidoTemporal}}/acta/transiciones",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nuevoEstado\": \"EN_JUEGO\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Repetir EN_JUEGO → 200 cambio=false",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.variables.get('partidoTemporal')) {",
+                  "    console.log('partidoTemporal vacía: se omite la transición real de CU-19');",
+                  "    pm.execution.skipRequest();",
+                  "}"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Campos del contrato', () => pm.expect(pm.response.json()).to.include.all.keys([\"partidoId\", \"estadoAnterior\", \"estadoActual\", \"cambio\"]));",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test('cambio=false', () => pm.expect(pm.response.json().cambio).to.be.false);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Session-Id",
+                "value": "{{sesionOperador}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/partidos/{{partidoTemporal}}/acta/transiciones",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nuevoEstado\": \"EN_JUEGO\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Temporal EN_JUEGO → FINALIZADO → 200",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.variables.get('partidoTemporal')) {",
+                  "    console.log('partidoTemporal vacía: se omite la transición real de CU-19');",
+                  "    pm.execution.skipRequest();",
+                  "}"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Campos del contrato', () => pm.expect(pm.response.json()).to.include.all.keys([\"partidoId\", \"estadoAnterior\", \"estadoActual\", \"cambio\"]));",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test('FINALIZADO', () => pm.expect(pm.response.json().estadoActual).to.eql('FINALIZADO'));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Session-Id",
+                "value": "{{sesionOperador}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/partidos/{{partidoTemporal}}/acta/transiciones",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nuevoEstado\": \"FINALIZADO\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Reabrir el temporal → 409 y sigue FINALIZADO",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.variables.get('partidoTemporal')) {",
+                  "    console.log('partidoTemporal vacía: se omite la transición real de CU-19');",
+                  "    pm.execution.skipRequest();",
+                  "}"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 409', () => pm.response.to.have.status(409));",
+                  "pm.test('error.codigo = TRANSICION_NO_PERMITIDA', () => pm.expect(pm.response.json().error.codigo).to.eql('TRANSICION_NO_PERMITIDA'));",
+                  "if (pm.response.code === 409) {",
+                  "    pm.test('detalles con el estado actual', () => pm.expect(pm.response.json().error.detalles[0].problema).to.include('FINALIZADO'));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Session-Id",
+                "value": "{{sesionOperador}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/partidos/{{partidoTemporal}}/acta/transiciones",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nuevoEstado\": \"EN_JUEGO\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "CU-18 del temporal → FINALIZADO",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.variables.get('partidoTemporal')) {",
+                  "    console.log('partidoTemporal vacía: se omite la transición real de CU-19');",
+                  "    pm.execution.skipRequest();",
+                  "}"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Campos del contrato', () => pm.expect(pm.response.json()).to.include.all.keys([\"partidoId\", \"estadioId\", \"estado\", \"arbitro\", \"eventos\"]));",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test('estado FINALIZADO', () => pm.expect(pm.response.json().estado).to.eql('FINALIZADO'));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/partidos/{{partidoTemporal}}/acta"
+          }
+        },
+        {
+          "name": "nuevoEstado PENDIENTE → 400 (sin consultar IRIS)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  "pm.test('error.codigo = VALIDACION', () => pm.expect(pm.response.json().error.codigo).to.eql('VALIDACION'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Session-Id",
+                "value": "{{sesionOperador}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/partidos/{{partidoId}}/acta/transiciones",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nuevoEstado\": \"PENDIENTE\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Lector → 403",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 403', () => pm.response.to.have.status(403));",
+                  "pm.test('error.codigo = ROL_NO_AUTORIZADO', () => pm.expect(pm.response.json().error.codigo).to.eql('ROL_NO_AUTORIZADO'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Session-Id",
+                "value": "{{sesionLector}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/partidos/{{partidoId}}/acta/transiciones",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nuevoEstado\": \"EN_JUEGO\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Sin X-Session-Id → 401",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 401', () => pm.response.to.have.status(401));",
+                  "pm.test('error.codigo = SESION_REQUERIDA', () => pm.expect(pm.response.json().error.codigo).to.eql('SESION_REQUERIDA'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/partidos/{{partidoId}}/acta/transiciones",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nuevoEstado\": \"EN_JUEGO\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Partido sin acta PAR-002 → 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 404', () => pm.response.to.have.status(404));",
+                  "pm.test('error.codigo = ACTA_NO_ENCONTRADA', () => pm.expect(pm.response.json().error.codigo).to.eql('ACTA_NO_ENCONTRADA'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Session-Id",
+                "value": "{{sesionOperador}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/partidos/{{partidoSinActa}}/acta/transiciones",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nuevoEstado\": \"EN_JUEGO\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "CU-13 · Cerrar la sesión",
+      "description": "Va al final porque cierra sesionLector: para volver a correr la colección, ejecutar otra vez scripts/crear_sesiones_prueba.ps1.",
+      "item": [
+        {
+          "name": "Cerrar sesión lector → 204",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 204', () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-Session-Id",
+                "value": "{{sesionLector}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/sesiones/actual"
+          }
+        },
+        {
+          "name": "Cerrar otra vez → 204 (idempotente)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 204', () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-Session-Id",
+                "value": "{{sesionLector}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/sesiones/actual"
+          }
+        },
+        {
+          "name": "CU-11 con la sesión cerrada → 401",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 401', () => pm.response.to.have.status(401));",
+                  "pm.test('error.codigo = SESION_NO_VIGENTE', () => pm.expect(pm.response.json().error.codigo).to.eql('SESION_NO_VIGENTE'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Session-Id",
+                "value": "{{sesionLector}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/sesiones/actual"
+          }
+        },
+        {
+          "name": "Sin X-Session-Id → 401",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 401', () => pm.response.to.have.status(401));",
+                  "pm.test('error.codigo = SESION_REQUERIDA', () => pm.expect(pm.response.json().error.codigo).to.eql('SESION_REQUERIDA'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/sesiones/actual"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Dependencias caídas (manual)",
+      "description": "No la corre scripts/ejecutar_pruebas.ps1. Cada request indica qué contenedor detener (docker compose stop en la carpeta del hito) y se vuelve a levantar con docker compose start.",
+      "item": [
+        {
+          "name": "MongoDB detenido: CU-02 → 503/504",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('503 o 504, nunca 200 vacío', () => pm.expect(pm.response.code).to.be.oneOf([503, 504]));",
+                  "pm.test('DEPENDENCIA_NO_DISPONIBLE o DEPENDENCIA_TIMEOUT', () => pm.expect(",
+                  "    pm.response.json().error.codigo).to.be.oneOf(['DEPENDENCIA_NO_DISPONIBLE', 'DEPENDENCIA_TIMEOUT']));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/equipos?confederacion=UEFA",
+            "description": "Antes de enviar: docker compose -f \"Hito 4/docker-compose.yml\" stop"
+          }
+        },
+        {
+          "name": "Redis detenido: CU-01 → 200 X-Cache BYPASS",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Campos del contrato', () => pm.expect(pm.response.json()).to.include.all.keys([\"equipoId\", \"codigo\", \"nombre\", \"confederacion\", \"region\", \"rankingReferencia\", \"sedeBase\", \"participacionesMundiales\", \"titulosMundiales\", \"estado\"]));",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test('X-Cache: BYPASS', () => pm.expect(pm.response.headers.get('X-Cache')).to.eql('BYPASS'));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/equipos/{{equipoId}}",
+            "description": "Antes de enviar: docker compose -f \"Hito 7/docker-compose.yml\" stop"
+          }
+        },
+        {
+          "name": "Redis detenido: CU-11 → 503 (nunca 401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('503 o 504, nunca 200 vacío', () => pm.expect(pm.response.code).to.be.oneOf([503, 504]));",
+                  "pm.test('DEPENDENCIA_NO_DISPONIBLE o DEPENDENCIA_TIMEOUT', () => pm.expect(",
+                  "    pm.response.json().error.codigo).to.be.oneOf(['DEPENDENCIA_NO_DISPONIBLE', 'DEPENDENCIA_TIMEOUT']));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Session-Id",
+                "value": "{{sesionLector}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/sesiones/actual",
+            "description": "Antes de enviar: docker compose -f \"Hito 7/docker-compose.yml\" stop"
+          }
+        },
+        {
+          "name": "Neo4j detenido: CU-06 → 503/504",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('503 o 504, nunca 200 vacío', () => pm.expect(pm.response.code).to.be.oneOf([503, 504]));",
+                  "pm.test('DEPENDENCIA_NO_DISPONIBLE o DEPENDENCIA_TIMEOUT', () => pm.expect(",
+                  "    pm.response.json().error.codigo).to.be.oneOf(['DEPENDENCIA_NO_DISPONIBLE', 'DEPENDENCIA_TIMEOUT']));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/partidos/{{partidoId}}/eventos",
+            "description": "Antes de enviar: docker compose -f \"Hito 5/docker-compose.yml\" stop"
+          }
+        },
+        {
+          "name": "Neo4j detenido al iniciar la API: CU-08 → 503 (catálogo no cargado)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('503 o 504, nunca 200 vacío', () => pm.expect(pm.response.code).to.be.oneOf([503, 504]));",
+                  "pm.test('DEPENDENCIA_NO_DISPONIBLE o DEPENDENCIA_TIMEOUT', () => pm.expect(",
+                  "    pm.response.json().error.codigo).to.be.oneOf(['DEPENDENCIA_NO_DISPONIBLE', 'DEPENDENCIA_TIMEOUT']));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/partidos/{{partidoId}}/comentarios",
+            "description": "Antes de enviar: detener Neo4j (Hito 5) y reiniciar la API: el catálogo queda no_cargado"
+          }
+        },
+        {
+          "name": "Cassandra detenido: CU-08 → 503/504",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('503 o 504, nunca 200 vacío', () => pm.expect(pm.response.code).to.be.oneOf([503, 504]));",
+                  "pm.test('DEPENDENCIA_NO_DISPONIBLE o DEPENDENCIA_TIMEOUT', () => pm.expect(",
+                  "    pm.response.json().error.codigo).to.be.oneOf(['DEPENDENCIA_NO_DISPONIBLE', 'DEPENDENCIA_TIMEOUT']));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/partidos/{{partidoId}}/comentarios?minuto=2030-06-10T18:01:00Z",
+            "description": "Antes de enviar: docker compose -f \"Hito 6/docker-compose.yml\" stop"
+          }
+        },
+        {
+          "name": "InfluxDB detenido: CU-16 → 503/504",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('503 o 504, nunca 200 vacío', () => pm.expect(pm.response.code).to.be.oneOf([503, 504]));",
+                  "pm.test('DEPENDENCIA_NO_DISPONIBLE o DEPENDENCIA_TIMEOUT', () => pm.expect(",
+                  "    pm.response.json().error.codigo).to.be.oneOf(['DEPENDENCIA_NO_DISPONIBLE', 'DEPENDENCIA_TIMEOUT']));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/partidos/{{partidoId}}/estadisticas/comparacion?desde={{influxDesde}}&hasta={{influxHasta}}",
+            "description": "Antes de enviar: docker compose -f \"Hito 8/docker-compose.yml\" stop"
+          }
+        },
+        {
+          "name": "IRIS detenido: CU-18 → 503/504",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('503 o 504, nunca 200 vacío', () => pm.expect(pm.response.code).to.be.oneOf([503, 504]));",
+                  "pm.test('DEPENDENCIA_NO_DISPONIBLE o DEPENDENCIA_TIMEOUT', () => pm.expect(",
+                  "    pm.response.json().error.codigo).to.be.oneOf(['DEPENDENCIA_NO_DISPONIBLE', 'DEPENDENCIA_TIMEOUT']));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/partidos/{{partidoId}}/acta",
+            "description": "Antes de enviar: docker compose -f \"Hito 9/docker-compose.yml\" stop"
+          }
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Una variable de sesión vacía produciría un 400 confuso: se avisa antes de enviar.",
+          "const encabezado = pm.request.headers.get('X-Session-Id');",
+          "if (encabezado !== undefined && encabezado !== null) {",
+          "    const valor = pm.variables.replaceIn(encabezado);",
+          "    if (!valor || /^\\{\\{.*\\}\\}$/.test(valor)) {",
+          "        throw new Error('Variable de sesión vacía: ejecutar scripts/crear_sesiones_prueba.ps1 '",
+          "            + 'y seleccionar el entorno .local/postman_entorno_local.json');",
+          "    }",
+          "}"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;",
+          "const requestId = pm.response.headers.get('X-Request-Id');",
+          "pm.test('X-Request-Id es un UUID', () => pm.expect(requestId).to.match(UUID));",
+          "if (pm.response.code >= 400) {",
+          "    pm.test('Error con el formato único (§6.1)', () => {",
+          "        const error = pm.response.json().error;",
+          "        pm.expect(error).to.be.an('object');",
+          "        pm.expect(error.codigo).to.be.a('string');",
+          "        pm.expect(error.mensaje).to.be.a('string');",
+          "        pm.expect(error.requestId).to.eql(requestId);",
+          "        pm.expect(error.detalles).to.be.an('array');",
+          "    });",
+          "}",
+          "const texto = pm.response.text();",
+          "pm.test('Sin identificadores internos (_id, elementId, %ID)', () => {",
+          "    pm.expect(texto).to.not.include('\"_id\"');",
+          "    pm.expect(texto).to.not.include('elementId');",
+          "    pm.expect(texto).to.not.include('%ID');",
+          "});"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:8000",
+      "type": "string",
+      "description": "URL de la API (scripts/iniciar_api.ps1)."
+    },
+    {
+      "key": "sesionLector",
+      "value": "",
+      "type": "string",
+      "description": "Sesión rol lector de USR-00001. La completa el entorno local."
+    },
+    {
+      "key": "sesionModerador",
+      "value": "",
+      "type": "string",
+      "description": "Sesión rol moderador de USR-00002. La completa el entorno local."
+    },
+    {
+      "key": "sesionOperador",
+      "value": "",
+      "type": "string",
+      "description": "Sesión rol operador de USR-00003. La completa el entorno local."
+    },
+    {
+      "key": "equipoId",
+      "value": "EQ-001",
+      "type": "string",
+      "description": "Equipo de la muestra (Hitos 4 y 5)."
+    },
+    {
+      "key": "jugadorId",
+      "value": "JUG-0313",
+      "type": "string",
+      "description": "Jugador de la muestra del Hito 4."
+    },
+    {
+      "key": "partidoId",
+      "value": "PAR-001",
+      "type": "string",
+      "description": "Partido con eventos, comentarios, estadísticas y acta. Solo se lee."
+    },
+    {
+      "key": "partidoSinActa",
+      "value": "PAR-002",
+      "type": "string",
+      "description": "Partido del calendario sin acta en IRIS."
+    },
+    {
+      "key": "partidoComentarios",
+      "value": "PAR-064",
+      "type": "string",
+      "description": "Partido donde la colección publica y modera su comentario."
+    },
+    {
+      "key": "influxDesde",
+      "value": "2026-10-16T00:12:00Z",
+      "type": "string",
+      "description": "Inicio de la ventana de 5 min de la carga de muestra del Hito 8 (ajustar si se recargó)."
+    },
+    {
+      "key": "influxHasta",
+      "value": "2026-10-16T00:17:00Z",
+      "type": "string",
+      "description": "Fin de la ventana de la carga de muestra del Hito 8."
+    },
+    {
+      "key": "partidoTemporal",
+      "value": "",
+      "type": "string",
+      "description": "Acta temporal PAR-9xx para CU-19 (python -m tests.integracion.iris_temporal crear). Vacía → se omiten las transiciones reales. Nunca PAR-001."
+    },
+    {
+      "key": "idempotencyKey",
+      "value": "",
+      "type": "string",
+      "description": "Interna: la genera la publicación de CU-09."
+    },
+    {
+      "key": "contenidoComentario",
+      "value": "",
+      "type": "string",
+      "description": "Interna."
+    },
+    {
+      "key": "comentarioId",
+      "value": "",
+      "type": "string",
+      "description": "Interna: comentario publicado en CU-09."
+    },
+    {
+      "key": "creadoEn",
+      "value": "",
+      "type": "string",
+      "description": "Interna."
+    },
+    {
+      "key": "minutoComentario",
+      "value": "",
+      "type": "string",
+      "description": "Interna."
+    },
+    {
+      "key": "diaComentario",
+      "value": "",
+      "type": "string",
+      "description": "Interna."
+    }
+  ]
+}

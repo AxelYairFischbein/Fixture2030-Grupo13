@@ -3,7 +3,7 @@
 from datetime import datetime
 from enum import StrEnum
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class EstadoDependencia(StrEnum):
@@ -35,6 +35,17 @@ class CatalogoPartidos(BaseModel):
 
 
 class RespuestaSalud(BaseModel):
+    """estado = "degradado" si alguna dependencia no está disponible o el catálogo no cargó."""
+
+    model_config = ConfigDict(json_schema_extra={"examples": [{
+        "estado": "ok",
+        "dependencias": {"mongodb": "disponible", "neo4j": "disponible",
+                         "cassandra": "disponible", "redis": "disponible",
+                         "influxdb": "disponible", "iris": "disponible"},
+        "catalogoPartidos": {"estado": "cargado", "partidos": 64,
+                             "ultimaCarga": "2026-10-16T00:33:06.165696Z"},
+    }]})
+
     estado: str
     dependencias: Dependencias
     catalogoPartidos: CatalogoPartidos

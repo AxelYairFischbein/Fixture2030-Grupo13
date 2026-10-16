@@ -20,7 +20,7 @@ from app.schemas.comentarios import (
     Moderacion,
     NuevoComentario,
 )
-from app.schemas.errores import respuestas_error
+from app.schemas.errores import CAIDA_O_CATALOGO, respuestas_error
 from app.schemas.partidos import PATRON_PARTIDO, InstanteUTC
 from app.services.comentarios import (
     ROL_MODERADOR,
@@ -47,7 +47,8 @@ DescripcionCursor = "Cursor creadoEn|comentarioId del último ítem recibido (si
                 "DESC, comentarioId ASC con límite global. X-Session-Id es opcional: sin sesión o "
                 "sin rol moderador solo se devuelven comentarios visibles; con rol moderador, "
                 "todos los estados. Partido fuera del catálogo → 404 sin consultar Cassandra.",
-    responses=respuestas_error(400, 401, 404, 503, 504),
+    responses=respuestas_error(400, 401, 404, 500, 503, 504, ejemplos={
+        404: ["PARTIDO_NO_ENCONTRADO"], 503: CAIDA_O_CATALOGO}),
 )
 def leer_comentarios(
     partidoId: PartidoId,
@@ -74,7 +75,8 @@ def leer_comentarios(
                 "comentarioId): repetir con la misma clave y el mismo body devuelve el mismo "
                 "comentario sin duplicar filas; con otro body → 409. Nace con estado visible. "
                 "504 = resultado incierto: reintentar con la misma clave.",
-    responses=respuestas_error(400, 401, 404, 409, 503, 504),
+    responses=respuestas_error(400, 401, 404, 409, 500, 503, 504, ejemplos={
+        404: ["PARTIDO_NO_ENCONTRADO"], 409: ["IDEMPOTENCY_KEY_REUTILIZADA"], 503: CAIDA_O_CATALOGO}),
 )
 def publicar_comentario(
     partidoId: PartidoId,
@@ -95,7 +97,8 @@ def publicar_comentario(
                 "(creadoEn del body + comentarioId): si no existe → 404 sin escribir. Cambia "
                 "estado en las dos tablas con un batch registrado. Si ya tenía el estado pedido "
                 "→ 200 con cambio=false sin escribir.",
-    responses=respuestas_error(400, 401, 403, 404, 503, 504),
+    responses=respuestas_error(400, 401, 403, 404, 500, 503, 504, ejemplos={
+        404: ["PARTIDO_NO_ENCONTRADO", "COMENTARIO_NO_ENCONTRADO"], 503: CAIDA_O_CATALOGO}),
 )
 def moderar_comentario(
     partidoId: PartidoId,
@@ -115,7 +118,7 @@ def moderar_comentario(
     description="Requiere una sesión del propio autor o con rol moderador (si no → 403 sin "
                 "renovar la sesión). Una sola partición (usuario_id, dia). Autor sin comentarios "
                 "ese día → items vacío.",
-    responses=respuestas_error(400, 401, 403, 503, 504),
+    responses=respuestas_error(400, 401, 403, 500, 503, 504),
 )
 def historial_de_usuario(
     usuarioId: Annotated[str, Path(pattern=PATRON_USUARIO, examples=["USR-00001"])],

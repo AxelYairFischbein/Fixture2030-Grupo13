@@ -32,7 +32,7 @@ ENCABEZADO_CACHE = {
     response_model=PaginaEquipos,
     summary="CU-02 · Listar equipos de una confederación",
     description="Orden rankingReferencia ASC, equipoId ASC. Sin coincidencias → items vacío.",
-    responses=respuestas_error(400, 503, 504),
+    responses=respuestas_error(400, 500, 503, 504),
 )
 def listar_equipos(
     servicio: Servicio,
@@ -50,7 +50,8 @@ def listar_equipos(
     summary="CU-01 · Ver ficha de un equipo",
     description="Cache-aside: Redis (copia por 300 s) delante de MongoDB. Con Redis caído "
                 "responde igual desde MongoDB con X-Cache: BYPASS.",
-    responses={200: {"headers": ENCABEZADO_CACHE}} | respuestas_error(400, 404, 503, 504),
+    responses={200: {"headers": ENCABEZADO_CACHE}} | respuestas_error(400, 404, 500, 503, 504,
+        ejemplos={404: ["EQUIPO_NO_ENCONTRADO"]}),
 )
 def ver_equipo(equipoId: EquipoId, servicio: Servicio, response: Response) -> FichaEquipo:
     ficha, estado_cache = servicio.ficha(equipoId)
@@ -64,7 +65,7 @@ def ver_equipo(equipoId: EquipoId, servicio: Servicio, response: Response) -> Fi
     summary="CU-03 · Ver plantel de un equipo",
     description="Orden apellido, nombre, jugadorId. Equipo inexistente → 404; "
                 "equipo sin jugadores para el filtro → items vacío.",
-    responses=respuestas_error(400, 404, 503, 504),
+    responses=respuestas_error(400, 404, 500, 503, 504, ejemplos={404: ["EQUIPO_NO_ENCONTRADO"]}),
 )
 def ver_plantel(
     equipoId: EquipoId,
@@ -82,7 +83,7 @@ def ver_plantel(
     summary="CU-05 · Ver agenda y rivales de un equipo",
     description="Neo4j. Orden inicio, partidoId. Equipo inexistente → 404; equipo sin "
                 "partidos → items vacío. No incluye el estado del partido (fuente: IRIS, CU-18).",
-    responses=respuestas_error(400, 404, 503, 504),
+    responses=respuestas_error(400, 404, 500, 503, 504, ejemplos={404: ["EQUIPO_NO_ENCONTRADO"]}),
 )
 def ver_agenda(
     equipoId: EquipoId,

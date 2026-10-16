@@ -15,7 +15,7 @@ router = APIRouter(prefix="/api/v1/jugadores", tags=["jugadores"])
     "/{jugadorId}",
     response_model=FichaJugador,
     summary="CU-04 · Ver ficha de un jugador",
-    responses=respuestas_error(400, 404, 503, 504),
+    responses=respuestas_error(400, 404, 500, 503, 504, ejemplos={404: ["JUGADOR_NO_ENCONTRADO"]}),
 )
 def ver_jugador(
     jugadorId: Annotated[str, Path(pattern=PATRON_JUGADOR, examples=["JUG-0313"])],

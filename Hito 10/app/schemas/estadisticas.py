@@ -8,7 +8,7 @@ válidos) se informa null: no se rellena con ceros, porque cero es una medida di
 from datetime import datetime
 from enum import StrEnum
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class Resolucion(StrEnum):
@@ -27,6 +27,17 @@ class Observacion(BaseModel):
 
 class EstadoReciente(BaseModel):
     """CU-15. items en orden time DESC; ultimaObservacion = time del primer ítem o null."""
+
+    model_config = ConfigDict(json_schema_extra={"examples": [{
+        "partidoId": "PAR-001", "equipoId": "EQ-001", "estadioId": "EST-01",
+        "items": [
+            {"time": "2026-10-16T00:16:59Z", "posesionPct": 46.5, "pasesAcumulados": 539,
+             "tirosIntervalo": 0},
+            {"time": "2026-10-16T00:16:58Z", "posesionPct": 46.0, "pasesAcumulados": 539,
+             "tirosIntervalo": 0},
+        ],
+        "ultimaObservacion": "2026-10-16T00:16:59Z",
+    }]})
 
     partidoId: str
     equipoId: str
@@ -54,6 +65,18 @@ class ComparacionEquipo(Medidas):
 class ComparacionPartido(BaseModel):
     """CU-16. Una fila por equipo, orden equipoId."""
 
+    model_config = ConfigDict(json_schema_extra={"examples": [{
+        "partidoId": "PAR-001", "desde": "2026-10-16T00:12:00Z", "hasta": "2026-10-16T00:17:00Z",
+        "equipos": [
+            {"equipoId": "EQ-001", "muestras": 300, "muestrasEsperadas": 300,
+             "posesionMedia": 49.975, "pasesNuevos": 30, "tiros": 1, "intervalosInvalidos": 0,
+             "completo": True},
+            {"equipoId": "EQ-002", "muestras": 300, "muestrasEsperadas": 300,
+             "posesionMedia": 50.025, "pasesNuevos": 25, "tiros": 1, "intervalosInvalidos": 0,
+             "completo": True},
+        ],
+    }]})
+
     partidoId: str
     desde: datetime
     hasta: datetime
@@ -71,6 +94,18 @@ class SerieEquipo(BaseModel):
 
 class EvolucionPartido(BaseModel):
     """CU-17. Series en orden equipoId; intervalos en orden inicio."""
+
+    model_config = ConfigDict(json_schema_extra={"examples": [{
+        "partidoId": "PAR-001", "desde": "2026-10-16T00:12:00Z", "hasta": "2026-10-16T00:17:00Z",
+        "resolucion": "1m",
+        "series": [
+            {"equipoId": "EQ-001", "intervalos": [
+                {"inicio": "2026-10-16T00:12:00Z", "muestras": 60, "muestrasEsperadas": 60,
+                 "posesionMedia": 49.825, "pasesNuevos": 6, "tiros": 0,
+                 "intervalosInvalidos": 0, "completo": True},
+            ]},
+        ],
+    }]})
 
     partidoId: str
     desde: datetime

@@ -29,7 +29,7 @@ Servicio = Annotated[ServicioPartidos, Depends(obtener_servicio_partidos)]
     description="Rango semiabierto [desde, hasta) en UTC, de hasta 7 días. Orden inicio, "
                 "partidoId. Intervalo o estadio sin partidos → items vacío. "
                 "No incluye el estado del partido (fuente: IRIS, CU-18).",
-    responses=respuestas_error(400, 503, 504),
+    responses=respuestas_error(400, 500, 503, 504),
 )
 def listar_partidos(
     servicio: Servicio,
@@ -47,7 +47,7 @@ def listar_partidos(
     summary="CU-06 · Ver eventos y participantes de un partido",
     description="Orden minuto, eventoId; el límite cuenta eventos. Partido inexistente → 404; "
                 "partido sin eventos → items vacío.",
-    responses=respuestas_error(400, 404, 503, 504),
+    responses=respuestas_error(400, 404, 500, 503, 504, ejemplos={404: ["PARTIDO_NO_ENCONTRADO"]}),
 )
 def ver_eventos(
     partidoId: Annotated[str, Path(pattern=PATRON_PARTIDO, examples=["PAR-001"])],

@@ -19,7 +19,7 @@ router = APIRouter(prefix="/api/v1/cache", tags=["cache"])
     summary="CU-14 · Invalidar la ficha cacheada de un equipo",
     description="Requiere una sesión con rol operador. DEL idempotente: 204 aunque no hubiera "
                 "copia. Si Redis no confirma la invalidación → 503 y el operador debe reintentar.",
-    responses=respuestas_error(400, 401, 403, 503, 504),
+    responses=respuestas_error(400, 401, 403, 500, 503, 504),
 )
 def invalidar_ficha_cacheada(
     equipoId: Annotated[str, Path(pattern=PATRON_EQUIPO, examples=["EQ-001"])],

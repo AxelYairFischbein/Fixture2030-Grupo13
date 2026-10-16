@@ -15,6 +15,7 @@ from app.config.logging import configurar_logging
 from app.config.settings import Settings, cargar_settings
 from app.manejadores import registrar_manejadores
 from app.middleware import RequestIdMiddleware
+from app.openapi import instalar_openapi
 from app.routes import (
     actas,
     cache,
@@ -27,6 +28,17 @@ from app.routes import (
     sesiones,
 )
 from app.services.catalogo_partidos import CatalogoPartidos
+
+DESCRIPCION = (
+    "API REST del Hito 10 (Grupo 13) sobre MongoDB, Neo4j, Cassandra, Redis, InfluxDB e "
+    "InterSystems IRIS. Datos sintéticos.\n\n"
+    "Toda respuesta lleva el encabezado `X-Request-Id` (se acepta el del cliente si es un UUID). "
+    "Todo error usa el formato único `{\"error\": {codigo, mensaje, requestId, detalles}}` "
+    "(casos_de_uso.md §6.1). Además de los errores declarados en cada operación, cualquier "
+    "ruta inexistente responde `404 RUTA_NO_ENCONTRADA` y un método no admitido "
+    "`405 METODO_NO_PERMITIDO` con el encabezado `Allow`. Las operaciones protegidas reciben "
+    "la sesión en `X-Session-Id`, nunca en la ruta ni en la query."
+)
 
 
 def create_app(settings: Settings | None = None, iniciar_catalogo: bool = True) -> FastAPI:
@@ -64,11 +76,11 @@ def create_app(settings: Settings | None = None, iniciar_catalogo: bool = True) 
 
     app = FastAPI(
         title="Fixture 2030 · API integrada",
-        version="0.7.0",
-        description="API REST del Hito 10 (Grupo 13) sobre MongoDB, Neo4j, Cassandra, "
-                    "Redis, InfluxDB e InterSystems IRIS.",
+        version="0.8.0",
+        description=DESCRIPCION,
         lifespan=lifespan,
     )
+    instalar_openapi(app)
     app.state.settings = settings
     app.add_middleware(RequestIdMiddleware)
     registrar_manejadores(app)
