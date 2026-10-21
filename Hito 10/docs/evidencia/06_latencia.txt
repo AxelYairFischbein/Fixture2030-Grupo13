@@ -1,0 +1,13 @@
+Fecha UTC: 2026-10-16T13:06:45+00:00
+Entorno: Windows 10, Python 3.14.0, API uvicorn 1 worker en la notebook, fuentes en Docker Desktop (contenedores de los Hitos 4-9)
+Método: 200 requests secuenciales por ruta tras 10 de calentamiento; tiempo de ida y vuelta HTTP medido en el cliente
+ruta                                        n   p50 ms   p95 ms   máx ms  errores
+mongodb  GET /equipos?tamanio=16          200     3.51     5.69     6.46        0
+redis    GET /equipos/EQ-001 (HIT)        200     2.62     4.24     4.96        0
+neo4j    GET /partidos/PAR-001            200    12.83    16.34    20.18        0
+cassandra GET comentarios 3 min           200    15.42    16.65    18.22        0
+influxdb GET estadisticas 1m              200    17.43    24.23    27.75        0
+iris     GET /actas/PAR-001               200     3.37     4.38     5.33        0
+Hardware: AMD Ryzen 5 3600 (6 núcleos/12 hilos), 32 GB RAM. Docker Desktop 29.7.2 con los seis contenedores activos a la vez.
+Volumen: muestras de laboratorio (64 equipos, 1.536 jugadores, 64 partidos, 12 comentarios, 1.440 puntos recientes de InfluxDB, 1 acta IRIS).
+Limitación: un cliente secuencial en la misma máquina; no mide concurrencia, red real ni volumen productivo.

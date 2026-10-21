@@ -1,0 +1,447 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fixture 2030 · Consola</title>
+<style>
+:root {
+  --bg: #f5f6f8; --panel: #ffffff; --ink: #1c2230; --muted: #5f6b7d; --line: #dde1e8;
+  --accent: #1f5fbf; --accent-ink: #ffffff; --ok: #1a7f4b; --warn: #a15c00; --bad: #b42335;
+  --chip: #eef1f6; --serie1: #1f5fbf; --serie2: #c2410c; --code: #f0f2f6;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #11151c; --panel: #1a2029; --ink: #e6e9ef; --muted: #9aa5b5; --line: #2c3442;
+    --accent: #6ea2ff; --accent-ink: #0b1220; --ok: #4fc58a; --warn: #f0a94a; --bad: #ff7a8a;
+    --chip: #232b37; --serie1: #6ea2ff; --serie2: #ff9a5c; --code: #141922; }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.45 system-ui, "Segoe UI", Roboto, sans-serif; }
+header { background: var(--panel); border-bottom: 1px solid var(--line); padding: 12px 20px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+header h1 { font-size: 17px; margin: 0 16px 0 0; }
+header h1 small { color: var(--muted); font-weight: 400; }
+.salud { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.chip { background: var(--chip); border-radius: 999px; padding: 2px 10px; font-size: 12px; white-space: nowrap; }
+.chip.ok::before, .chip.bad::before, .chip.unk::before { content: "●"; margin-right: 5px; }
+.chip.ok::before { color: var(--ok); } .chip.bad::before { color: var(--bad); } .chip.unk::before { color: var(--muted); }
+nav { display: flex; gap: 4px; padding: 0 20px; background: var(--panel); border-bottom: 1px solid var(--line); overflow-x: auto; }
+nav button { border: 0; background: none; color: var(--muted); padding: 10px 14px; font: inherit; cursor: pointer; border-bottom: 2px solid transparent; }
+nav button.activo { color: var(--ink); border-bottom-color: var(--accent); font-weight: 600; }
+main { max-width: 1180px; margin: 0 auto; padding: 18px 20px 120px; }
+section.vista { display: none; } section.vista.activa { display: block; }
+.grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; min-width: 0; }
+.card h2 { font-size: 15px; margin: 0 0 4px; } .card h3 { font-size: 13px; margin: 14px 0 6px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+.fuente { font-size: 11px; color: var(--muted); margin-bottom: 10px; }
+.fila { display: flex; flex-wrap: wrap; gap: 8px; align-items: end; margin-bottom: 10px; }
+label { display: flex; flex-direction: column; gap: 3px; font-size: 12px; color: var(--muted); }
+input, select, textarea { font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; min-width: 0; }
+textarea { width: 100%; resize: vertical; }
+button.btn { font: inherit; border: 1px solid var(--accent); background: var(--accent); color: var(--accent-ink); border-radius: 6px; padding: 6px 12px; cursor: pointer; }
+button.btn.sec { background: transparent; color: var(--accent); }
+button.btn.peligro { border-color: var(--bad); background: transparent; color: var(--bad); }
+button:disabled { opacity: .5; cursor: default; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { color: var(--muted); font-weight: 600; font-size: 12px; }
+tbody tr.clic { cursor: pointer; } tbody tr.clic:hover, tbody tr.sel { background: var(--chip); }
+.tabla { overflow-x: auto; }
+.kv { display: grid; grid-template-columns: max-content 1fr; gap: 3px 14px; font-size: 13px; }
+.kv dt { color: var(--muted); } .kv dd { margin: 0; overflow-wrap: anywhere; }
+.vacio { color: var(--muted); font-style: italic; padding: 8px 0; }
+.badge { display: inline-block; font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 4px; background: var(--chip); }
+.badge.HIT, .badge.ok { color: var(--ok); } .badge.MISS { color: var(--warn); } .badge.BYPASS { color: var(--bad); }
+.pasos { display: flex; gap: 6px; flex-wrap: wrap; margin: 8px 0; }
+.paso { padding: 4px 10px; border-radius: 6px; border: 1px solid var(--line); font-size: 12px; }
+.paso.actual { border-color: var(--accent); color: var(--accent); font-weight: 600; }
+.comentario { border-bottom: 1px solid var(--line); padding: 7px 0; }
+.comentario .meta { font-size: 11px; color: var(--muted); }
+.nota { font-size: 12px; color: var(--muted); }
+svg text { fill: var(--muted); font-size: 10px; }
+.leyenda { display: flex; gap: 14px; font-size: 12px; } .leyenda span::before { content: ""; display: inline-block; width: 14px; height: 3px; margin-right: 5px; vertical-align: middle; background: var(--c); }
+#traza { position: fixed; left: 0; right: 0; bottom: 0; background: var(--panel); border-top: 1px solid var(--line); padding: 8px 20px; font-size: 12px; z-index: 5; }
+#traza .linea { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+#traza code { background: var(--code); padding: 1px 6px; border-radius: 4px; }
+#traza .estado { font-weight: 700; } #traza .estado.ok { color: var(--ok); } #traza .estado.bad { color: var(--bad); } #traza .estado.warn { color: var(--warn); }
+#traza details pre { max-height: 38vh; overflow: auto; background: var(--code); padding: 8px; border-radius: 6px; margin: 6px 0 0; font-size: 12px; }
+.error { color: var(--bad); font-size: 13px; margin: 6px 0; }
+a { color: var(--accent); }
+@media (max-width: 600px) { header, nav, main, #traza { padding-left: 16px; padding-right: 16px; } .grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>Fixture 2030 <small>· API integrada, Grupo 13</small></h1>
+  <div class="salud" id="salud"><span class="chip unk">verificando fuentes…</span></div>
+  <button class="btn sec" id="btnSalud">Revisar conectividad</button>
+  <a href="/docs" target="_blank" rel="noopener">Swagger UI</a>
+</header>
+<nav id="nav">
+  <button data-vista="equipos" class="activo">Equipos</button>
+  <button data-vista="partido">Partido</button>
+  <button data-vista="sesiones">Sesiones</button>
+  <button data-vista="actas">Actas</button>
+</nav>
+<main>
+  <!-- Equipos: MongoDB + caché Redis + agenda Neo4j -->
+  <section class="vista activa" id="v-equipos">
+    <div class="grid">
+      <div class="card">
+        <h2>Equipos</h2><div class="fuente">MongoDB · colección equipos</div>
+        <div class="fila">
+          <label>Confederación<select id="conf"><option value="">Todas</option><option>AFC</option><option>CAF</option><option>CONCACAF</option><option>CONMEBOL</option><option>OFC</option><option>UEFA</option></select></label>
+          <button class="btn sec" id="eqPrev">◀</button><span id="eqPag" class="nota"></span><button class="btn sec" id="eqNext">▶</button>
+        </div>
+        <div class="tabla"><table><thead><tr><th>ID</th><th>Código</th><th>Nombre</th><th>Conf.</th><th>Rank</th></tr></thead><tbody id="eqLista"></tbody></table></div>
+      </div>
+      <div class="card" id="fichaCard">
+        <h2>Ficha</h2><div class="fuente">Redis (caché 300 s) → MongoDB</div>
+        <div id="ficha" class="vacio">Elegir un equipo de la lista.</div>
+      </div>
+    </div>
+    <div class="grid" style="margin-top:16px">
+      <div class="card">
+        <h2>Plantel</h2><div class="fuente">MongoDB · colección jugadores</div>
+        <div class="fila"><label>Posición<select id="pos"><option value="">Todas</option><option>ARQUERO</option><option>DEFENSOR</option><option>MEDIOCAMPISTA</option><option>DELANTERO</option></select></label></div>
+        <div class="tabla"><table><thead><tr><th>#</th><th>Jugador</th><th>Posición</th><th>Altura</th><th>PJ</th><th>Goles</th></tr></thead><tbody id="plantel"></tbody></table></div>
+      </div>
+      <div class="card">
+        <h2>Agenda</h2><div class="fuente">Neo4j · Equipo-[:DISPUTA]->Partido-[:SE_JUEGA_EN]->Estadio</div>
+        <div class="tabla"><table><thead><tr><th>Partido</th><th>Inicio (UTC)</th><th>Rol</th><th>Rival</th><th>Estadio</th></tr></thead><tbody id="agenda"></tbody></table></div>
+        <p class="nota">Elegir un partido abre su detalle.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Partido: Neo4j + Cassandra + InfluxDB -->
+  <section class="vista" id="v-partido">
+    <div class="fila">
+      <label>Partido<input id="parId" value="PAR-001" size="9"></label>
+      <button class="btn" id="btnPartido">Consultar</button>
+    </div>
+    <div class="grid">
+      <div class="card"><h2>Detalle</h2><div class="fuente">Neo4j · partido, equipos, estadio y eventos</div><div id="partido" class="vacio">Sin consultar.</div></div>
+      <div class="card">
+        <h2>Estadísticas</h2><div class="fuente">InfluxDB · estadisticas_equipo agregadas con DATE_BIN</div>
+        <div class="fila">
+          <label>Intervalo<select id="intv"><option>10s</option><option>30s</option><option selected>1m</option><option>5m</option></select></label>
+          <label>Desde (UTC, opcional)<input id="stDesde" placeholder="2026-10-09T05:05:00Z" size="20"></label>
+          <label>Hasta<input id="stHasta" size="20"></label>
+          <button class="btn sec" id="btnStats">Actualizar</button>
+        </div>
+        <div id="stats" class="vacio">Sin consultar.</div>
+      </div>
+    </div>
+    <div class="grid" style="margin-top:16px">
+      <div class="card">
+        <h2>Comentarios</h2><div class="fuente">Cassandra · comentarios_por_partido, particiones (partido, minuto, segmento)</div>
+        <div class="fila">
+          <label>Desde (UTC)<input id="cDesde" value="2030-06-10T18:00:00Z" size="20"></label>
+          <label>Hasta (máx. 5 min)<input id="cHasta" value="2030-06-10T18:03:00Z" size="20"></label>
+          <label>Límite<input id="cLim" type="number" value="5" min="1" max="50" style="width:64px"></label>
+          <button class="btn sec" id="btnCom">Leer</button>
+          <button class="btn sec" id="btnAhora" title="Ventana de los últimos 5 minutos">Últimos 5 min</button>
+        </div>
+        <div id="comentarios" class="vacio">Sin consultar.</div>
+        <button class="btn sec" id="btnMas" hidden>Cargar más</button>
+      </div>
+      <div class="card">
+        <h2>Publicar comentario</h2><div class="fuente">Redis (Idempotency-Key) → Neo4j (partido existe) → Cassandra (batch de 2 tablas)</div>
+        <div class="fila"><label>Usuario<input id="nUsr" value="USR-00001" size="10"></label></div>
+        <textarea id="nTxt" rows="3" maxlength="280" placeholder="Hasta 280 caracteres"></textarea>
+        <div class="fila" style="margin-top:8px">
+          <button class="btn" id="btnPub">Publicar</button>
+          <button class="btn sec" id="btnRep" disabled title="Reenvía el mismo cuerpo con la misma Idempotency-Key">Reintentar el mismo envío</button>
+        </div>
+        <p class="nota">Clave de idempotencia: <code id="idemKey">—</code>. Un reintento devuelve el comentario original (200) sin duplicarlo.</p>
+        <div id="pubRes"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Sesiones: Redis -->
+  <section class="vista" id="v-sesiones">
+    <div class="grid">
+      <div class="card">
+        <h2>Abrir sesión</h2><div class="fuente">Redis · hash con EXPIRE 1800 s (creación atómica con Lua)</div>
+        <div class="fila">
+          <label>Usuario<input id="sUsr" value="USR-00001" size="10"></label>
+          <label>Rol<select id="sRol"><option>lector</option><option>moderador</option></select></label>
+          <button class="btn" id="btnSes">Abrir</button>
+        </div>
+        <div class="fila">
+          <label>Consultar por ID<input id="sId" placeholder="SES-…" size="30"></label>
+          <button class="btn sec" id="btnSesGet">Consultar</button>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Sesiones abiertas en esta consola</h2><div class="fuente">GET no renueva el TTL · DELETE es idempotente</div>
+        <div id="sesiones" class="vacio">Ninguna.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Actas: IRIS -->
+  <section class="vista" id="v-actas">
+    <div class="fila">
+      <label>Código de partido<input id="aCod" value="PAR-001" size="12"></label>
+      <button class="btn" id="btnActa">Consultar</button>
+    </div>
+    <div class="grid">
+      <div class="card"><h2>Acta</h2><div class="fuente">IRIS · FixtureH9.Partido, Arbitro y Evento (namespace USER)</div><div id="acta" class="vacio">Sin consultar.</div></div>
+      <div class="card">
+        <h2>Estado del partido</h2><div class="fuente">IRIS · Partido.CambiarEstado() valida y guarda</div>
+        <div class="pasos" id="pasos"></div>
+        <div class="fila">
+          <button class="btn sec" data-estado="EN_JUEGO">Pasar a EN_JUEGO</button>
+          <button class="btn sec" data-estado="FINALIZADO">Pasar a FINALIZADO</button>
+          <button class="btn sec" data-estado="PENDIENTE">Volver a PENDIENTE</button>
+        </div>
+        <p class="nota">Las transiciones válidas son permanentes. Volver atrás o saltar un paso devuelve 409 y no modifica el acta.</p>
+        <div id="actaRes"></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer id="traza">
+  <div class="linea"><strong>Última respuesta</strong><span id="tzLinea" class="nota">—</span></div>
+  <details><summary class="nota">Ver JSON</summary><pre id="tzJson"></pre></details>
+</footer>
+
+<script>
+"use strict";
+const API = "/api/v1";
+const $ = (id) => document.getElementById(id);
+const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+// Toda llamada pasa por aquí: muestra estado, requestId y las fuentes que tocó el servidor.
+async function llamar(metodo, ruta, { cuerpo, headers } = {}) {
+  const inicio = performance.now();
+  let res, json = null;
+  try {
+    res = await fetch(API + ruta, { method: metodo, headers: { ...(cuerpo ? { "Content-Type": "application/json" } : {}), ...headers }, body: cuerpo ? JSON.stringify(cuerpo) : undefined });
+    if (res.status !== 204) json = await res.json();
+  } catch (e) {
+    $("tzLinea").innerHTML = `<span class="estado bad">sin conexión con la API</span>`;
+    throw e;
+  }
+  const ms = Math.round(performance.now() - inicio);
+  const rid = res.headers.get("X-Request-ID");
+  const fuentes = (json?.meta?.fuentes || []).map((f) => `<span class="chip">${esc(f.fuente)} · ${esc(f.operacion)} · ${esc(f.resultado)} · ${f.ms} ms</span>`).join("");
+  const cls = res.ok ? "ok" : res.status >= 500 ? "bad" : "warn";
+  $("tzLinea").innerHTML = `<code>${esc(metodo)} ${esc(API + ruta)}</code><span class="estado ${cls}">${res.status}</span><span>${ms} ms</span><span>requestId <code>${esc(rid)}</code></span>${json?.error ? `<span class="chip">${esc(json.error.codigo)}${json.error.dependencia ? " · " + esc(json.error.dependencia) : ""}</span>` : ""}${fuentes}`;
+  $("tzJson").textContent = json ? JSON.stringify(json, null, 2) : "(sin cuerpo)";
+  return { status: res.status, ok: res.ok, json, headers: res.headers };
+}
+const errorHtml = (r) => `<div class="error">${r.status} ${esc(r.json?.error?.codigo)}: ${esc(r.json?.error?.mensaje)}</div>`;
+const tabla = (filas, vacio = "Sin resultados.") => filas.length ? filas.join("") : `<tr><td colspan="9" class="vacio">${vacio}</td></tr>`;
+
+// --- Navegación ---------------------------------------------------------------------------
+function mostrar(vista) {
+  document.querySelectorAll("nav button").forEach((b) => b.classList.toggle("activo", b.dataset.vista === vista));
+  document.querySelectorAll("section.vista").forEach((s) => s.classList.toggle("activa", s.id === "v-" + vista));
+}
+$("nav").addEventListener("click", (e) => e.target.dataset.vista && mostrar(e.target.dataset.vista));
+
+// --- Salud --------------------------------------------------------------------------------
+async function salud() {
+  const r = await llamar("GET", "/salud");
+  const estados = r.ok ? r.json.data : r.json?.error?.detalles || [];
+  $("salud").innerHTML = estados.map((e) => `<span class="chip ${e.estado === "ok" ? "ok" : "bad"}" title="${e.ms} ms">${esc(e.fuente)}</span>`).join("") || errorHtml(r);
+}
+$("btnSalud").onclick = salud;
+
+// --- Equipos ------------------------------------------------------------------------------
+const eq = { pagina: 1, tamanio: 10, total: 0, sel: null };
+async function listarEquipos() {
+  const conf = $("conf").value;
+  const r = await llamar("GET", `/equipos?pagina=${eq.pagina}&tamanio=${eq.tamanio}${conf ? "&confederacion=" + conf : ""}`);
+  if (!r.ok) { $("eqLista").innerHTML = `<tr><td colspan="5">${errorHtml(r)}</td></tr>`; return; }
+  eq.total = r.json.meta.paginacion.total;
+  const paginas = Math.max(1, Math.ceil(eq.total / eq.tamanio));
+  $("eqPag").textContent = `página ${eq.pagina} de ${paginas} · ${eq.total} equipos`;
+  $("eqPrev").disabled = eq.pagina <= 1; $("eqNext").disabled = eq.pagina >= paginas;
+  $("eqLista").innerHTML = tabla(r.json.data.map((e) => `<tr class="clic ${e.equipoId === eq.sel ? "sel" : ""}" data-id="${esc(e.equipoId)}"><td>${esc(e.equipoId)}</td><td>${esc(e.codigo)}</td><td>${esc(e.nombre)}</td><td>${esc(e.confederacion)}</td><td>${e.rankingReferencia}</td></tr>`));
+}
+$("conf").onchange = () => { eq.pagina = 1; listarEquipos(); };
+$("eqPrev").onclick = () => { eq.pagina--; listarEquipos(); };
+$("eqNext").onclick = () => { eq.pagina++; listarEquipos(); };
+$("eqLista").onclick = (e) => { const tr = e.target.closest("tr[data-id]"); if (tr) seleccionarEquipo(tr.dataset.id); };
+
+async function seleccionarEquipo(id) {
+  eq.sel = id;
+  document.querySelectorAll("#eqLista tr").forEach((tr) => tr.classList.toggle("sel", tr.dataset.id === id));
+  await ficha(id); await plantel(); await agenda(id);
+}
+async function ficha(id) {
+  const r = await llamar("GET", `/equipos/${id}`);
+  if (!r.ok) { $("ficha").innerHTML = errorHtml(r); return; }
+  const e = r.json.data, cache = r.json.meta.cache;
+  $("ficha").className = "";
+  $("ficha").innerHTML = `<p>${esc(e.nombre)} <span class="badge ${esc(cache)}">caché ${esc(cache)}</span></p>
+    <dl class="kv"><dt>ID / código</dt><dd>${esc(e.equipoId)} · ${esc(e.codigo)}</dd><dt>Confederación</dt><dd>${esc(e.confederacion)} (${esc(e.region)})</dd>
+    <dt>Ranking</dt><dd>${e.rankingReferencia}</dd><dt>Sede base</dt><dd>${esc(e.sedeBase.ciudad)}, ${esc(e.sedeBase.pais)}</dd>
+    <dt>Mundiales</dt><dd>${e.participacionesMundiales} participaciones · ${e.titulosMundiales} títulos</dd><dt>Estado</dt><dd>${esc(e.estado)}</dd><dt>Actualizado</dt><dd>${esc(e.actualizadoEn)}</dd></dl>
+    <div class="fila" style="margin-top:10px"><button class="btn sec" id="btnRefFicha">Volver a leer</button><button class="btn sec" id="btnInval">Invalidar caché</button></div>`;
+  $("btnRefFicha").onclick = () => ficha(id);
+  $("btnInval").onclick = async () => { await llamar("DELETE", `/equipos/${id}/cache`); };
+}
+async function plantel() {
+  if (!eq.sel) return;
+  const pos = $("pos").value;
+  const r = await llamar("GET", `/equipos/${eq.sel}/jugadores?tamanio=24${pos ? "&posicion=" + pos : ""}`);
+  if (!r.ok) { $("plantel").innerHTML = `<tr><td colspan="6">${errorHtml(r)}</td></tr>`; return; }
+  $("plantel").innerHTML = tabla(r.json.data.map((j) => `<tr><td>${j.numeroCamiseta}</td><td>${esc(j.nombre)} ${esc(j.apellido)}<br><span class="nota">${esc(j.jugadorId)}</span></td><td>${esc(j.posicion)}</td><td>${j.alturaCm} cm</td><td>${j.partidosInternacionales}</td><td>${j.golesInternacionales}</td></tr>`));
+}
+$("pos").onchange = plantel;
+async function agenda(id) {
+  const r = await llamar("GET", `/equipos/${id}/partidos`);
+  if (!r.ok) { $("agenda").innerHTML = `<tr><td colspan="5">${errorHtml(r)}</td></tr>`; return; }
+  $("agenda").innerHTML = tabla(r.json.data.map((p) => `<tr class="clic" data-id="${esc(p.partidoId)}"><td>${esc(p.partidoId)}</td><td>${esc(p.inicio)}</td><td>${esc(p.rol)}</td><td>${esc(p.rivalId)}</td><td>${esc(p.estadioId)}</td></tr>`), "Sin partidos en la muestra.");
+}
+$("agenda").onclick = (e) => { const tr = e.target.closest("tr[data-id]"); if (tr) { $("parId").value = tr.dataset.id; mostrar("partido"); cargarPartido(); } };
+
+// --- Partido ------------------------------------------------------------------------------
+async function cargarPartido() {
+  const id = $("parId").value.trim();
+  const r = await llamar("GET", `/partidos/${encodeURIComponent(id)}`);
+  if (!r.ok) { $("partido").innerHTML = errorHtml(r); } else {
+    const p = r.json.data;
+    $("partido").className = "";
+    const eqs = p.equipos.map((e) => `${esc(e.nombre)} <span class="badge">${esc(e.rol)}</span>`).join("<br>");
+    const evs = p.eventos.length ? p.eventos.map((v) => `<tr><td>${v.minuto}'</td><td>${esc(v.tipo)}</td><td>${v.involucrados.map((j) => `${esc(j.rol)}: ${esc(j.nombre)} ${esc(j.apellido)}`).join("<br>")}</td></tr>`).join("") : `<tr><td colspan="3" class="vacio">Partido sin eventos registrados.</td></tr>`;
+    $("partido").innerHTML = `<dl class="kv"><dt>Partido</dt><dd>${esc(p.partidoId)} · ${esc(p.grupo)} · jornada ${p.jornada}</dd><dt>Inicio</dt><dd>${esc(p.inicio)}</dd>
+      <dt>Estadio</dt><dd>${p.estadio ? esc(p.estadio.nombre) + ", " + esc(p.estadio.ciudad) : "—"}</dd><dt>Estado</dt><dd>${esc(p.estado)}</dd><dt>Equipos</dt><dd>${eqs}</dd></dl>
+      <h3>Eventos</h3><div class="tabla"><table><tbody>${evs}</tbody></table></div>`;
+  }
+  await estadisticas(); await leerComentarios();
+}
+$("btnPartido").onclick = cargarPartido;
+
+async function estadisticas() {
+  const id = $("parId").value.trim(), d = $("stDesde").value.trim(), h = $("stHasta").value.trim();
+  const q = new URLSearchParams({ intervalo: $("intv").value });
+  if (d || h) { q.set("desde", d); q.set("hasta", h); }
+  const r = await llamar("GET", `/partidos/${encodeURIComponent(id)}/estadisticas?${q}`);
+  if (!r.ok) { $("stats").innerHTML = errorHtml(r); return; }
+  const s = r.json.data;
+  $("stats").className = "";
+  if (!s.puntos.length) { $("stats").innerHTML = `<p class="vacio">Sin puntos en la ventana${s.desde ? "" : " (no hay datos retenidos para este partido)"}.</p>`; return; }
+  const equipos = [...new Set(s.puntos.map((p) => p.equipoId))];
+  const series = equipos.map((e) => s.puntos.filter((p) => p.equipoId === e));
+  const tot = series.map((pts, i) => `<tr><td><span class="badge" style="color:var(--serie${i + 1})">${esc(equipos[i])}</span></td><td>${(pts.reduce((a, p) => a + p.posesionMedia, 0) / pts.length).toFixed(1)} %</td><td>${pts.reduce((a, p) => a + p.tiros, 0)}</td><td>${Math.max(...pts.map((p) => p.pasesAcumulados))}</td></tr>`).join("");
+  $("stats").innerHTML = `<p class="nota">Ventana ${esc(s.desde)} → ${esc(s.hasta)} · intervalo ${esc(s.intervalo)} · ${s.puntos.length} filas</p>
+    ${grafico(series)}<div class="leyenda">${equipos.map((e, i) => `<span style="--c:var(--serie${i + 1})">${esc(e)} posesión</span>`).join("")}</div>
+    <div class="tabla"><table><thead><tr><th>Equipo</th><th>Posesión media</th><th>Tiros</th><th>Pases acumulados</th></tr></thead><tbody>${tot}</tbody></table></div>`;
+}
+$("btnStats").onclick = estadisticas;
+$("intv").onchange = estadisticas;
+
+function grafico(series) {
+  const W = 520, H = 150, pad = 28;
+  const valores = series.flat().map((p) => p.posesionMedia);
+  const min = Math.floor(Math.min(...valores) - 1), max = Math.ceil(Math.max(...valores) + 1);
+  const n = Math.max(...series.map((s) => s.length));
+  const x = (i) => pad + (n <= 1 ? 0 : (i * (W - pad - 8)) / (n - 1));
+  const y = (v) => H - 18 - ((v - min) * (H - 30)) / (max - min || 1);
+  const lineas = series.map((pts, i) => `<polyline fill="none" stroke="var(--serie${i + 1})" stroke-width="2" points="${pts.map((p, j) => `${x(j).toFixed(1)},${y(p.posesionMedia).toFixed(1)}`).join(" ")}"/>`).join("");
+  const hora = (p) => esc(p.inicio.slice(11, 19));
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Posesión media por intervalo">
+    <line x1="${pad}" y1="${y(50)}" x2="${W - 8}" y2="${y(50)}" stroke="var(--line)" stroke-dasharray="3 3"/>
+    <text x="2" y="${y(max) + 4}">${max}%</text><text x="2" y="${y(min) + 4}">${min}%</text>
+    <text x="${pad}" y="${H - 3}">${hora(series[0][0])}</text><text x="${W - 60}" y="${H - 3}">${hora(series[0][series[0].length - 1])}</text>${lineas}</svg>`;
+}
+
+const com = { cursor: null, items: [] };
+async function leerComentarios(mas = false) {
+  const id = $("parId").value.trim();
+  const q = new URLSearchParams({ desde: $("cDesde").value.trim(), hasta: $("cHasta").value.trim(), limite: $("cLim").value });
+  if (mas && com.cursor) q.set("cursor", com.cursor);
+  const r = await llamar("GET", `/partidos/${encodeURIComponent(id)}/comentarios?${q}`);
+  if (!r.ok) { $("comentarios").innerHTML = errorHtml(r); $("btnMas").hidden = true; return; }
+  com.items = mas ? com.items.concat(r.json.data.items) : r.json.data.items;
+  com.cursor = r.json.meta.paginacion.siguienteCursor;
+  $("comentarios").className = "";
+  $("comentarios").innerHTML = `<p class="nota">${r.json.data.particiones} particiones consultadas · ${com.items.length} comentarios mostrados</p>` +
+    (com.items.length ? com.items.map((c) => `<div class="comentario">${esc(c.contenido)}<div class="meta">${esc(c.usuarioId)} · ${esc(c.creadoEn)} · ${esc(c.estado)} · ${c.likes} likes · ${esc(c.comentarioId)}</div></div>`).join("") : `<p class="vacio">No hay comentarios en esta ventana.</p>`);
+  $("btnMas").hidden = !com.cursor;
+}
+$("btnCom").onclick = () => leerComentarios(false);
+$("btnMas").onclick = () => leerComentarios(true);
+$("btnAhora").onclick = () => {
+  const hasta = new Date(Math.ceil(Date.now() / 1000) * 1000 + 1000), desde = new Date(hasta - 5 * 60 * 1000);
+  $("cDesde").value = desde.toISOString().slice(0, 19) + "Z"; $("cHasta").value = hasta.toISOString().slice(0, 19) + "Z";
+  leerComentarios(false);
+};
+
+const pub = { clave: null, cuerpo: null, partido: null };
+async function enviarComentario() {
+  const r = await llamar("POST", `/partidos/${encodeURIComponent(pub.partido)}/comentarios`, { cuerpo: pub.cuerpo, headers: { "Idempotency-Key": pub.clave } });
+  $("btnRep").disabled = false;
+  if (!r.ok) { $("pubRes").innerHTML = errorHtml(r); return; }
+  const repetido = r.headers.get("Idempotent-Replayed") === "true";
+  const c = r.json.data;
+  $("pubRes").innerHTML = `<p><span class="badge ok">${r.status} ${repetido ? "repetición: sin nueva fila" : "creado"}</span> ${esc(c.comentarioId)}</p>
+    <p class="nota">Partición (${esc(c.partidoId)}, ${esc(c.minuto)}, segmento ${c.segmento}) · ${esc(c.creadoEn)}</p>`;
+}
+$("btnPub").onclick = () => {
+  pub.partido = $("parId").value.trim();
+  pub.cuerpo = { usuarioId: $("nUsr").value.trim(), contenido: $("nTxt").value };
+  pub.clave = crypto.randomUUID();
+  $("idemKey").textContent = pub.clave;
+  enviarComentario();
+};
+$("btnRep").onclick = enviarComentario;
+
+// --- Sesiones -----------------------------------------------------------------------------
+const sesiones = new Map();
+function pintarSesiones() {
+  if (!sesiones.size) { $("sesiones").className = "vacio"; $("sesiones").textContent = "Ninguna."; return; }
+  $("sesiones").className = "";
+  $("sesiones").innerHTML = `<div class="tabla"><table><thead><tr><th>Sesión</th><th>Usuario</th><th>Estado</th><th></th></tr></thead><tbody>${[...sesiones.values()].map((s) => `<tr><td><code>${esc(s.sesionId)}</code></td><td>${esc(s.usuarioId)} · ${esc(s.rol)}</td><td>${s.vigente ? `vigente · expira en ${s.expiraEnSegundos} s` : `<span style="color:var(--bad)">${esc(s.motivo)}</span>`}</td>
+    <td><button class="btn sec" data-get="${esc(s.sesionId)}">Consultar</button> <button class="btn peligro" data-del="${esc(s.sesionId)}">Cerrar</button></td></tr>`).join("")}</tbody></table></div>`;
+}
+async function consultarSesion(id) {
+  const r = await llamar("GET", `/sesiones/${encodeURIComponent(id)}`);
+  const previa = sesiones.get(id) || { sesionId: id, usuarioId: "?", rol: "?" };
+  sesiones.set(id, r.ok ? { ...r.json.data, vigente: true } : { ...previa, vigente: false, motivo: `${r.status} ${r.json?.error?.codigo}` });
+  pintarSesiones();
+}
+$("btnSes").onclick = async () => {
+  const r = await llamar("POST", "/sesiones", { cuerpo: { usuarioId: $("sUsr").value.trim(), rol: $("sRol").value } });
+  if (r.ok) { sesiones.set(r.json.data.sesionId, { ...r.json.data, vigente: true }); pintarSesiones(); }
+};
+$("btnSesGet").onclick = () => $("sId").value.trim() && consultarSesion($("sId").value.trim());
+$("sesiones").onclick = async (e) => {
+  if (e.target.dataset.get) consultarSesion(e.target.dataset.get);
+  if (e.target.dataset.del) { await llamar("DELETE", `/sesiones/${e.target.dataset.del}`); consultarSesion(e.target.dataset.del); }
+};
+
+// --- Actas --------------------------------------------------------------------------------
+const ESTADOS = ["PENDIENTE", "EN_JUEGO", "FINALIZADO"];
+function pintarActa(a) {
+  $("acta").className = "";
+  $("acta").innerHTML = `<dl class="kv"><dt>Partido</dt><dd>${esc(a.codigo)} (ID IRIS ${esc(a.id)})</dd><dt>Estadio</dt><dd>${esc(a.estadioCodigo)}</dd><dt>Estado</dt><dd><strong>${esc(a.estado)}</strong></dd>
+    <dt>Árbitro</dt><dd>${esc(a.arbitro.nombre)} · ${esc(a.arbitro.codigo)} · licencia ${esc(a.arbitro.licencia)}</dd></dl>
+    <h3>Eventos (objetos hijos)</h3><div class="tabla"><table><thead><tr><th>ID</th><th>Min.</th><th>Tipo</th><th>Jugador</th></tr></thead><tbody>${tabla(a.eventos.map((e) => `<tr><td>${esc(e.id)}</td><td>${e.minuto}'</td><td>${esc(e.tipo)}</td><td>${esc(e.jugador.nombre)} (#${e.jugador.numero}, ${esc(e.jugador.posicion)})</td></tr>`), "Sin eventos.")}</tbody></table></div>`;
+  $("pasos").innerHTML = ESTADOS.map((s) => `<span class="paso ${s === a.estado ? "actual" : ""}">${s}</span>`).join("<span class=nota>→</span>");
+}
+async function cargarActa() {
+  const r = await llamar("GET", `/actas/${encodeURIComponent($("aCod").value.trim())}`);
+  $("actaRes").innerHTML = "";
+  if (!r.ok) { $("acta").innerHTML = errorHtml(r); $("pasos").innerHTML = ""; return; }
+  pintarActa(r.json.data);
+}
+$("btnActa").onclick = cargarActa;
+document.querySelectorAll("[data-estado]").forEach((b) => b.onclick = async () => {
+  const r = await llamar("PUT", `/actas/${encodeURIComponent($("aCod").value.trim())}/estado`, { cuerpo: { estado: b.dataset.estado } });
+  if (!r.ok) { $("actaRes").innerHTML = errorHtml(r); return; }
+  $("actaRes").innerHTML = `<p><span class="badge ok">${r.json.data.cambio ? "transición aplicada" : "sin cambios: ya estaba en ese estado"}</span></p>`;
+  pintarActa(r.json.data.acta);
+});
+
+salud().then(listarEquipos);
+</script>
+</body>
+</html>

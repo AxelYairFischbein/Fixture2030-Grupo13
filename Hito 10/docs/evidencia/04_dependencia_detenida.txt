@@ -1,0 +1,139 @@
+# Dependencia detenida de verdad: docker compose stop redis (Hito 7) y luego start. 2026-10-16T13:05:43Z
+$ docker compose -f '../Hito 7/docker-compose.yml' stop redis
+ Container grupo13-hito7-redis-1 Stopping 
+ Container grupo13-hito7-redis-1 Stopped 
+
+$ curl -s -i -X POST 'http://127.0.0.1:8000/api/v1/sesiones' -H 'Content-Type: application/json' -d '{"usuarioId":"USR-00001"}' 
+HTTP/1.1 503 Service Unavailable
+content-type: application/json
+x-request-id: 11791c71f91140feb8c7b810b4440640
+{
+ "error": {
+  "codigo": "DEPENDENCIA_NO_DISPONIBLE",
+  "mensaje": "La fuente redis no está disponible o no respondió a tiempo.",
+  "requestId": "11791c71f91140feb8c7b810b4440640",
+  "dependencia": "redis"
+ }
+}
+# La ficha se degrada a MongoDB (X-Cache: BYPASS) en lugar de fallar:
+
+$ curl -s -i -X GET 'http://127.0.0.1:8000/api/v1/equipos/EQ-005'  
+HTTP/1.1 200 OK
+content-type: application/json
+x-cache: BYPASS
+x-request-id: f913e0353c414ca2a1a1b2c1975c1595
+{
+ "data": {
+  "equipoId": "EQ-005",
+  "codigo": "F05",
+  "nombre": "Seleccion Sintetica 05",
+  "confederacion": "OFC",
+  "rankingReferencia": 5,
+  "estado": "PRESELECCIONADO",
+  "region": "ASIA_PACIFICO",
+  "sedeBase": {
+   "ciudad": "Ciudad Sintetica 05",
+   "pais": "Pais Sintetico 05"
+  },
+  "participacionesMundiales": 5,
+  "titulosMundiales": 1,
+  "actualizadoEn": "2026-09-02T00:00:00Z"
+ },
+ "meta": {
+  "requestId": "f913e0353c414ca2a1a1b2c1975c1595",
+  "fuentes": [
+   {
+    "fuente": "redis",
+    "operacion": "leer_cache_equipo",
+    "resultado": "error:ConnectionError",
+    "ms": 2051.34
+   },
+   {
+    "fuente": "mongodb",
+    "operacion": "buscar_equipo",
+    "resultado": "ok",
+    "ms": 1.91
+   }
+  ],
+  "paginacion": null,
+  "cache": "BYPASS"
+ }
+}
+
+$ curl -s -i -X GET 'http://127.0.0.1:8000/api/v1/salud'  
+HTTP/1.1 503 Service Unavailable
+content-type: application/json
+x-request-id: 4db60677d54a455ebfed0331ab103659
+{
+ "error": {
+  "codigo": "DEPENDENCIA_NO_DISPONIBLE",
+  "mensaje": "Una o más fuentes no están disponibles.",
+  "requestId": "4db60677d54a455ebfed0331ab103659",
+  "detalles": [
+   {
+    "fuente": "mongodb",
+    "estado": "ok",
+    "ms": 1.41
+   },
+   {
+    "fuente": "neo4j",
+    "estado": "ok",
+    "ms": 7.12
+   },
+   {
+    "fuente": "cassandra",
+    "estado": "ok",
+    "ms": 8.47
+   },
+   {
+    "fuente": "redis",
+    "estado": "no_disponible",
+    "ms": 2033.31
+   },
+   {
+    "fuente": "influxdb",
+    "estado": "ok",
+    "ms": 19.64
+   },
+   {
+    "fuente": "iris",
+    "estado": "ok",
+    "ms": 1.25
+   }
+  ]
+ }
+}
+
+$ docker compose -f '../Hito 7/docker-compose.yml' start redis
+ Container grupo13-hito7-redis-1 Starting 
+ Container grupo13-hito7-redis-1 Started 
+ Container grupo13-hito7-redis-1 Waiting 
+ Container grupo13-hito7-redis-1 Healthy 
+
+$ curl -s -i -X POST 'http://127.0.0.1:8000/api/v1/sesiones' -H 'Content-Type: application/json' -d '{"usuarioId":"USR-00001"}' 
+HTTP/1.1 201 Created
+content-type: application/json
+x-request-id: 51178573a7b24fa1af8b614c2b8a6bf3
+{
+ "data": {
+  "sesionId": "SES-c0b441169cd0dea10ad8e792",
+  "usuarioId": "USR-00001",
+  "estado": "activa",
+  "rol": "lector",
+  "ultimaActividad": 1792155956,
+  "expiraEnSegundos": 1800
+ },
+ "meta": {
+  "requestId": "51178573a7b24fa1af8b614c2b8a6bf3",
+  "fuentes": [
+   {
+    "fuente": "redis",
+    "operacion": "crear_sesion",
+    "resultado": "ok",
+    "ms": 24.7
+   }
+  ],
+  "paginacion": null,
+  "cache": null
+ }
+}

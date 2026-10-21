@@ -1,0 +1,32 @@
+# API del Hito 10 en contenedor. Las bases son los Compose de los Hitos 4 a 9 (fixture.ps1 los inicia).
+# Desde el contenedor, las bases se alcanzan en host.docker.internal con los mismos puertos publicados.
+name: grupo13-hito10
+
+services:
+  api:
+    build: .
+    image: grupo13-hito10-api
+    env_file: .env
+    environment:
+      MONGO_HOST: host.docker.internal
+      NEO4J_URI: bolt://host.docker.internal:7687
+      CASSANDRA_HOSTS: host.docker.internal
+      REDIS_HOST: host.docker.internal
+      INFLUX_URL: http://host.docker.internal:8181
+      INFLUX_TOKEN_FILE: /run/influx/admin.token
+      IRIS_HOST: host.docker.internal
+    volumes:
+      - type: bind
+        source: ../Hito 8/.local
+        target: /run/influx
+        read_only: true
+      # cargar_muestra_influx.py reutiliza las funciones del Hito 8 (busca /Hito 8/scripts).
+      - type: bind
+        source: ../Hito 8/scripts
+        target: /Hito 8/scripts
+        read_only: true
+    ports:
+      - "127.0.0.1:8000:8000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped

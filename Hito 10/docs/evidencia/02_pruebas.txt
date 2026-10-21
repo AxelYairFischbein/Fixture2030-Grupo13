@@ -1,0 +1,55 @@
+# 2026-10-16T13:06:15Z - scripts/ejecutar_pruebas.ps1 (unitarias + integraciÃ³n contra las 6 fuentes)
+OpenAPI 1.0.0: 13 rutas -> openapi\openapi.yaml
+Timeout por operación: 3.0 s
+ok                 42.20 ms  mongodb    127.0.0.1:27017/fixture2030
+ok                 25.58 ms  neo4j      bolt://127.0.0.1:7687 (db neo4j)
+ok               1397.97 ms  cassandra  127.0.0.1:9042/fixture2030_comentarios
+ok                  4.99 ms  redis      127.0.0.1:16379 (prefijo fixture2030:h10)
+ok                  4.59 ms  influxdb   http://127.0.0.1:8181 (db fixture2030_h8, token configurado)
+ok                 29.68 ms  iris       127.0.0.1:1972/USER (usuario fixture_api)
+============================= test session starts =============================
+platform win32 -- Python 3.14.0, pytest-9.1.1, pluggy-1.7.0 -- F:\UADE F\2.Materias Actuales\IngenieriaDeDatos2\Fixture2030-Grupo13\Hito 10\.venv\Scripts\python.exe
+rootdir: F:\UADE F\2.Materias Actuales\IngenieriaDeDatos2\Fixture2030-Grupo13\Hito 10
+configfile: pytest.ini
+plugins: anyio-4.15.1
+collecting ... collected 36 items
+
+tests/integration/test_integracion.py::test_mongodb_listado_paginado PASSED [  2%]
+tests/integration/test_integracion.py::test_mongodb_y_redis_cache_aside_e_invalidacion PASSED [  5%]
+tests/integration/test_integracion.py::test_mongodb_plantel_filtrado_y_equipo_inexistente PASSED [  8%]
+tests/integration/test_integracion.py::test_neo4j_partido_con_eventos_y_agenda PASSED [ 11%]
+tests/integration/test_integracion.py::test_neo4j_partido_inexistente PASSED [ 13%]
+tests/integration/test_integracion.py::test_cassandra_ventana_y_cursor PASSED [ 16%]
+tests/integration/test_integracion.py::test_cassandra_ventana_vacia_valida PASSED [ 19%]
+tests/integration/test_integracion.py::test_cassandra_escritura_repetida_no_duplica PASSED [ 22%]
+tests/integration/test_integracion.py::test_redis_sesion_ciclo_de_vida PASSED [ 25%]
+tests/integration/test_integracion.py::test_redis_sesion_vencida PASSED  [ 27%]
+tests/integration/test_integracion.py::test_influx_ventana_reciente_y_limites PASSED [ 30%]
+tests/integration/test_integracion.py::test_influx_ventana_sin_puntos PASSED [ 33%]
+tests/integration/test_integracion.py::test_iris_transiciones_validadas PASSED [ 36%]
+tests/integration/test_integracion.py::test_iris_acta_muestra_y_inexistente PASSED [ 38%]
+tests/integration/test_integracion.py::test_dependencia_detenida_responde_503_acotado[mongodb] PASSED [ 41%]
+tests/integration/test_integracion.py::test_dependencia_detenida_responde_503_acotado[neo4j] PASSED [ 44%]
+tests/integration/test_integracion.py::test_dependencia_detenida_responde_503_acotado[cassandra] PASSED [ 47%]
+tests/integration/test_integracion.py::test_dependencia_detenida_responde_503_acotado[redis] PASSED [ 50%]
+tests/integration/test_integracion.py::test_dependencia_detenida_responde_503_acotado[influxdb] PASSED [ 52%]
+tests/integration/test_integracion.py::test_dependencia_detenida_responde_503_acotado[iris] PASSED [ 55%]
+tests/unit/test_api.py::test_exito_con_traza_y_request_id PASSED         [ 58%]
+tests/unit/test_api.py::test_entrada_invalida_no_consulta_la_fuente PASSED [ 61%]
+tests/unit/test_api.py::test_ventana_de_comentarios_mayor_a_5_minutos_se_rechaza_antes_de_cassandra PASSED [ 63%]
+tests/unit/test_api.py::test_recurso_inexistente PASSED                  [ 66%]
+tests/unit/test_api.py::test_sesion_ausente PASSED                       [ 69%]
+tests/unit/test_api.py::test_dependencia_caida_devuelve_503_sin_detalle_tecnico PASSED [ 72%]
+tests/unit/test_api.py::test_redis_caido_degrada_la_ficha_a_mongodb PASSED [ 75%]
+tests/unit/test_api.py::test_salud_informa_fuente_caida_con_503 PASSED   [ 77%]
+tests/unit/test_api.py::test_escritura_repetida_no_duplica PASSED        [ 80%]
+tests/unit/test_api.py::test_comentario_sin_idempotency_key_es_invalido PASSED [ 83%]
+tests/unit/test_api.py::test_comentario_para_partido_inexistente_libera_la_clave PASSED [ 86%]
+tests/unit/test_api.py::test_transicion_invalida_es_conflicto PASSED     [ 88%]
+tests/unit/test_api.py::test_ruta_inexistente_usa_formato_de_error PASSED [ 91%]
+tests/unit/test_api.py::test_driver_real_de_redis_con_puerto_cerrado_responde_503_rapido PASSED [ 94%]
+tests/unit/test_api.py::test_minutos_de_ventana PASSED                   [ 97%]
+tests/unit/test_api.py::test_openapi_versionado_coincide_con_la_aplicacion PASSED [100%]
+
+============================= 36 passed in 17.45s =============================
+exit=0

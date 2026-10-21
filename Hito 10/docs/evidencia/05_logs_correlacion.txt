@@ -1,0 +1,15 @@
+# Logs de la API filtrados por X-Request-ID (respuestas en 04_dependencia_detenida.txt). Sin secretos ni cuerpos.
+
+## requestId=f913e0353c414ca2a1a1b2c1975c1595
+2026-10-16 10:05:48,306 INFO fixture2030 req=f913e0353c414ca2a1a1b2c1975c1595 dep=redis op=leer_cache_equipo resultado=error:ConnectionError ms=2051.34
+2026-10-16 10:05:48,308 INFO fixture2030 req=f913e0353c414ca2a1a1b2c1975c1595 dep=mongodb op=buscar_equipo resultado=ok ms=1.91
+2026-10-16 10:05:48,309 INFO fixture2030 req=f913e0353c414ca2a1a1b2c1975c1595 metodo=GET ruta=/api/v1/equipos/EQ-005 estado=200 ms=2054.58
+
+## requestId=11791c71f91140feb8c7b810b4440640
+2026-10-16 10:05:46,164 INFO fixture2030 req=11791c71f91140feb8c7b810b4440640 dep=redis op=crear_sesion resultado=error:ConnectionError ms=2054.48
+2026-10-16 10:05:46,165 INFO fixture2030 req=11791c71f91140feb8c7b810b4440640 metodo=POST ruta=/api/v1/sesiones estado=503 ms=2055.50
+
+## Escritura idempotente (03_recorrido_curl.txt): tres requests con la misma Idempotency-Key
+2026-10-16 10:05:41,707 INFO fixture2030 req=c87d9add97584820a2e4d5d9b0d6e630 metodo=POST ruta=/api/v1/partidos/PAR-064/comentarios estado=201 ms=19.49
+2026-10-16 10:05:41,845 INFO fixture2030 req=5f0319b52cd74ca281090c318f6a9522 metodo=POST ruta=/api/v1/partidos/PAR-064/comentarios estado=200 ms=3.52
+2026-10-16 10:05:41,996 INFO fixture2030 req=59ee0e711e1b44889187c2f9f35072f7 metodo=POST ruta=/api/v1/partidos/PAR-064/comentarios estado=409 ms=3.30
