@@ -49,6 +49,7 @@ Hito 10/
 - [Contratos, validación, errores e idempotencia](docs/contratos_y_errores.md)
 - [Conectividad, configuración y seguridad](docs/conectividad_y_configuracion.md)
 - [Pruebas, evidencia y rendimiento](docs/pruebas_y_evidencia.md)
+- [Evaluación de conectividad de la API](../Hito%2011/README.md)
 
 ## Inicio rápido (cualquier PC con Windows)
 
