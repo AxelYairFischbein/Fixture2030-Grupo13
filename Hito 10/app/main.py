@@ -62,8 +62,9 @@ def crear_app(servicios: Servicios | None = None) -> FastAPI:
         inicio = time.perf_counter()
         try:
             respuesta = await call_next(request)
-        except Exception:
-            log.exception("req=%s error inesperado", rid)  # detalle técnico solo en logs
+        except Exception as error:
+            # El mensaje o traceback de un driver puede contener secretos.
+            log.error("req=%s error_interno tipo=%s", rid, type(error).__name__)
             respuesta = JSONResponse(status_code=500, content=cuerpo_error(
                 "ERROR_INTERNO", "Error interno. Informar el requestId para su diagnóstico.", rid))
         respuesta.headers["X-Request-ID"] = rid

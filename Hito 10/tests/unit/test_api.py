@@ -208,14 +208,16 @@ def test_ruta_inexistente_usa_formato_de_error(entorno):
     assert r.status_code == 404 and r.json()["error"]["codigo"] == "RUTA_NO_ENCONTRADA"
 
 
-def test_driver_real_de_redis_con_puerto_cerrado_responde_503_rapido():
+def test_driver_real_de_redis_sin_servicio_responde_error_acotado():
     from app.adapters.redis_kv import RedisKV
     import time
     redis_caido = RedisKV(replace(CFG, redis_port=1, timeout=1))
     srv = Servicios(CFG, mongo=None, neo4j=None, cassandra=None, redis=redis_caido, influx=None, iris=None)
     inicio = time.perf_counter()
-    r = TestClient(crear_app(srv)).post("/api/v1/sesiones", json={"usuarioId": "USR-00001"})
-    assert r.status_code == 503 and r.json()["error"]["dependencia"] == "redis"
+    r = TestClient(crear_app(srv)).get("/api/v1/sesiones/SES-" + "0" * 24)
+    assert r.status_code in (503, 504) and r.json()["error"]["dependencia"] == "redis"
+    assert r.json()["error"]["codigo"] == {
+        503: "DEPENDENCIA_NO_DISPONIBLE", 504: "DEPENDENCIA_TIMEOUT"}[r.status_code]
     assert time.perf_counter() - inicio < 5
 
 
@@ -232,4 +234,57 @@ def test_openapi_versionado_coincide_con_la_aplicacion(entorno):
     publicado = yaml.safe_load((config.RAIZ / "openapi" / "openapi.yaml").read_text(encoding="utf-8"))
     assert publicado == cliente.get("/openapi.json").json(), "Regenerar con scripts/exportar_openapi.py"
     respuestas = publicado["paths"]["/api/v1/equipos/{equipoId}"]["get"]["responses"]
-    assert {"200", "400", "404", "500", "503"} <= set(respuestas) and "422" not in respuestas
+    assert {"200", "400", "404", "500", "503", "504"} <= set(respuestas) and "422" not in respuestas
+
+
+@pytest.mark.parametrize("tipo,estado,codigo", [
+    ("TimeoutError", 504, "DEPENDENCIA_TIMEOUT"),
+    ("ConnectionError", 503, "DEPENDENCIA_NO_DISPONIBLE"),
+    ("AuthenticationError", 503, "DEPENDENCIA_NO_DISPONIBLE"),
+    ("defecto", 500, "ERROR_INTERNO"),
+])
+def test_fallas_identificables_y_error_interno_seguros(entorno, monkeypatch, caplog, tipo, estado, codigo):
+    """Excepciones inyectadas. No son cortes reales de Redis."""
+    from redis import exceptions
+    cliente, fuentes = entorno
+    secreto = "valor-privado-no-publicable"
+    error = ValueError(secreto) if tipo == "defecto" else getattr(exceptions, tipo)(secreto)
+
+    def fallar(_):
+        with operacion("redis", "obtener_sesion", (exceptions.RedisError,)):
+            raise error
+
+    monkeypatch.setattr(fuentes["redis"], "obtener_sesion", fallar)
+    r = cliente.get("/api/v1/sesiones/SES-" + "0" * 24, headers={"X-Request-ID": "h11-error-unitario"})
+    assert r.status_code == estado and r.json()["error"]["codigo"] == codigo
+    assert r.headers["X-Request-ID"] == "h11-error-unitario"
+    assert secreto not in r.text and secreto not in caplog.text
+
+
+def test_timeout_conserva_degradacion_de_cache_y_salud(entorno, monkeypatch):
+    from app.errors import DependenciaTimeout
+    cliente, fuentes = entorno
+
+    def fallar(*_):
+        raise DependenciaTimeout("Tiempo agotado", dependencia="redis")
+
+    monkeypatch.setattr(fuentes["redis"], "leer_equipo", fallar)
+    monkeypatch.setattr(fuentes["redis"], "ping", fallar)
+    r = cliente.get("/api/v1/equipos/EQ-001")
+    assert r.status_code == 200 and r.headers["X-Cache"] == "BYPASS"
+    assert cliente.get("/api/v1/salud").status_code == 503
+
+
+def test_timeout_no_se_deduce_de_cualquier_error_del_driver():
+    from app.contexto import es_timeout
+    from pymongo.errors import OperationFailure, ServerSelectionTimeoutError
+    from cassandra import OperationTimedOut
+    from cassandra.cluster import NoHostAvailable
+    import httpx
+    assert es_timeout(ServerSelectionTimeoutError("seleccion agotada"))
+    assert es_timeout(httpx.ReadTimeout("lectura agotada"))
+    assert not es_timeout(OperationFailure("credenciales rechazadas", code=18))
+    assert es_timeout(NoHostAvailable("sin hosts", {"nodo": OperationTimedOut()}))
+    assert not es_timeout(NoHostAvailable("causas diferentes", {
+        "uno": OperationTimedOut(), "otro": ConnectionRefusedError()}))
+    assert not es_timeout(RuntimeError("error IRIS sin causa tipada"))

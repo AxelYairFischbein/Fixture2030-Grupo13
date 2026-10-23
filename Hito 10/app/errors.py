@@ -41,6 +41,11 @@ class DependenciaNoDisponible(ApiError):
     codigo = "DEPENDENCIA_NO_DISPONIBLE"
 
 
+class DependenciaTimeout(DependenciaNoDisponible):
+    estado = 504
+    codigo = "DEPENDENCIA_TIMEOUT"
+
+
 def cuerpo_error(codigo: str, mensaje: str, request_id: str, *, detalles=None, dependencia=None) -> dict:
     error = {"codigo": codigo, "mensaje": mensaje, "requestId": request_id}
     if dependencia:

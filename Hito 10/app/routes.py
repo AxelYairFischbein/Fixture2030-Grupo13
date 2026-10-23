@@ -15,11 +15,14 @@ router = APIRouter(prefix="/api/v1")
 DESCRIPCION_ERRORES = {
     404: "Recurso inexistente (o sesión no vigente).",
     409: "Conflicto con el estado actual del recurso.",
-    503: "Dependencia no disponible o sin respuesta dentro del timeout. Nunca se devuelve 200 vacío.",
+    503: "Dependencia no disponible o acceso rechazado. No equivale a un resultado vacío.",
+    504: "La dependencia excedió el tiempo de espera identificado por el driver.",
 }
 
 
 def errores(*codigos: int) -> dict:
+    if 503 in codigos:
+        codigos = (*codigos, 504)
     return {c: {"model": s.ErrorRespuesta, "description": DESCRIPCION_ERRORES[c]} for c in codigos}
 
 

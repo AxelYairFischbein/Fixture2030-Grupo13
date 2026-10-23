@@ -42,11 +42,16 @@ class IrisActas:
                 raise
 
     def ping(self):
-        self._ejecutar("ping", lambda c: c.cursor().execute("SELECT 1"))
+        def leer(conexion):
+            cur = conexion.cursor()
+            cur.setQueryTimeout(max(1, int(self._cfg.timeout)))
+            cur.execute("SELECT 1")
+        self._ejecutar("ping", leer)
 
     def acta(self, codigo: str) -> dict | None:
         def leer(conexion):
             cur = conexion.cursor()
+            cur.setQueryTimeout(max(1, int(self._cfg.timeout)))
             cur.execute(Q_PARTIDO, [codigo])
             fila = cur.fetchone()
             if not fila:

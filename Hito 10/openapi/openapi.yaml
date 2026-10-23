@@ -75,8 +75,15 @@ paths:
               schema:
                 $ref: '#/components/schemas/Respuesta_list_EquipoResumen__'
         '503':
-          description: Dependencia no disponible o sin respuesta dentro del timeout.
-            Nunca se devuelve 200 vacío.
+          description: Dependencia no disponible o acceso rechazado. No equivale a
+            un resultado vacío.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRespuesta'
+        '504':
+          description: La dependencia excedió el tiempo de espera identificado por
+            el driver.
           content:
             application/json:
               schema:
@@ -117,8 +124,15 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorRespuesta'
         '503':
-          description: Dependencia no disponible o sin respuesta dentro del timeout.
-            Nunca se devuelve 200 vacío.
+          description: Dependencia no disponible o acceso rechazado. No equivale a
+            un resultado vacío.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRespuesta'
+        '504':
+          description: La dependencia excedió el tiempo de espera identificado por
+            el driver.
           content:
             application/json:
               schema:
@@ -149,8 +163,15 @@ paths:
         '204':
           description: Successful Response
         '503':
-          description: Dependencia no disponible o sin respuesta dentro del timeout.
-            Nunca se devuelve 200 vacío.
+          description: Dependencia no disponible o acceso rechazado. No equivale a
+            un resultado vacío.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRespuesta'
+        '504':
+          description: La dependencia excedió el tiempo de espera identificado por
+            el driver.
           content:
             application/json:
               schema:
@@ -217,8 +238,15 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorRespuesta'
         '503':
-          description: Dependencia no disponible o sin respuesta dentro del timeout.
-            Nunca se devuelve 200 vacío.
+          description: Dependencia no disponible o acceso rechazado. No equivale a
+            un resultado vacío.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRespuesta'
+        '504':
+          description: La dependencia excedió el tiempo de espera identificado por
+            el driver.
           content:
             application/json:
               schema:
@@ -268,8 +296,15 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorRespuesta'
         '503':
-          description: Dependencia no disponible o sin respuesta dentro del timeout.
-            Nunca se devuelve 200 vacío.
+          description: Dependencia no disponible o acceso rechazado. No equivale a
+            un resultado vacío.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRespuesta'
+        '504':
+          description: La dependencia excedió el tiempo de espera identificado por
+            el driver.
           content:
             application/json:
               schema:
@@ -319,8 +354,15 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorRespuesta'
         '503':
-          description: Dependencia no disponible o sin respuesta dentro del timeout.
-            Nunca se devuelve 200 vacío.
+          description: Dependencia no disponible o acceso rechazado. No equivale a
+            un resultado vacío.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRespuesta'
+        '504':
+          description: La dependencia excedió el tiempo de espera identificado por
+            el driver.
           content:
             application/json:
               schema:
@@ -391,8 +433,15 @@ paths:
               schema:
                 $ref: '#/components/schemas/Respuesta_VentanaComentarios_'
         '503':
-          description: Dependencia no disponible o sin respuesta dentro del timeout.
-            Nunca se devuelve 200 vacío.
+          description: Dependencia no disponible o acceso rechazado. No equivale a
+            un resultado vacío.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRespuesta'
+        '504':
+          description: La dependencia excedió el tiempo de espera identificado por
+            el driver.
           content:
             application/json:
               schema:
@@ -458,8 +507,15 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorRespuesta'
         '503':
-          description: Dependencia no disponible o sin respuesta dentro del timeout.
-            Nunca se devuelve 200 vacío.
+          description: Dependencia no disponible o acceso rechazado. No equivale a
+            un resultado vacío.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRespuesta'
+        '504':
+          description: La dependencia excedió el tiempo de espera identificado por
+            el driver.
           content:
             application/json:
               schema:
@@ -529,8 +585,15 @@ paths:
               schema:
                 $ref: '#/components/schemas/Respuesta_Estadisticas_'
         '503':
-          description: Dependencia no disponible o sin respuesta dentro del timeout.
-            Nunca se devuelve 200 vacío.
+          description: Dependencia no disponible o acceso rechazado. No equivale a
+            un resultado vacío.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRespuesta'
+        '504':
+          description: La dependencia excedió el tiempo de espera identificado por
+            el driver.
           content:
             application/json:
               schema:
@@ -561,8 +624,15 @@ paths:
               schema:
                 $ref: '#/components/schemas/Respuesta_Sesion_'
         '503':
-          description: Dependencia no disponible o sin respuesta dentro del timeout.
-            Nunca se devuelve 200 vacío.
+          description: Dependencia no disponible o acceso rechazado. No equivale a
+            un resultado vacío.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRespuesta'
+        '504':
+          description: La dependencia excedió el tiempo de espera identificado por
+            el driver.
           content:
             application/json:
               schema:
@@ -601,8 +671,15 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorRespuesta'
         '503':
-          description: Dependencia no disponible o sin respuesta dentro del timeout.
-            Nunca se devuelve 200 vacío.
+          description: Dependencia no disponible o acceso rechazado. No equivale a
+            un resultado vacío.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRespuesta'
+        '504':
+          description: La dependencia excedió el tiempo de espera identificado por
+            el driver.
           content:
             application/json:
               schema:
@@ -630,8 +707,15 @@ paths:
         '204':
           description: Successful Response
         '503':
-          description: Dependencia no disponible o sin respuesta dentro del timeout.
-            Nunca se devuelve 200 vacío.
+          description: Dependencia no disponible o acceso rechazado. No equivale a
+            un resultado vacío.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRespuesta'
+        '504':
+          description: La dependencia excedió el tiempo de espera identificado por
+            el driver.
           content:
             application/json:
               schema:
@@ -672,8 +756,15 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorRespuesta'
         '503':
-          description: Dependencia no disponible o sin respuesta dentro del timeout.
-            Nunca se devuelve 200 vacío.
+          description: Dependencia no disponible o acceso rechazado. No equivale a
+            un resultado vacío.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRespuesta'
+        '504':
+          description: La dependencia excedió el tiempo de espera identificado por
+            el driver.
           content:
             application/json:
               schema:
@@ -728,8 +819,15 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorRespuesta'
         '503':
-          description: Dependencia no disponible o sin respuesta dentro del timeout.
-            Nunca se devuelve 200 vacío.
+          description: Dependencia no disponible o acceso rechazado. No equivale a
+            un resultado vacío.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRespuesta'
+        '504':
+          description: La dependencia excedió el tiempo de espera identificado por
+            el driver.
           content:
             application/json:
               schema:

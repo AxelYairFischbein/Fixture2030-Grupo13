@@ -9,3 +9,4 @@ Trabajo práctico de Ingeniería de Datos II.
 - [Hito 8: series temporales de estadísticas en InfluxDB](Hito%208/README.md).
 - [Hito 9: entidades complejas en InterSystems IRIS](Hito%209/README.md).
 - [Hito 10: API REST integrada con consola web](Hito%2010/README.md).
+- [Hito 11: evaluación de conectividad de la API y sus dependencias](Hito%2011/README.md).

@@ -1,0 +1,163 @@
+Hito 11 - Prueba real de detención y recuperación
+Fecha: 22/10/2026, UTC-03:00 (America/Buenos_Aires). Horas de inicio de cada evaluación.
+Base: c1bb4cd54905f7a83dbc73420ec96f30bedfb989, con cambios locales.
+Origen: grupo13-hito10-api-1, lanzado desde PowerShell en Windows.
+Versiones: Docker 29.7.2, Python API 3.12.15, driver redis 8.1.0.
+Contenedor: grupo13-hito7-redis-1. Proyecto: grupo13-hito7.
+Destino: host.docker.internal:16379, RESP, base 0.
+Endpoint: GET /api/v1/sesiones/SES-000000000000000000000000
+ANTES 19:43:38.922 | HTTP 404 SESION_NO_VIGENTE | 40.76 ms
+  X-Request-ID: h11-20261022T224338-redis-0
+  Logs del mismo ID: dep=redis op=obtener_sesion resultado=ok ms=4.47, HTTP 404 en 5.48 ms.
+DURANTE 19:43:40.495 | HTTP 503 DEPENDENCIA_NO_DISPONIBLE | 37.7 ms
+  X-Request-ID: h11-20261022T224340-redis-0
+  Logs del mismo ID: dep=redis op=obtener_sesion resultado=no_disponible:ConnectionError ms=4.17, HTTP 503 en 4.83 ms.
+DESPUÉS 19:43:43.331 | HTTP 404 SESION_NO_VIGENTE | 45.34 ms
+  X-Request-ID: h11-20261022T224343-redis-0
+  Logs del mismo ID: dep=redis op=obtener_sesion resultado=ok ms=7.56, HTTP 404 en 8.17 ms.
+Estado final: running, PONG. Disponibilidad tras start comprobada en 136.82 ms.
+Identidad del contenedor conservada: 71b4f301f6c0.
+Montaje conservado: Type=volume, grupo13_hito7_redis_data -> /data.
+Los demás contenedores conservaron estado e instante de inicio.
+DBSIZE antes=0 y después=0. No se comprobó recuperación de un valor persistido.
+Resultado: 404 -> 503 esperado durante el corte -> 404. Correlación completa.
+Los tiempos HTTP excluyen docker exec e incluyen HTTP y adaptadores.
+
+--- Detalle de ejecución ---
+
+Preparación: el contenedor estaba detenido al comenzar. Se inició únicamente grupo13-hito7-redis-1 antes de la prueba.
+Dos lecturas de CLIENT LIST separadas por tres segundos mostraron solo el cliente de inspección.
+Los logs de la API no registraban requests en los cinco minutos anteriores a la referencia.
+No se encontraron indicios de uso activo por otra persona. Esta observación no garantiza ausencia de actividad futura.
+Se comprobó la identidad, el proyecto, el puerto y el montaje antes de detener.
+Inicio del corte: 2026-10-22T19:43:40.0221169-03:00. Estado durante la interrupción: exited.
+Se ejecutó docker stop --time 10 grupo13-hito7-redis-1 dentro de try.
+finally ejecutó docker start sobre el mismo contenedor, con espera de PONG acotada a 30 segundos.
+La lectura posterior de la API confirmó el acceso. No se tomó docker start como prueba suficiente.
+ID antes: 71b4f301f6c0f9e2f35e9ae49487debadfc7836434dc3c2f06888b718a1e2fc6
+ID después: 71b4f301f6c0f9e2f35e9ae49487debadfc7836434dc3c2f06888b718a1e2fc6
+Volumen antes: grupo13_hito7_redis_data. Volumen después: grupo13_hito7_redis_data.
+Se conservaron el tipo volume, /data y la ruta interna de origen del volumen.
+No se crearon sesiones, claves ni muestras. No se borraron contenedores, datos ni volúmenes.
+El estado y el instante de inicio de los demás contenedores coincidieron antes y después.
+Los códigos de salida del diagnóstico fueron 0, 1 y 0. El 1 registra la falla esperada durante el corte.
+Hipótesis durante el corte: Redis no acepta conexiones porque su contenedor está detenido.
+Prueba: mismo GET desde la API, HTTP 503 y ConnectionError en el log de Redis.
+Siguiente paso aplicado: iniciar el mismo contenedor, esperar disponibilidad y repetir el GET. Resultado HTTP 404.
+
+--- ANTES ---
+
+# Hito 11 - Ejecución de conectividad
+
+Fecha UTC: 2026-10-22T22:43:38.922028+00:00
+Fecha local del lanzador: 2026-10-22T19:43:38.922028-03:00
+Commit base: c1bb4cd54905f7a83dbc73420ec96f30bedfb989. Cambios locales del módulo: True.
+Origen de conexiones: contenedor grupo13-hito10-api-1. Lanzador: PowerShell/Python en Windows.
+Modo: api. Sin cargas ni escrituras del dominio.
+
+Imagen API: grupo13-hito10-api. Docker Engine: 29.7.2
+
+## Matriz
+
+| Producto | Estado observado | Evaluación del modo solicitado |
+| --- | --- | --- |
+| redis | disponible | completa |
+
+## redis
+
+| Prueba | Resultado | ms | Diagnóstico y contexto |
+| --- | --- | ---: | --- |
+| configuracion | OK | 0 | host=host.docker.internal puerto=16379 protocolo=RESP contexto=db=0, prefijo=fixture2030:h10 credencial_configurada=False timeout_driver=3.0s driver=redis/8.1.0 Python=3.12.15 |
+| api | OK | 40.76 | GET /api/v1/sesiones/SES-000000000000000000000000 params={} HTTP=404 SESION_NO_VIGENTE X-Request-ID=h11-20261022T224338-redis-0 |
+| logs | OK | 0 | Correlación HTTP/dependencia comprobada. X-Request-ID=h11-20261022T224338-redis-0 |
+
+## Logs correlacionados de la API
+
+```text
+req=h11-20261022T224338-redis-0 dep=redis op=obtener_sesion resultado=ok ms=4.47
+req=h11-20261022T224338-redis-0 metodo=GET ruta=/api/v1/sesiones/SES-000000000000000000000000 estado=404 ms=5.48
+```
+
+Resumen: OK=3, WARN=0, FAIL=0, SKIP=0
+Código de salida: 0. 0=completa sin fallas, 1=completa con fallas, 2=incompleta.
+Los tiempos por prueba excluyen docker exec. Los de API incluyen HTTP y trabajo de sus adaptadores.
+Las filas con 0 ms describen configuración o conclusiones de otras operaciones, sin medición independiente.
+OK acredita solo la operación indicada. No mide rendimiento ni disponibilidad permanente.
+
+--- DURANTE ---
+
+# Hito 11 - Ejecución de conectividad
+
+Fecha UTC: 2026-10-22T22:43:40.495783+00:00
+Fecha local del lanzador: 2026-10-22T19:43:40.495783-03:00
+Commit base: c1bb4cd54905f7a83dbc73420ec96f30bedfb989. Cambios locales del módulo: True.
+Origen de conexiones: contenedor grupo13-hito10-api-1. Lanzador: PowerShell/Python en Windows.
+Modo: api. Sin cargas ni escrituras del dominio.
+
+Imagen API: grupo13-hito10-api. Docker Engine: 29.7.2
+
+## Matriz
+
+| Producto | Estado observado | Evaluación del modo solicitado |
+| --- | --- | --- |
+| redis | no disponible | completa |
+
+## redis
+
+| Prueba | Resultado | ms | Diagnóstico y contexto |
+| --- | --- | ---: | --- |
+| configuracion | OK | 0 | host=host.docker.internal puerto=16379 protocolo=RESP contexto=db=0, prefijo=fixture2030:h10 credencial_configurada=False timeout_driver=3.0s driver=redis/8.1.0 Python=3.12.15 |
+| api | FAIL | 37.7 | GET /api/v1/sesiones/SES-000000000000000000000000 params={} HTTP=503 DEPENDENCIA_NO_DISPONIBLE X-Request-ID=h11-20261022T224340-redis-0 |
+| logs | OK | 0 | Correlación HTTP/dependencia comprobada. X-Request-ID=h11-20261022T224340-redis-0 |
+
+## Logs correlacionados de la API
+
+```text
+req=h11-20261022T224340-redis-0 dep=redis op=obtener_sesion resultado=no_disponible:ConnectionError ms=4.17
+req=h11-20261022T224340-redis-0 metodo=GET ruta=/api/v1/sesiones/SES-000000000000000000000000 estado=503 ms=4.83
+```
+
+Resumen: OK=2, WARN=0, FAIL=1, SKIP=0
+Código de salida: 1. 0=completa sin fallas, 1=completa con fallas, 2=incompleta.
+Los tiempos por prueba excluyen docker exec. Los de API incluyen HTTP y trabajo de sus adaptadores.
+Las filas con 0 ms describen configuración o conclusiones de otras operaciones, sin medición independiente.
+OK acredita solo la operación indicada. No mide rendimiento ni disponibilidad permanente.
+
+--- DESPUÉS ---
+
+# Hito 11 - Ejecución de conectividad
+
+Fecha UTC: 2026-10-22T22:43:43.331421+00:00
+Fecha local del lanzador: 2026-10-22T19:43:43.331421-03:00
+Commit base: c1bb4cd54905f7a83dbc73420ec96f30bedfb989. Cambios locales del módulo: True.
+Origen de conexiones: contenedor grupo13-hito10-api-1. Lanzador: PowerShell/Python en Windows.
+Modo: api. Sin cargas ni escrituras del dominio.
+
+Imagen API: grupo13-hito10-api. Docker Engine: 29.7.2
+
+## Matriz
+
+| Producto | Estado observado | Evaluación del modo solicitado |
+| --- | --- | --- |
+| redis | disponible | completa |
+
+## redis
+
+| Prueba | Resultado | ms | Diagnóstico y contexto |
+| --- | --- | ---: | --- |
+| configuracion | OK | 0 | host=host.docker.internal puerto=16379 protocolo=RESP contexto=db=0, prefijo=fixture2030:h10 credencial_configurada=False timeout_driver=3.0s driver=redis/8.1.0 Python=3.12.15 |
+| api | OK | 45.34 | GET /api/v1/sesiones/SES-000000000000000000000000 params={} HTTP=404 SESION_NO_VIGENTE X-Request-ID=h11-20261022T224343-redis-0 |
+| logs | OK | 0 | Correlación HTTP/dependencia comprobada. X-Request-ID=h11-20261022T224343-redis-0 |
+
+## Logs correlacionados de la API
+
+```text
+req=h11-20261022T224343-redis-0 dep=redis op=obtener_sesion resultado=ok ms=7.56
+req=h11-20261022T224343-redis-0 metodo=GET ruta=/api/v1/sesiones/SES-000000000000000000000000 estado=404 ms=8.17
+```
+
+Resumen: OK=3, WARN=0, FAIL=0, SKIP=0
+Código de salida: 0. 0=completa sin fallas, 1=completa con fallas, 2=incompleta.
+Los tiempos por prueba excluyen docker exec. Los de API incluyen HTTP y trabajo de sus adaptadores.
+Las filas con 0 ms describen configuración o conclusiones de otras operaciones, sin medición independiente.
+OK acredita solo la operación indicada. No mide rendimiento ni disponibilidad permanente.

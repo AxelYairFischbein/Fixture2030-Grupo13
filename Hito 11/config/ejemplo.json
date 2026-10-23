@@ -1,0 +1,17 @@
+{
+  "contenedor_api": "grupo13-hito10-api-1",
+  "api_url": "http://127.0.0.1:8000",
+  "equipo_id": "EQ-001",
+  "partido_id": "PAR-001",
+  "acta_codigo": "PAR-001",
+  "sesion_id": "SES-000000000000000000000000",
+  "redis_clave": "fixture2030:h11:demo:conectividad",
+  "comentarios_desde": "2030-06-10T18:00:00Z",
+  "comentarios_hasta": "2030-06-10T18:01:00Z",
+  "influx_desde": null,
+  "influx_hasta": null,
+  "limite": 3,
+  "timeout_tcp": 3,
+  "timeout_http": 8,
+  "timeout_etapa": 20
+}

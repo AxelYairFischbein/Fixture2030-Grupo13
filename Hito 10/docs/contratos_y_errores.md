@@ -2,7 +2,7 @@
 
 El contrato completo está en [openapi/openapi.yaml](../openapi/openapi.yaml) (OpenAPI 3.1, versión 1.0.0, servidor `http://127.0.0.1:8000`, tags por módulo, parámetros, cuerpos, schemas, ejemplos y todos los códigos posibles). Se explora en Swagger UI (`/docs`). Se regenera con `scripts/exportar_openapi.py`, y una prueba falla si el archivo versionado difiere de la aplicación.
 
-No hay autenticación de consumidores en este hito; la API solo escucha en `127.0.0.1`.
+No hay autenticación de consumidores en este hito. La API solo escucha en `127.0.0.1`.
 
 ## Formato de respuestas
 
@@ -28,7 +28,7 @@ No hay autenticación de consumidores en este hito; la API solo escucha en `127.
 Error (4xx/5xx), siempre con la misma forma:
 
 ```json
-{"error": {"codigo": "DEPENDENCIA_NO_DISPONIBLE", "mensaje": "La fuente redis no está disponible o no respondió a tiempo.",
+{"error": {"codigo": "DEPENDENCIA_NO_DISPONIBLE", "mensaje": "No se pudo utilizar la fuente redis.",
            "requestId": "11791c71f91140feb8c7b810b4440640", "dependencia": "redis"}}
 ```
 
@@ -42,14 +42,17 @@ Encabezados: `X-Request-ID` en todas las respuestas (se acepta uno entrante de 8
 | --- | --- | --- | --- |
 | Parámetro, cuerpo o encabezado fuera del contrato | 400 | `VALIDACION_FALLIDA` | `EQ-04`, ventana de 20 min, falta `Idempotency-Key` |
 | Recurso inexistente | 404 | `RECURSO_NO_ENCONTRADO` | `EQ-999`, `PAR-999`, acta `NO-EXISTE` |
-| Sesión inexistente, cerrada o vencida | 404 | `SESION_NO_VIGENTE` | Redis no distingue "venció" de "nunca existió"; ambas son ausencia de sesión vigente |
+| Sesión inexistente, cerrada o vencida | 404 | `SESION_NO_VIGENTE` | Redis no distingue "venció" de "nunca existió". Ambas son ausencia de sesión vigente |
 | Ruta o método inexistente | 404/405 | `RUTA_NO_ENCONTRADA` / `METODO_NO_PERMITIDO` | |
 | Transición de estado prohibida | 409 | `TRANSICION_INVALIDA` | `PENDIENTE -> FINALIZADO` |
 | `Idempotency-Key` reutilizada con otro cuerpo, o la original aún en curso | 409 | `CONFLICTO` | |
-| Fuente caída, sin respuesta en el timeout o credencial rechazada | 503 | `DEPENDENCIA_NO_DISPONIBLE` | incluye `dependencia` |
+| Fuente caída, credencial rechazada u otra falla de acceso del driver | 503 | `DEPENDENCIA_NO_DISPONIBLE` | incluye `dependencia` |
+| Tiempo de espera agotado e identificado por el driver | 504 | `DEPENDENCIA_TIMEOUT` | incluye `dependencia` |
 | Error no previsto | 500 | `ERROR_INTERNO` | detalle solo en el log, ubicable por `requestId` |
 
-FastAPI documenta 422 por defecto; la aplicación reemplaza ese código por 400 tanto en la respuesta como en el OpenAPI.
+FastAPI documenta 422 por defecto. La aplicación reemplaza ese código por 400 tanto en la respuesta como en el OpenAPI.
+
+La clasificación de timeout utiliza tipos y códigos específicos, sin interpretar cualquier excepción de un driver como demora. Una causa no identificada conserva el 503 y el tipo de excepción en el log. Los errores internos producen 500 y registran únicamente su tipo y request ID, sin traceback ni mensajes que puedan contener secretos. `/salud` conserva el 503 agregado si alguna fuente falla. La caché conserva el fallback ante 503 o 504.
 
 ## Validación (antes de tocar cualquier fuente)
 
@@ -63,11 +66,11 @@ FastAPI documenta 422 por defecto; la aplicación reemplaza ese código por 400 
 | `confederacion`, `posicion`, `intervalo`, `estado` | Enumeraciones cerradas |
 | `pagina` / `tamanio` | 1-1000 / 1-50 |
 | `limite` (agenda / eventos / comentarios) | 1-20 / 1-50 / 1-50 |
-| `desde`, `hasta` | ISO-8601; sin zona se toman como UTC; `hasta > desde` |
+| `desde`, `hasta` | ISO-8601. Sin zona se toman como UTC. Debe cumplirse `hasta > desde` |
 | Ventana de comentarios | ≤ 5 minutos (≤ 6 buckets de minuto × 4 segmentos = 24 particiones, límite del Hito 6) |
-| Ventana de estadísticas | `desde` y `hasta` juntos u omitidos; ≤ 720 intervalos por equipo |
+| Ventana de estadísticas | `desde` y `hasta` juntos u omitidos, con ≤ 720 intervalos por equipo |
 | `cursor` | `^\d{13}_[A-Za-z0-9-]{1,64}$` y dentro de la ventana pedida |
-| Cuerpos JSON | Sin campos adicionales (`extra=forbid`); `contenido` 1-280 caracteres |
+| Cuerpos JSON | Sin campos adicionales (`extra=forbid`). `contenido` admite 1-280 caracteres |
 | `Idempotency-Key` | Obligatoria en `POST comentarios`, `^[A-Za-z0-9-]{8,64}$` |
 
 Las pruebas unitarias comprueban que una entrada inválida no produce ninguna llamada a los adaptadores.
@@ -75,9 +78,9 @@ Las pruebas unitarias comprueban que una entrada inválida no produce ninguna ll
 ## Paginación y límites
 
 - **MongoDB**: página y tamaño con orden estable (`rankingReferencia, equipoId` o `numeroCamiseta`) y `total`.
-- **Cassandra**: ventana obligatoria y cursor de continuación `"<ms>_<comentarioId>"`. Como el orden global es `creado_en DESC, comentario_id ASC`, la página siguiente lee primero los empates del mismo instante con ID mayor y después los instantes anteriores; ninguna fila se repite ni se pierde (probado con la muestra del Hito 6: 8 comentarios en páginas de 3).
+- **Cassandra**: ventana obligatoria y cursor de continuación `"<ms>_<comentarioId>"`. Como el orden global es `creado_en DESC, comentario_id ASC`, la página siguiente lee primero los empates del mismo instante con ID mayor y después los instantes anteriores. Ninguna fila se repite ni se pierde (probado con la muestra del Hito 6: 8 comentarios en páginas de 3).
 - **Neo4j**: `LIMIT`/slice en el Cypher.
-- **InfluxDB**: agregación obligatoria (`DATE_BIN`) y tope de intervalos; `LIMIT` calculado. Los intervalos se alinean a la época Unix, por lo que el primero y el último de una ventana pueden ser parciales (lo indica `muestras`).
+- **InfluxDB**: agregación obligatoria (`DATE_BIN`), tope de intervalos y `LIMIT` calculado. Los intervalos se alinean a la época Unix, por lo que el primero y el último de una ventana pueden ser parciales (lo indica `muestras`).
 - **IRIS**: `TOP 100` eventos por acta.
 
 ## Lectura, escritura e idempotencia
@@ -86,9 +89,9 @@ Las pruebas unitarias comprueban que una entrada inválida no produce ninguna ll
 | --- | --- | --- |
 | Todos los `GET` | Sin efecto sobre los datos (la ficha puede poblar la caché) | Seguro |
 | `GET /sesiones/{id}` | No renueva el TTL (a diferencia de la actividad del Hito 7) | Seguro |
-| `DELETE /equipos/{id}/cache` | Invalida la copia; la próxima lectura vuelve a MongoDB | 204 siempre, mismo estado final |
+| `DELETE /equipos/{id}/cache` | Invalida la copia. La próxima lectura vuelve a MongoDB | 204 siempre, mismo estado final |
 | `DELETE /sesiones/{id}` | Cierra la sesión | 204 siempre, mismo estado final |
-| `PUT /actas/{codigo}/estado` | Avanza el estado mediante `CambiarEstado()` | Pedir el estado actual responde 200 `cambio: false`, sin guardar; una transición prohibida responde 409 y no modifica |
+| `PUT /actas/{codigo}/estado` | Avanza el estado mediante `CambiarEstado()` | Pedir el estado actual responde 200 `cambio: false`, sin guardar. Una transición prohibida responde 409 y no modifica |
 | `POST /sesiones` | Crea una sesión nueva con ID aleatorio | **No idempotente**: cada llamada abre otra sesión (un usuario puede tener varias, como en el Hito 7) |
 | `POST /partidos/{id}/comentarios` | Crea el comentario en las dos tablas del Hito 6 | **Idempotente por clave**, ver abajo |
 
@@ -97,7 +100,7 @@ Las pruebas unitarias comprueban que una entrada inválida no produce ninguna ll
 Cassandra hace upsert por clave primaria, pero `creado_en` y el ID se generan al escribir: un reintento ingenuo crearía otra fila. Por eso:
 
 1. `SET NX EX 86400` de `fixture2030:h10:idem:comentario:{partido}:{clave}` con estado `EN_CURSO` y la huella SHA-256 del cuerpo. Solo un request puede reservar la clave.
-2. Si la clave existía: misma huella y `COMPLETADO` → 200 con el comentario original y `Idempotent-Replayed: true`; otra huella → 409; `EN_CURSO` → 409.
+2. Si la clave existía: misma huella y `COMPLETADO` → 200 con el comentario original y `Idempotent-Replayed: true`. Otra huella o `EN_CURSO` → 409.
 3. Se verifica que el partido exista en Neo4j (evita comentarios huérfanos) y se escribe un `BATCH LOGGED` con las dos representaciones (misma decisión del Hito 6). Segmento = `CRC32(comentario_id) % 4`.
 4. Se guarda el resultado en la clave (`COMPLETADO`).
 
