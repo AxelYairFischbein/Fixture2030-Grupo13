@@ -1,0 +1,225 @@
+{
+  "fecha": "2026-10-29T23:04:15.014465-03:00",
+  "variante": "base",
+  "humo": true,
+  "config": {
+    "api_url": "http://127.0.0.1:8012",
+    "contenedor_api": "grupo13-hito12-api-1",
+    "contenedor_cassandra": "grupo13-hito6-cassandra-1",
+    "keyspace": "fixture2030_h12",
+    "partidos": [
+      "PAR-001",
+      "PAR-002"
+    ],
+    "desde": "2030-06-10T18:00:00Z",
+    "hasta": "2030-06-10T18:05:00Z",
+    "por_partido": 1200,
+    "limite": 50,
+    "timeout_s": 5,
+    "calentamiento_s": 5,
+    "rampa_s": 3,
+    "sostenimiento_s": 15,
+    "concurrencias": [
+      1,
+      4,
+      8
+    ],
+    "muestreo_s": 2,
+    "max_operaciones": 10000,
+    "max_errores": 10
+  },
+  "fases": [],
+  "fallos": [
+    {
+      "etapa": "humo",
+      "tipo": "ArgumentError",
+      "detalle": "Etapa no completada. Conservar el registro y revisar esa comprobación. No se publican mensajes crudos."
+    }
+  ],
+  "integridad": "OK",
+  "completa": false,
+  "commit_base": "1e3cd9fbf6e300afb201cd9d7f45d18270307123",
+  "cambios_locales": [
+    "M \"Hito 11/README.md\"",
+    " M \"Hito 11/evaluar_conectividad.py\"",
+    " M \"Hito 11/tests/test_diagnostico.py\"",
+    "?? \"Hito 12/\""
+  ],
+  "entorno": {
+    "docker": "29.7.2",
+    "cpu_docker": 24,
+    "memoria_docker_bytes": 16558764032,
+    "generador": "Windows-11-10.0.26300-SP0",
+    "python_generador": "3.13.7",
+    "cpu_logicas_host": 24,
+    "versiones_api": {
+      "api": "1.0.0",
+      "python": "3.12.16",
+      "fastapi": "0.143.2",
+      "uvicorn": "0.54.0",
+      "cassandra-driver": "3.30.1"
+    },
+    "contenedores": [
+      {
+        "nombre": "grupo13-hito12-api-1",
+        "imagen": "grupo13-hito12-api",
+        "image_id": "sha256:7b26a1b47e19c18ffd946d54a8fdb436c5dde37c10c1e41a187dfb705d0a2f78",
+        "cpu_limite": 2.0,
+        "memoria_limite_bytes": 536870912
+      },
+      {
+        "nombre": "grupo13-hito6-cassandra-1",
+        "imagen": "cassandra:latest",
+        "image_id": "sha256:ee178b38a2746a8e15a115bd038ad1f864391d04a84162a018cb0dd79511709a",
+        "cpu_limite": 0.0,
+        "memoria_limite_bytes": 0
+      }
+    ]
+  },
+  "fuente_antes": {
+    "fecha": "2026-10-30T02:04:16.996120+00:00",
+    "cassandra": "5.0.9",
+    "keyspace": "fixture2030_h12",
+    "escrituras_en_esta_ejecucion": 0,
+    "integridad": "OK",
+    "puntos_logicos": 2400,
+    "distribucion": {
+      "PAR-001": {
+        "filas": 1200,
+        "particiones": {
+          "minuto0-segmento0": 60,
+          "minuto0-segmento1": 60,
+          "minuto0-segmento2": 60,
+          "minuto0-segmento3": 60,
+          "minuto1-segmento0": 60,
+          "minuto1-segmento1": 60,
+          "minuto1-segmento2": 60,
+          "minuto1-segmento3": 60,
+          "minuto2-segmento0": 60,
+          "minuto2-segmento1": 60,
+          "minuto2-segmento2": 60,
+          "minuto2-segmento3": 60,
+          "minuto3-segmento0": 60,
+          "minuto3-segmento1": 60,
+          "minuto3-segmento2": 60,
+          "minuto3-segmento3": 60,
+          "minuto4-segmento0": 60,
+          "minuto4-segmento1": 60,
+          "minuto4-segmento2": 60,
+          "minuto4-segmento3": 60
+        }
+      },
+      "PAR-002": {
+        "filas": 1200,
+        "particiones": {
+          "minuto0-segmento0": 60,
+          "minuto0-segmento1": 60,
+          "minuto0-segmento2": 60,
+          "minuto0-segmento3": 60,
+          "minuto1-segmento0": 60,
+          "minuto1-segmento1": 60,
+          "minuto1-segmento2": 60,
+          "minuto1-segmento3": 60,
+          "minuto2-segmento0": 60,
+          "minuto2-segmento1": 60,
+          "minuto2-segmento2": 60,
+          "minuto2-segmento3": 60,
+          "minuto3-segmento0": 60,
+          "minuto3-segmento1": 60,
+          "minuto3-segmento2": 60,
+          "minuto3-segmento3": 60,
+          "minuto4-segmento0": 60,
+          "minuto4-segmento1": 60,
+          "minuto4-segmento2": 60,
+          "minuto4-segmento3": 60
+        }
+      }
+    },
+    "comparacion": "Todas las claves y atributos coinciden con el generador fijo"
+  },
+  "api_antes": {
+    "PAR-001": {
+      "filas": 1200,
+      "paginas": 24,
+      "atributos_y_orden": "OK"
+    },
+    "PAR-002": {
+      "filas": 1200,
+      "paginas": 24,
+      "atributos_y_orden": "OK"
+    }
+  },
+  "fuente_despues": {
+    "fecha": "2026-10-30T02:04:21.174123+00:00",
+    "cassandra": "5.0.9",
+    "keyspace": "fixture2030_h12",
+    "escrituras_en_esta_ejecucion": 0,
+    "integridad": "OK",
+    "puntos_logicos": 2400,
+    "distribucion": {
+      "PAR-001": {
+        "filas": 1200,
+        "particiones": {
+          "minuto0-segmento0": 60,
+          "minuto0-segmento1": 60,
+          "minuto0-segmento2": 60,
+          "minuto0-segmento3": 60,
+          "minuto1-segmento0": 60,
+          "minuto1-segmento1": 60,
+          "minuto1-segmento2": 60,
+          "minuto1-segmento3": 60,
+          "minuto2-segmento0": 60,
+          "minuto2-segmento1": 60,
+          "minuto2-segmento2": 60,
+          "minuto2-segmento3": 60,
+          "minuto3-segmento0": 60,
+          "minuto3-segmento1": 60,
+          "minuto3-segmento2": 60,
+          "minuto3-segmento3": 60,
+          "minuto4-segmento0": 60,
+          "minuto4-segmento1": 60,
+          "minuto4-segmento2": 60,
+          "minuto4-segmento3": 60
+        }
+      },
+      "PAR-002": {
+        "filas": 1200,
+        "particiones": {
+          "minuto0-segmento0": 60,
+          "minuto0-segmento1": 60,
+          "minuto0-segmento2": 60,
+          "minuto0-segmento3": 60,
+          "minuto1-segmento0": 60,
+          "minuto1-segmento1": 60,
+          "minuto1-segmento2": 60,
+          "minuto1-segmento3": 60,
+          "minuto2-segmento0": 60,
+          "minuto2-segmento1": 60,
+          "minuto2-segmento2": 60,
+          "minuto2-segmento3": 60,
+          "minuto3-segmento0": 60,
+          "minuto3-segmento1": 60,
+          "minuto3-segmento2": 60,
+          "minuto3-segmento3": 60,
+          "minuto4-segmento0": 60,
+          "minuto4-segmento1": 60,
+          "minuto4-segmento2": 60,
+          "minuto4-segmento3": 60
+        }
+      }
+    },
+    "comparacion": "Todas las claves y atributos coinciden con el generador fijo"
+  },
+  "api_despues": {
+    "PAR-001": {
+      "filas": 1200,
+      "paginas": 24,
+      "atributos_y_orden": "OK"
+    },
+    "PAR-002": {
+      "filas": 1200,
+      "paginas": 24,
+      "atributos_y_orden": "OK"
+    }
+  }
+}

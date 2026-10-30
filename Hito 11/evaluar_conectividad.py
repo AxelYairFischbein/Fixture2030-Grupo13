@@ -158,6 +158,60 @@ def lectura(producto, a, c, p):
     return f"FixtureH9.Partido codigo={p['acta_codigo']}, encontrado={bool(doc)}, eventos={len(doc['eventos']) if doc else 0}"
 
 
+def seguridad(producto, a, c, p):
+    """Inspección de identidad y permisos sin alterar usuarios ni ejecutar escrituras."""
+    def comprobar(etapa, consulta):
+        inicio = time.perf_counter()
+        try:
+            verificada, detalle = consulta()
+        except Exception as error:
+            # Un permiso de inspección ausente no implica que la lectura esté prohibida.
+            causa, tipo = diagnostico(error)
+            verificada, detalle = False, f"Inspección no completada: {causa}, tipo={tipo}. {PASOS[causa]}"
+        fila(etapa, "OK" if verificada else "WARN", detalle,
+             (time.perf_counter() - inicio) * 1000, verificada_independientemente=verificada)
+
+    def identidad():
+        if producto == "mongodb":
+            info = a._db.command("connectionStatus")["authInfo"]
+            coincide = any(u["user"] == c.mongo_user and u["db"] == "admin"
+                           for u in info["authenticatedUsers"])
+            return coincide, "connectionStatus: identidad autenticada coincide con la configurada." if coincide else (
+                "Autenticación no verificada independientemente. connectionStatus no confirmó la identidad configurada.")
+        if producto == "neo4j":
+            filas = a._leer("SHOW CURRENT USER YIELD user RETURN user")
+            coincide = len(filas) == 1 and filas[0]["user"] == c.neo4j_user
+            return coincide, "SHOW CURRENT USER: identidad coincide con la configurada." if coincide else (
+                "Autenticación no verificada independientemente. No se confirmó la identidad configurada.")
+        if producto == "redis":
+            usuario = a._r.acl_whoami()
+            coincide = bool(c.redis_password) and usuario == "default"
+            return coincide, (
+                "ACL WHOAMI: identidad default confirmada en la conexión con credencial del adaptador." if coincide else
+                "ACL WHOAMI: identidad efectiva consultada. Autenticación por credencial no verificada independientemente. No se deduce que esté deshabilitada.")
+        return False, "Autenticación no verificada independientemente. El cliente del módulo no inspecciona la identidad autenticada. Una operación aceptada solo acredita acceso funcional."
+
+    def permiso():
+        if producto == "mongodb":
+            info = a._db.command("connectionStatus", showPrivileges=True)["authInfo"]
+            for privilegio in info["authenticatedUserPrivileges"]:
+                recurso = privilegio["resource"]
+                aplica = recurso.get("anyResource") or (
+                    "db" in recurso and recurso["db"] in ("", c.mongo_db)
+                    and recurso.get("collection") in ("", "equipos"))
+                if aplica and "find" in privilegio["actions"]:
+                    return True, f"connectionStatus: privilegio find sobre {c.mongo_db}.equipos. No evalúa escrituras ni otras colecciones."
+            return False, "Autorización no verificada independientemente. La inspección no confirmó find sobre equipos. Contrastar con la lectura, sin inferir una denegación."
+        if producto == "redis":
+            usuario = a._r.acl_whoami()
+            permitido = a._r.execute_command("ACL", "DRYRUN", usuario, "GET", p["redis_clave"]) == "OK"
+            return permitido, "ACL DRYRUN: permiso GET para la clave configurada, sin ejecutar GET. No verifica otros comandos ni la existencia de la clave."
+        return False, "Autorización no verificada independientemente. No se inspeccionan permisos efectivos por recurso. La lectura se registra por separado y no acredita otras operaciones."
+
+    comprobar("autenticacion", identidad)
+    comprobar("autorizacion", permiso)
+
+
 def clientes(producto, c, p):
     import httpx
     host, _, _, autenticado = destino(producto, c)
@@ -180,12 +234,10 @@ def clientes(producto, c, p):
     a = adaptador(producto, c)
     if not probar("protocolo", lambda: (a.ping(), "Driver completó ping/lectura constante en el contexto configurado.")[1]):
         return
-    fila("autenticacion", "OK" if autenticado else "WARN",
-         "La conexión autenticada fue aceptada." if autenticado else "Sin credencial en el adaptador. El servidor aceptó la operación.")
+    seguridad(producto, a, c, p)
     if producto != "mongodb":
         fila("contexto", "OK", destino(producto, c)[2] + ". Contexto utilizado por el driver, no por el portal.")
-    if probar("lectura", lambda: lectura(producto, a, c, p)):
-        fila("autorizacion", "OK", "Lectura autorizada para esta operación. No acredita permisos de escritura.")
+    probar("lectura", lambda: lectura(producto, a, c, p))
 
 
 def instante(texto):
@@ -303,11 +355,13 @@ def evaluacion_completa(registros, modo):
     if modo in {"completo", "tcp"}:
         requeridas |= {"dns", "tcp"}
     if modo in {"completo", "clientes"}:
-        requeridas |= {"protocolo", "lectura"}
+        requeridas |= {"protocolo", "lectura", "autenticacion", "autorizacion"}
     if modo in {"completo", "api"}:
         requeridas |= {"api", "logs"}
     return requeridas <= {r["etapa"] for r in registros} and not any(
-        r["resultado"] == "SKIP" or r["etapa"] in {"ejecucion", "plazo_total"} for r in registros)
+        r["resultado"] == "SKIP" or r["etapa"] in {"ejecucion", "plazo_total"}
+        or (r["etapa"] in {"autenticacion", "autorizacion"}
+            and r.get("verificada_independientemente") is not True) for r in registros)
 
 
 def verificar_logs(texto, prefijo, registros, producto):

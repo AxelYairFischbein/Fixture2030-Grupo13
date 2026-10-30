@@ -10,3 +10,4 @@ Trabajo práctico de Ingeniería de Datos II.
 - [Hito 9: entidades complejas en InterSystems IRIS](Hito%209/README.md).
 - [Hito 10: API REST integrada con consola web](Hito%2010/README.md).
 - [Hito 11: evaluación de conectividad de la API y sus dependencias](Hito%2011/README.md).
+- [Hito 12: pruebas de carga y optimización de comentarios](Hito%2012/README.md).

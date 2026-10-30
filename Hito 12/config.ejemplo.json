@@ -1,0 +1,19 @@
+{
+  "api_url": "http://127.0.0.1:8012",
+  "contenedor_api": "grupo13-hito12-api-1",
+  "contenedor_cassandra": "grupo13-hito6-cassandra-1",
+  "keyspace": "fixture2030_h12",
+  "partidos": ["PAR-001", "PAR-002"],
+  "desde": "2030-06-10T18:00:00Z",
+  "hasta": "2030-06-10T18:05:00Z",
+  "por_partido": 1200,
+  "limite": 50,
+  "timeout_s": 5,
+  "calentamiento_s": 5,
+  "rampa_s": 3,
+  "sostenimiento_s": 15,
+  "concurrencias": [1, 4, 8],
+  "muestreo_s": 2,
+  "max_operaciones": 10000,
+  "max_errores": 10
+}

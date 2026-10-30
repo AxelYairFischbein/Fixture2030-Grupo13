@@ -1,0 +1,8 @@
+# Superpone solamente el adaptador original para reproducir la línea base.
+services:
+  api:
+    volumes:
+      - type: bind
+        source: ./.local/cassandra_comentarios_base.py
+        target: /app/app/adapters/cassandra_comentarios.py
+        read_only: true

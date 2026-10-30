@@ -1,0 +1,27 @@
+name: grupo13-hito12
+services:
+  api:
+    build: ../Hito 10
+    image: grupo13-hito12-api
+    environment:
+      CASSANDRA_HOSTS: host.docker.internal
+      CASSANDRA_PORT: "9042"
+      CASSANDRA_KEYSPACE: fixture2030_h12
+      DEP_TIMEOUT_SEGUNDOS: "3"
+      PYTHONDONTWRITEBYTECODE: "1"
+    ports:
+      - "127.0.0.1:8012:8000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - type: bind
+        source: .
+        target: /h12
+        read_only: true
+      - type: bind
+        source: ../Hito 6/scripts/esquema.cql
+        target: /h6-esquema.cql
+        read_only: true
+    cpus: 2
+    mem_limit: 512m
+    restart: "no"

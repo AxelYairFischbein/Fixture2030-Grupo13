@@ -71,7 +71,7 @@ La API publica `127.0.0.1:8000`. Los puertos de los Hitos 5 a 9 también se publ
 | MongoDB, equipos y jugadores | `host.docker.internal` | `27017 → 27017`, MongoDB wire | `fixture2030.equipos`, `jugadores` | Usuario y contraseña, `authSource=admin`, PyMongo | `find_one` de `EQ-001`. `GET /equipos?tamanio=3` |
 | Neo4j, partidos | `host.docker.internal` | `7687 → 7687`, Bolt. Portal HTTP `7474 → 7474` | Database `neo4j` | Usuario y contraseña, driver `neo4j` | Partido `PAR-001` y hasta tres eventos con Cypher parametrizado. `GET /partidos/PAR-001?limiteEventos=3` |
 | Cassandra, comentarios | `host.docker.internal` | `9042 → 9042`, CQL | `fixture2030_comentarios.comentarios_por_partido` | Sin credenciales en el adaptador local, `cassandra-driver` | Partido `PAR-001`, un minuto y cuatro segmentos, límite tres. `GET /partidos/PAR-001/comentarios` |
-| Redis, sesiones y caché | `host.docker.internal` | `16379 → 6379`, RESP | Base 0, prefijo API `fixture2030:h10` | Sin contraseña en el entorno local, `redis` | `PING`, tipo, lectura acotada y TTL de la clave configurada. `GET /sesiones/SES-000000000000000000000000` |
+| Redis, sesiones y caché | `host.docker.internal` | `16379 → 6379`, RESP | Base 0, prefijo API `fixture2030:h10` | Sin contraseña configurada en el adaptador local, `redis` | `PING`, tipo, lectura acotada y TTL de la clave configurada. `GET /sesiones/SES-000000000000000000000000` |
 | InfluxDB, estadísticas | `host.docker.internal` | `8181 → 8181`, HTTP | Database `fixture2030_h8`, tabla `estadisticas_equipo` | Token Bearer, `httpx` | SQL temporal y `DATE_BIN` de un minuto. `GET /partidos/PAR-001/estadisticas` con `equipoId=EQ-001` y ventana explícita |
 | IRIS, actas | `host.docker.internal` | `1972 → 1972`, Superserver. Portal HTTP `52773 → 52773` | Namespace `USER`, clases `FixtureH9.Partido` y `FixtureH9.Evento` | Usuario `fixture_api` y contraseña, `intersystems-irispython` | Acta `PAR-001` por código y hasta 100 eventos del adaptador existente. `GET /actas/PAR-001` |
 
@@ -87,7 +87,8 @@ La ventana de comentarios es `[2030-06-10T18:00:00Z, 2030-06-10T18:01:00Z)`. Inf
 | DNS y TCP | Demuestran resolución y aceptación de conexión desde la API. No prueban protocolo, identidad ni permisos. |
 | HTTP auxiliar | Distingue el portal de Neo4j o IRIS del acceso a datos. En InfluxDB, el health sin token y el autorizado son pruebas separadas. |
 | Driver y contexto | Un ping o `SELECT 1` comprueba el protocolo y el contexto configurado. La lectura posterior verifica la colección, tabla o entidad utilizada. |
-| Autenticación y autorización | Se infieren de la operación aceptada. No se prueban permisos de escritura ni otras identidades. Las filas inferidas tienen 0 ms, sin medición independiente. |
+| Autenticación | Identidad de la conexión. MongoDB consulta `connectionStatus` y Neo4j `SHOW CURRENT USER`, contrastando la identidad configurada sin imprimirla. Redis consulta `ACL WHOAMI`, pero sin credencial configurada no acredita autenticación por contraseña. Cassandra, InfluxDB e IRIS quedan como no verificada independientemente. |
+| Autorización | Permiso para una operación y recurso concretos. MongoDB inspecciona el privilegio `find` sobre la colección `equipos`. Redis utiliza `ACL DRYRUN` para `GET` sobre la clave configurada sin ejecutar esa lectura. Los otros productos quedan como no verificada independientemente. No se evalúan escrituras. |
 | API y logs | Comprueban ruta, validación, adaptador, respuesta y correlación con `X-Request-ID`. La validación 400 sucede antes de consultar una dependencia. |
 
 La clave `fixture2030:h11:demo:conectividad` puede estar ausente. `TTL=-2` indica ausencia, sin permitir afirmar si venció o nunca existió. `TTL=-1` significa que una clave existente no tiene vencimiento. Una ventana vacía de InfluxDB es válida si la consulta fue aceptada. Ninguno de estos resultados demuestra una caída.
@@ -96,7 +97,7 @@ Los adaptadores usan `DEP_TIMEOUT_SEGUNDOS=3` para sus esperas de red. IRIS limi
 
 ## Estados, fallas y salud
 
-La matriz separa **estado observado** y **evaluación completa o incompleta del modo solicitado**. Una lectura exitosa no convierte en realizadas las etapas omitidas.
+La matriz separa **estado observado** y **evaluación completa o incompleta del modo solicitado**. Una lectura exitosa no convierte en realizadas las etapas omitidas. Los modos `clientes` y `completo` incluyen la verificación independiente de identidad y permisos. Una inspección no disponible se registra como `WARN`, con evaluación incompleta, sin declarar caída de la dependencia. No se cambian usuarios ni permisos para obtener acceso a esa inspección. La ausencia de credenciales en el adaptador no demuestra que la autenticación del servidor esté deshabilitada.
 
 | Estado | Interpretación |
 | --- | --- |
@@ -108,7 +109,7 @@ La matriz separa **estado observado** y **evaluación completa o incompleta del 
 
 `OK` acredita únicamente la operación indicada. `WARN` señala una limitación como ausencia de muestra o acceso sin credenciales. `FAIL` indica que una prueba falló, pero su causa puede ser el proceso de diagnóstico. `SKIP` indica una prueba no completada, no una caída.
 
-El código de salida es **0** cuando las etapas solicitadas terminaron sin `FAIL`, **1** cuando terminaron con fallas y **2** cuando falta alguna etapa, herramienta o correlación. El 2 tiene prioridad. Los avisos no producen por sí solos un código distinto de 0. Un modo TCP completo puede devolver 0 con estado desconocido, porque no incluyó una lectura.
+El código de salida es **0** cuando las etapas solicitadas terminaron sin `FAIL`, **1** cuando terminaron con fallas y **2** cuando falta alguna etapa, verificación independiente, herramienta o correlación. El 2 tiene prioridad. Un aviso de muestra ausente no vuelve incompleta una lectura realizada. Un modo TCP completo puede devolver 0 con estado desconocido, porque no incluyó una lectura.
 
 | Señal observada | Hipótesis y siguiente paso |
 | --- | --- |
@@ -201,13 +202,13 @@ Con la sesión de ejemplo ausente se espera 404 antes y después, y 503 o 504 du
 | --- | --- |
 | [evaluar_conectividad.py](evaluar_conectividad.py) | Lanzador y funciones por capa, con ejecución de drivers dentro de la API |
 | [config/ejemplo.json](config/ejemplo.json) | Destinos lógicos, ventanas, límites y plazos sin secretos |
-| [tests/test_diagnostico.py](tests/test_diagnostico.py) | Tres pruebas unitarias de clasificación y logs, sin bases ni Docker |
-| [evidencia/01_conectividad.md](evidencia/01_conectividad.md) | Ejecución real completa del 21 de octubre de 2026 a las 21:56:28, UTC−03:00, matriz y logs |
+| [tests/test_diagnostico.py](tests/test_diagnostico.py) | Pruebas unitarias de clasificación, identidad, permisos y logs, sin bases ni Docker |
+| [evidencia/01_conectividad.md](evidencia/01_conectividad.md) | Ejecución histórica del 21 de octubre de 2026 a las 21:56:28, UTC−03:00, matriz y logs |
 | [evidencia/02_recuperacion.txt](evidencia/02_recuperacion.txt) | Corte y recuperación de Redis del 22 de octubre de 2026, con resumen inicial de 24 líneas y detalle de los tres requests |
 | [evidencia/03_conectividad.png](evidencia/03_conectividad.png) | Captura del encabezado y la matriz de la ejecución registrada el 21 de octubre de 2026 |
 | [evidencia/04_recuperacion.png](evidencia/04_recuperacion.png) | Captura del resumen de recuperación del 22 de octubre de 2026, con respuestas, logs y estado final de Redis |
 
-La ejecución registrada utilizó Docker Engine 29.7.2, Python 3.12.15 en la API y los drivers informados en cada producto. Las seis dependencias completaron las pruebas seleccionadas, con 67 `OK`, 3 `WARN`, ningún `FAIL` ni `SKIP` y salida 0. Los avisos corresponden al acceso sin credenciales de Cassandra y Redis y a la clave Redis ausente. InfluxDB devolvió una ventana vacía válida. No se infirió una expiración ni se cargaron datos nuevos.
+La ejecución registrada utilizó Docker Engine 29.7.2, Python 3.12.15 en la API y los drivers informados en cada producto. Su versión del diagnóstico registró 67 `OK`, 3 `WARN`, ningún `FAIL` ni `SKIP` y salida 0. Es evidencia de acceso funcional a las seis dependencias, no de verificación independiente de autenticación y autorización. Esas filas se inferían de operaciones aceptadas. Se conservan sus resultados y fechas como registro histórico. La versión actual exige las comprobaciones separadas descritas arriba y puede devolver 2 aun con una lectura exitosa. Los avisos históricos corresponden al acceso sin credenciales de Cassandra y Redis y a la clave Redis ausente. InfluxDB devolvió una ventana vacía válida. No se infirió una expiración ni se cargaron datos nuevos.
 
 También pasaron tres pruebas unitarias del diagnóstico y las 22 pruebas de `tests/unit` del Hito 10 dentro de la imagen de la API. Las pruebas con dobles verifican 503, 504, 500, fallback, privacidad y contrato OpenAPI. No prueban una conexión real. Una prueba existente usa el driver Redis contra un puerto local sin servicio, sin escribir datos. No se ejecutaron las pruebas de integración con escrituras. El Compose se validó con `config --quiet`.
 
@@ -225,6 +226,8 @@ Los cambios del Hito 10 se limitan a la clasificación de errores, los logs segu
 La prueba del 22 de octubre completa el escenario real de RF20 y RF21. Ese día también pasaron nuevamente las tres pruebas unitarias del diagnóstico. No se modificaron el diagnóstico ni la API para la prueba de recuperación. La evidencia completa del día anterior se conserva como una ejecución distinta, sin afirmar que se repitieron las seis dependencias el día 22.
 
 Los resultados de conectividad no representan una garantía de disponibilidad permanente ni una medición de rendimiento.
+
+El 29 de octubre de 2026 se comprobó la separación de identidad y permisos con lecturas reales de MongoDB, Neo4j, Cassandra e IRIS. MongoDB confirmó ambas verificaciones. Neo4j confirmó identidad, mientras que los otros permisos quedaron como no verificados independientemente. Cassandra e IRIS conservaron disponibilidad observada con cobertura incompleta. Redis e InfluxDB estaban detenidos y no se repitieron sus comprobaciones reales. Pasaron seis pruebas unitarias del diagnóstico. El [registro de estas comprobaciones](../Hito%2012/evidencia/07_validacion.txt) conserva el alcance y las fechas, separado de las evidencias históricas.
 
 ### Capturas
 

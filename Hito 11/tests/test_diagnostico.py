@@ -2,13 +2,53 @@
 
 import sys
 import unittest
+import io
+import json
+from contextlib import redirect_stdout
+from types import SimpleNamespace
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from evaluar_conectividad import codigo_salida, estado_producto, evaluacion_completa, verificar_logs
+from evaluar_conectividad import codigo_salida, estado_producto, evaluacion_completa, verificar_logs, seguridad
 
 
 class DiagnosticoTest(unittest.TestCase):
+    def test_lectura_no_acredita_identidad_ni_permisos(self):
+        salida = io.StringIO()
+        with redirect_stdout(salida):
+            seguridad("cassandra", None, None, {})
+        registros = [json.loads(linea) for linea in salida.getvalue().splitlines()]
+        registros += [{"etapa": e, "resultado": "OK"} for e in ("configuracion", "protocolo", "lectura")]
+        self.assertEqual(estado_producto(registros), "disponible")
+        self.assertEqual(codigo_salida({"cassandra": registros}, "clientes"), 2)
+        self.assertTrue(all(not r["verificada_independientemente"] for r in registros[:2]))
+
+    def test_mongodb_identidad_y_permiso_son_independientes(self):
+        class DB:
+            def command(self, nombre, **opciones):
+                return {"authInfo": {"authenticatedUsers": [{"user": "demo", "db": "admin"}],
+                        "authenticatedUserPrivileges": [{"resource": {"db": "otra", "collection": "equipos"},
+                                                         "actions": ["find"]}]}}
+        salida = io.StringIO()
+        with redirect_stdout(salida):
+            seguridad("mongodb", SimpleNamespace(_db=DB()), SimpleNamespace(mongo_user="demo", mongo_db="fixture2030"), {})
+        identidad, permiso = [json.loads(linea) for linea in salida.getvalue().splitlines()]
+        self.assertTrue(identidad["verificada_independientemente"])
+        self.assertFalse(permiso["verificada_independientemente"])
+        self.assertEqual(permiso["resultado"], "WARN")
+
+    def test_redis_sin_credencial_no_infiere_autenticacion(self):
+        llamadas = []
+        cliente = SimpleNamespace(acl_whoami=lambda: "default", execute_command=lambda *args: llamadas.append(args) or "OK")
+        salida = io.StringIO()
+        with redirect_stdout(salida):
+            seguridad("redis", SimpleNamespace(_r=cliente), SimpleNamespace(redis_password=""),
+                      {"redis_clave": "fixture2030:h11:demo:conectividad"})
+        identidad, permiso = [json.loads(linea) for linea in salida.getvalue().splitlines()]
+        self.assertFalse(identidad["verificada_independientemente"])
+        self.assertTrue(permiso["verificada_independientemente"])
+        self.assertEqual(llamadas, [("ACL", "DRYRUN", "default", "GET", "fixture2030:h11:demo:conectividad")])
+
     def test_fallo_del_proceso_no_declara_caida(self):
         registros = [{"etapa": "ejecucion", "resultado": "FAIL"}]
         self.assertEqual(estado_producto(registros), "desconocido")

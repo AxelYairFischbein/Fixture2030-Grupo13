@@ -57,7 +57,7 @@ class CassandraComentarios:
                     cluster.shutdown()
                     raise
                 sesion.default_timeout = self._cfg.timeout
-                sesion.default_consistency_level = ConsistencyLevel.ONE  # nodo único del laboratorio
+                sesion.default_consistency_level = ConsistencyLevel.ONE  # nodo único del entorno local
                 ks = self._cfg.cassandra_keyspace  # valor de configuración, nunca del consumidor
                 self._ventana = sesion.prepare(Q_VENTANA.format(c=COLUMNAS, ks=ks))
                 self._empate = sesion.prepare(Q_EMPATE.format(c=COLUMNAS, ks=ks))
@@ -80,7 +80,10 @@ class CassandraComentarios:
             filas = []
             if cursor:
                 instante, ultimo_id = cursor
-                filas = list(sesion.execute(self._empate, (partido_id, minutos, SEGMENTOS, instante, ultimo_id, limite)))
+                # Un timestamp solo puede pertenecer a su bucket de minuto UTC.
+                # Se conservan los cuatro segmentos y el orden por ID de los empates.
+                minuto_cursor = [instante.replace(second=0, microsecond=0)]
+                filas = list(sesion.execute(self._empate, (partido_id, minuto_cursor, SEGMENTOS, instante, ultimo_id, limite)))
                 hasta = instante
             if len(filas) < limite:
                 filas += list(sesion.execute(self._ventana, (partido_id, minutos, SEGMENTOS, desde, hasta, limite - len(filas))))

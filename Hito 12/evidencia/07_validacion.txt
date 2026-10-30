@@ -1,0 +1,88 @@
+Hito 12 - Validación y cierre local
+Fecha de comprobación final: 2026-10-29T23:20:08.381589-03:00
+Base: 1e3cd9fbf6e300afb201cd9d7f45d18270307123, con cambios locales.
+Entorno: Windows, Docker 29.7.2, API H12 en 127.0.0.1:8012.
+API 1.0.0, Python API 3.12.16, Cassandra 5.0.9.
+Keyspace aislado: fixture2030_h12, datos existentes sin nueva preparación.
+Fuente final: OK, 2400 comentarios, 1200 por partido.
+Distribución: 40 particiones, 60 comentarios por partición.
+API final: OK, 24 páginas por partido, 48 páginas de 50 filas.
+Identificadores, contenido, orden, cursores y atributos: coinciden.
+Escrituras de la validación y carga HTTP: 0.
+Base y optimizada: integridad comprobada antes y después de cada medición.
+Sostenimiento: 13472 solicitudes entre las cuatro ejecuciones, 0 errores.
+Todas las fases comparables: 18475 solicitudes, 0 errores y 0 timeouts.
+Correlación HTTP y adaptador: comprobada en las cuatro ejecuciones.
+Reproducción del adaptador base por montaje: validada, sin alterar el checkout.
+Estado final: API H12 activa con adaptador optimizado, Cassandra activa.
+Unitarias: H12 5 correctas, H11 6 correctas, API 23 correctas, incluido OpenAPI.
+H11 real: MongoDB confirma identidad y permiso find sobre equipos.
+H11 real: Neo4j confirma identidad, autorización no verificada independientemente.
+H11 real: Cassandra e IRIS permiten leer, identidad y permisos no verificados independientemente.
+Redis e InfluxDB estaban detenidos. No se repitieron sus comprobaciones reales.
+No se demuestra una mejora uniforme de P95/P99 ni capacidad productiva.
+Capturas 08_comparacion.png y 09_integridad.png: pendientes.
+
+Detalle y alcance
+=================
+Las mediciones son del 29/10/2026, UTC-03:00.
+03_base_1.json: inicio 23:05:24, 3429 solicitudes de sostenimiento.
+04_base_2.json: inicio 23:05:59, 2997 solicitudes de sostenimiento.
+05_optimizada_1.json: inicio 23:09:55, 3469 solicitudes de sostenimiento.
+06_optimizada_2.json: inicio 23:10:30, 3577 solicitudes de sostenimiento.
+Los JSON conservan también calentamiento, rampas, recursos y verificaciones.
+01_humo.json quedó incompleto por ArgumentError en el contador de memoria de Windows.
+No entra en la comparación ni se reconstruyeron sus mediciones faltantes.
+Después de corregir los tipos del llamado de Windows, 02_humo.json completó 195 lecturas.
+El medidor conserva ahora configuración efectiva y avances por etapa.
+Las pruebas de conservación ante fallas y separación de permisos usan dobles.
+No son fallas provocadas en las bases ni mediciones de rendimiento.
+La prueba existente de Redis contra un puerto local sin servicio no escribe datos.
+La comprobación final reutilizó los datos ya preparados el 28/10/2026.
+No se atribuye una ganancia de memoria únicamente al cambio del cursor.
+El estado de memoria del proceso y otras tareas del equipo pueden variar.
+
+Diagnóstico real H11, modo clientes, desde grupo13-hito10-api-1
+=============================================================
+Las evidencias históricas del Hito 11 se conservan sin alteraciones.
+Estas comprobaciones son de la versión corregida, sin escrituras ni cambios de permisos.
+MongoDB terminó con salida 0. Neo4j, Cassandra e IRIS con salida 2 por cobertura incompleta.
+La lectura exitosa mantiene el estado disponible aunque falten verificaciones independientes.
+Fecha local del lanzador: 2026-10-29T23:12:35.977064-03:00
+| mongodb | disponible | completa |
+| autenticacion | OK | 1.39 | connectionStatus: identidad autenticada coincide con la configurada. |
+| autorizacion | OK | 2.01 | connectionStatus: privilegio find sobre fixture2030.equipos. No evalúa escrituras ni otras colecciones. |
+| lectura | OK | 7.13 | find_one equipo=EQ-001, documento encontrado |
+Fecha local del lanzador: 2026-10-29T23:12:37.663218-03:00
+| neo4j | disponible | incompleta |
+| autenticacion | OK | 713.93 | SHOW CURRENT USER: identidad coincide con la configurada. |
+| autorizacion | WARN | 0.0 | Autorización no verificada independientemente. No se inspeccionan permisos efectivos por recurso. La lectura se registra por separado y no acredita otras operaciones. |
+| lectura | OK | 685.47 | Cypher parametrizado, partido=PAR-001, encontrado=True, eventos=2, limite=3 |
+Fecha local del lanzador: 2026-10-29T23:12:40.542084-03:00
+| cassandra | disponible | incompleta |
+| autenticacion | WARN | 0.0 | Autenticación no verificada independientemente. El cliente del módulo no inspecciona la identidad autenticada. Una operación aceptada solo acredita acceso funcional. |
+| autorizacion | WARN | 0.0 | Autorización no verificada independientemente. No se inspeccionan permisos efectivos por recurso. La lectura se registra por separado y no acredita otras operaciones. |
+| lectura | OK | 19.07 | partido=PAR-001, [2030-06-10T18:00:00Z, 2030-06-10T18:01:00Z), 4 segmentos, filas=3, limite=3 |
+Fecha local del lanzador: 2026-10-29T23:12:41.745308-03:00
+| iris | disponible | incompleta |
+| autenticacion | WARN | 0.0 | Autenticación no verificada independientemente. El cliente del módulo no inspecciona la identidad autenticada. Una operación aceptada solo acredita acceso funcional. |
+| autorizacion | WARN | 0.0 | Autorización no verificada independientemente. No se inspeccionan permisos efectivos por recurso. La lectura se registra por separado y no acredita otras operaciones. |
+| lectura | OK | 14.73 | FixtureH9.Partido codigo=PAR-001, encontrado=True, eventos=2 |
+
+Comandos unitarios ejecutados desde la raíz del repositorio
+==========================================================
+python -X utf8 -m unittest discover -s "Hito 11/tests" -v
+python -X utf8 -m unittest discover -s "Hito 12" -p "test_*.py" -v
+docker compose -f "Hito 12/docker-compose.yml" exec -T api python -m pytest tests/unit -q -p no:cacheprovider
+No se ejecutaron las pruebas de integración con escrituras.
+
+
+Comprobacion explicita de ubicacion fisica
+Fecha UTC: 2026-10-30T02:26:06.877297+00:00
+Se contrastaron minuto UTC de creado_en y CRC32 del ID modulo 4 en las 40 particiones.
+Resultado real: OK, 2400 comentarios, sin escrituras.
+Esta comprobacion posterior no modifica las mediciones anteriores.
+
+Cierre de capturas: 2026-10-30, UTC-03:00
+Se verificaron 08_comparacion.png y 09_integridad.png. Son legibles y coinciden con los registros anteriores.
+Las capturas est?n enlazadas desde el README. No representan una nueva ejecuci?n de carga o integridad.
