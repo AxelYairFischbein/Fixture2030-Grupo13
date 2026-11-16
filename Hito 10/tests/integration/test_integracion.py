@@ -79,8 +79,22 @@ def test_neo4j_partido_inexistente(app_real):
 
 
 def test_cassandra_ventana_y_cursor(app_real):
-    cliente, _ = app_real
+    cliente, srv = app_real
     params = {"desde": "2030-06-10T18:00:30Z", "hasta": "2030-06-10T18:02:10Z", "limite": 3}
+    desde = datetime(2030, 6, 10, 18, 0, 30, tzinfo=timezone.utc)
+    hasta = datetime(2030, 6, 10, 18, 2, 10, tzinfo=timezone.utc)
+    # Oráculo de solo lectura: pueden coexistir la muestra mínima y la carga masiva.
+    # Leer cada partición sin cursor ni LIMIT permite comprobar toda la paginación HTTP.
+    sesion = srv.cassandra._conectar()
+    filas = []
+    for minuto in range(3):
+        for segmento in range(4):
+            filas.extend(sesion.execute(
+                f"SELECT comentario_id, creado_en FROM {CFG.cassandra_keyspace}.comentarios_por_partido "
+                "WHERE partido_id=%s AND minuto=%s AND segmento=%s AND creado_en >= %s AND creado_en < %s",
+                ("PAR-001", desde.replace(minute=minuto, second=0), segmento, desde, hasta)))
+    esperados = [f.comentario_id for f in sorted(
+        filas, key=lambda f: (-f.creado_en.replace(tzinfo=timezone.utc).timestamp(), f.comentario_id))]
     vistos, cursor = [], None
     while True:
         r = cliente.get(f"{API}/partidos/PAR-001/comentarios", params={**params, **({"cursor": cursor} if cursor else {})})
@@ -89,8 +103,10 @@ def test_cassandra_ventana_y_cursor(app_real):
         cursor = r.json()["meta"]["paginacion"]["siguienteCursor"]
         if not cursor:
             break
-    # Muestra del Hito 6: Q2 devuelve ocho comentarios en [18:00:30, 18:02:10), sin repetidos.
-    assert len(vistos) == 8 == len(set(vistos)) and "MUESTRA-010" not in vistos and "MUESTRA-002" in vistos
+    assert vistos == esperados and len(vistos) == len(set(vistos))
+    # Se mantienen las comprobaciones de la muestra original, sin borrar la carga masiva.
+    muestra = [c for c in vistos if c.startswith("MUESTRA-")]
+    assert len(muestra) == 8 and "MUESTRA-010" not in muestra and "MUESTRA-002" in muestra
 
 
 def test_cassandra_ventana_vacia_valida(app_real):
@@ -231,12 +247,14 @@ CAIDAS = {
 
 
 @pytest.mark.parametrize("fuente", CAIDAS)
-def test_dependencia_detenida_responde_503_acotado(fuente):
+def test_dependencia_detenida_responde_error_tipado_acotado(fuente):
     cambios, ruta = CAIDAS[fuente]
     cliente = TestClient(crear_app(servicios_reales(replace(CFG, timeout=1, **cambios))))
     inicio = time.perf_counter()
     r = cliente.get(API + ruta)
     duracion = time.perf_counter() - inicio
-    assert r.status_code == 503, r.text
+    assert r.status_code in (503, 504), r.text
+    assert r.json()["error"]["codigo"] == {
+        503: "DEPENDENCIA_NO_DISPONIBLE", 504: "DEPENDENCIA_TIMEOUT"}[r.status_code]
     assert r.json()["error"]["dependencia"] == fuente and "127.0.0.1" not in r.text
     assert duracion < 8, f"{fuente} tardó {duracion:.1f} s"
