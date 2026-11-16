@@ -1,0 +1,685 @@
+{
+  "fecha": "2026-11-15T23:36:26.358915-03:00",
+  "variante": "optimizada",
+  "humo": false,
+  "config": {
+    "api_url": "http://127.0.0.1:8012",
+    "contenedor_api": "grupo13-hito12-api-1",
+    "contenedor_cassandra": "grupo13-hito6-cassandra-1",
+    "keyspace": "fixture2030_h12",
+    "partidos": [
+      "PAR-001",
+      "PAR-002"
+    ],
+    "desde": "2030-06-10T18:00:00Z",
+    "hasta": "2030-06-10T18:05:00Z",
+    "por_partido": 1200,
+    "limite": 50,
+    "timeout_s": 5,
+    "calentamiento_s": 5,
+    "rampa_s": 3,
+    "sostenimiento_s": 15,
+    "concurrencias": [
+      1,
+      4,
+      8
+    ],
+    "muestreo_s": 2,
+    "max_operaciones": 10000,
+    "max_errores": 10
+  },
+  "fases": [
+    {
+      "fase": "calentamiento",
+      "concurrencia": 1,
+      "programada_s": 5,
+      "duracion_s": 5.0066,
+      "intentadas": 434,
+      "exitosas": 434,
+      "fallidas": 0,
+      "timeouts": 0,
+      "errores": {},
+      "tasa_error_pct": 0.0,
+      "throughput_ok_s": 86.686,
+      "cliente": {
+        "n": 434,
+        "min_ms": 6.985,
+        "promedio_ms": 11.439,
+        "p50_ms": 10.69,
+        "p95_ms": 14.872,
+        "p99_ms": 19.831
+      },
+      "adaptador": {
+        "n": 434,
+        "min_ms": 5.15,
+        "promedio_ms": 9.26,
+        "p50_ms": 8.55,
+        "p95_ms": 12.35,
+        "p99_ms": 17.74
+      },
+      "distribucion": {
+        "PAR-001-pagina1": 82,
+        "PAR-001-pagina2": 82,
+        "PAR-001-pagina3": 81,
+        "PAR-001-pagina4": 81,
+        "PAR-002-pagina1": 27,
+        "PAR-002-pagina2": 27,
+        "PAR-002-pagina3": 27,
+        "PAR-002-pagina4": 27
+      },
+      "generador_cpu_pct": 3.121,
+      "generador_memoria_mib": 29.598,
+      "recursos": [
+        {
+          "fecha": "2026-11-16T02:36:28.945152+00:00",
+          "contenedor": "grupo13-hito12-api-1",
+          "cpu_pct": 26.47,
+          "memoria": "91.78MiB / 512MiB",
+          "memoria_pct": 17.93,
+          "lectura_s": 2.045
+        },
+        {
+          "fecha": "2026-11-16T02:36:28.945152+00:00",
+          "contenedor": "grupo13-hito6-cassandra-1",
+          "cpu_pct": 181.12,
+          "memoria": "2.991GiB / 15.42GiB",
+          "memoria_pct": 19.4,
+          "lectura_s": 2.045
+        },
+        {
+          "fecha": "2026-11-16T02:36:30.989780+00:00",
+          "contenedor": "grupo13-hito12-api-1",
+          "cpu_pct": 24.96,
+          "memoria": "92.14MiB / 512MiB",
+          "memoria_pct": 18.0,
+          "lectura_s": 2.006
+        },
+        {
+          "fecha": "2026-11-16T02:36:30.989780+00:00",
+          "contenedor": "grupo13-hito6-cassandra-1",
+          "cpu_pct": 60.1,
+          "memoria": "2.989GiB / 15.42GiB",
+          "memoria_pct": 19.38,
+          "lectura_s": 2.006
+        },
+        {
+          "fecha": "2026-11-16T02:36:32.995883+00:00",
+          "contenedor": "grupo13-hito12-api-1",
+          "cpu_pct": 0.22,
+          "memoria": "92.04MiB / 512MiB",
+          "memoria_pct": 17.98,
+          "lectura_s": 2.019
+        },
+        {
+          "fecha": "2026-11-16T02:36:32.995883+00:00",
+          "contenedor": "grupo13-hito6-cassandra-1",
+          "cpu_pct": 1.75,
+          "memoria": "2.989GiB / 15.42GiB",
+          "memoria_pct": 19.38,
+          "lectura_s": 2.019
+        }
+      ],
+      "interrumpida": false,
+      "fallo_proceso": null,
+      "asignadas": 434,
+      "sin_resultado": 0,
+      "api_log": {
+        "n": 434,
+        "min_ms": 6.06,
+        "promedio_ms": 10.391,
+        "p50_ms": 9.69,
+        "p95_ms": 13.64,
+        "p99_ms": 18.85
+      },
+      "correlacion_completa": true
+    },
+    {
+      "fase": "rampa1",
+      "concurrencia": 1,
+      "programada_s": 3,
+      "duracion_s": 3.0045,
+      "intentadas": 345,
+      "exitosas": 345,
+      "fallidas": 0,
+      "timeouts": 0,
+      "errores": {},
+      "tasa_error_pct": 0.0,
+      "throughput_ok_s": 114.827,
+      "cliente": {
+        "n": 345,
+        "min_ms": 6.226,
+        "promedio_ms": 8.696,
+        "p50_ms": 8.48,
+        "p95_ms": 11.833,
+        "p99_ms": 16.9
+      },
+      "adaptador": {
+        "n": 345,
+        "min_ms": 4.41,
+        "promedio_ms": 6.728,
+        "p50_ms": 6.59,
+        "p95_ms": 9.55,
+        "p99_ms": 12.78
+      },
+      "distribucion": {
+        "PAR-001-pagina1": 66,
+        "PAR-001-pagina2": 65,
+        "PAR-001-pagina3": 65,
+        "PAR-001-pagina4": 65,
+        "PAR-002-pagina1": 21,
+        "PAR-002-pagina2": 21,
+        "PAR-002-pagina3": 21,
+        "PAR-002-pagina4": 21
+      },
+      "generador_cpu_pct": 4.68,
+      "generador_memoria_mib": 29.648,
+      "recursos": [
+        {
+          "fecha": "2026-11-16T02:36:35.031164+00:00",
+          "contenedor": "grupo13-hito12-api-1",
+          "cpu_pct": 28.13,
+          "memoria": "92.18MiB / 512MiB",
+          "memoria_pct": 18.0,
+          "lectura_s": 1.996
+        },
+        {
+          "fecha": "2026-11-16T02:36:35.031164+00:00",
+          "contenedor": "grupo13-hito6-cassandra-1",
+          "cpu_pct": 68.07,
+          "memoria": "2.988GiB / 15.42GiB",
+          "memoria_pct": 19.38,
+          "lectura_s": 1.996
+        },
+        {
+          "fecha": "2026-11-16T02:36:37.043437+00:00",
+          "contenedor": "grupo13-hito12-api-1",
+          "cpu_pct": 0.67,
+          "memoria": "92.25MiB / 512MiB",
+          "memoria_pct": 18.02,
+          "lectura_s": 1.987
+        },
+        {
+          "fecha": "2026-11-16T02:36:37.043437+00:00",
+          "contenedor": "grupo13-hito6-cassandra-1",
+          "cpu_pct": 2.56,
+          "memoria": "2.995GiB / 15.42GiB",
+          "memoria_pct": 19.42,
+          "lectura_s": 1.987
+        }
+      ],
+      "interrumpida": false,
+      "fallo_proceso": null,
+      "asignadas": 345,
+      "sin_resultado": 0,
+      "api_log": {
+        "n": 345,
+        "min_ms": 5.36,
+        "promedio_ms": 7.721,
+        "p50_ms": 7.54,
+        "p95_ms": 10.6,
+        "p99_ms": 13.79
+      },
+      "correlacion_completa": true
+    },
+    {
+      "fase": "rampa4",
+      "concurrencia": 4,
+      "programada_s": 3,
+      "duracion_s": 3.0107,
+      "intentadas": 743,
+      "exitosas": 743,
+      "fallidas": 0,
+      "timeouts": 0,
+      "errores": {},
+      "tasa_error_pct": 0.0,
+      "throughput_ok_s": 246.789,
+      "cliente": {
+        "n": 743,
+        "min_ms": 8.741,
+        "promedio_ms": 16.163,
+        "p50_ms": 15.733,
+        "p95_ms": 21.549,
+        "p99_ms": 23.757
+      },
+      "adaptador": {
+        "n": 743,
+        "min_ms": 6.16,
+        "promedio_ms": 11.575,
+        "p50_ms": 11.48,
+        "p95_ms": 15.01,
+        "p99_ms": 17.65
+      },
+      "distribucion": {
+        "PAR-001-pagina1": 140,
+        "PAR-001-pagina3": 140,
+        "PAR-001-pagina4": 139,
+        "PAR-001-pagina2": 140,
+        "PAR-002-pagina1": 46,
+        "PAR-002-pagina2": 46,
+        "PAR-002-pagina3": 46,
+        "PAR-002-pagina4": 46
+      },
+      "generador_cpu_pct": 14.013,
+      "generador_memoria_mib": 29.965,
+      "recursos": [
+        {
+          "fecha": "2026-11-16T02:36:39.031335+00:00",
+          "contenedor": "grupo13-hito12-api-1",
+          "cpu_pct": 78.92,
+          "memoria": "94.26MiB / 512MiB",
+          "memoria_pct": 18.41,
+          "lectura_s": 2.008
+        },
+        {
+          "fecha": "2026-11-16T02:36:39.031335+00:00",
+          "contenedor": "grupo13-hito6-cassandra-1",
+          "cpu_pct": 157.92,
+          "memoria": "2.985GiB / 15.42GiB",
+          "memoria_pct": 19.35,
+          "lectura_s": 2.008
+        },
+        {
+          "fecha": "2026-11-16T02:36:41.039063+00:00",
+          "contenedor": "grupo13-hito12-api-1",
+          "cpu_pct": 0.95,
+          "memoria": "93.91MiB / 512MiB",
+          "memoria_pct": 18.34,
+          "lectura_s": 2.003
+        },
+        {
+          "fecha": "2026-11-16T02:36:41.039063+00:00",
+          "contenedor": "grupo13-hito6-cassandra-1",
+          "cpu_pct": 3.98,
+          "memoria": "2.995GiB / 15.42GiB",
+          "memoria_pct": 19.42,
+          "lectura_s": 2.003
+        }
+      ],
+      "interrumpida": false,
+      "fallo_proceso": null,
+      "asignadas": 743,
+      "sin_resultado": 0,
+      "api_log": {
+        "n": 743,
+        "min_ms": 7.46,
+        "promedio_ms": 14.428,
+        "p50_ms": 14.07,
+        "p95_ms": 19.25,
+        "p99_ms": 21.72
+      },
+      "correlacion_completa": true
+    },
+    {
+      "fase": "sostenimiento",
+      "concurrencia": 8,
+      "programada_s": 15,
+      "duracion_s": 15.0157,
+      "intentadas": 4762,
+      "exitosas": 4762,
+      "fallidas": 0,
+      "timeouts": 0,
+      "errores": {},
+      "tasa_error_pct": 0.0,
+      "throughput_ok_s": 317.134,
+      "cliente": {
+        "n": 4762,
+        "min_ms": 12.272,
+        "promedio_ms": 25.197,
+        "p50_ms": 24.458,
+        "p95_ms": 35.287,
+        "p99_ms": 48.154
+      },
+      "adaptador": {
+        "n": 4762,
+        "min_ms": 6.48,
+        "promedio_ms": 15.539,
+        "p50_ms": 15.43,
+        "p95_ms": 21.72,
+        "p99_ms": 33.88
+      },
+      "distribucion": {
+        "PAR-001-pagina1": 894,
+        "PAR-001-pagina2": 894,
+        "PAR-001-pagina4": 893,
+        "PAR-001-pagina3": 893,
+        "PAR-002-pagina1": 297,
+        "PAR-002-pagina2": 297,
+        "PAR-002-pagina3": 297,
+        "PAR-002-pagina4": 297
+      },
+      "generador_cpu_pct": 13.944,
+      "generador_memoria_mib": 32.055,
+      "recursos": [
+        {
+          "fecha": "2026-11-16T02:36:43.043152+00:00",
+          "contenedor": "grupo13-hito12-api-1",
+          "cpu_pct": 104.66,
+          "memoria": "95.09MiB / 512MiB",
+          "memoria_pct": 18.57,
+          "lectura_s": 2.027
+        },
+        {
+          "fecha": "2026-11-16T02:36:43.043152+00:00",
+          "contenedor": "grupo13-hito6-cassandra-1",
+          "cpu_pct": 229.41,
+          "memoria": "3.013GiB / 15.42GiB",
+          "memoria_pct": 19.54,
+          "lectura_s": 2.027
+        },
+        {
+          "fecha": "2026-11-16T02:36:45.070514+00:00",
+          "contenedor": "grupo13-hito12-api-1",
+          "cpu_pct": 104.91,
+          "memoria": "96.21MiB / 512MiB",
+          "memoria_pct": 18.79,
+          "lectura_s": 2.007
+        },
+        {
+          "fecha": "2026-11-16T02:36:45.070514+00:00",
+          "contenedor": "grupo13-hito6-cassandra-1",
+          "cpu_pct": 218.8,
+          "memoria": "3.004GiB / 15.42GiB",
+          "memoria_pct": 19.48,
+          "lectura_s": 2.007
+        },
+        {
+          "fecha": "2026-11-16T02:36:47.077885+00:00",
+          "contenedor": "grupo13-hito12-api-1",
+          "cpu_pct": 104.32,
+          "memoria": "95.44MiB / 512MiB",
+          "memoria_pct": 18.64,
+          "lectura_s": 2.01
+        },
+        {
+          "fecha": "2026-11-16T02:36:47.077885+00:00",
+          "contenedor": "grupo13-hito6-cassandra-1",
+          "cpu_pct": 210.63,
+          "memoria": "3.005GiB / 15.42GiB",
+          "memoria_pct": 19.49,
+          "lectura_s": 2.01
+        },
+        {
+          "fecha": "2026-11-16T02:36:49.087529+00:00",
+          "contenedor": "grupo13-hito12-api-1",
+          "cpu_pct": 105.51,
+          "memoria": "96.37MiB / 512MiB",
+          "memoria_pct": 18.82,
+          "lectura_s": 2.006
+        },
+        {
+          "fecha": "2026-11-16T02:36:49.087529+00:00",
+          "contenedor": "grupo13-hito6-cassandra-1",
+          "cpu_pct": 216.65,
+          "memoria": "2.991GiB / 15.42GiB",
+          "memoria_pct": 19.39,
+          "lectura_s": 2.006
+        },
+        {
+          "fecha": "2026-11-16T02:36:51.093391+00:00",
+          "contenedor": "grupo13-hito12-api-1",
+          "cpu_pct": 102.85,
+          "memoria": "95.63MiB / 512MiB",
+          "memoria_pct": 18.68,
+          "lectura_s": 2.003
+        },
+        {
+          "fecha": "2026-11-16T02:36:51.093391+00:00",
+          "contenedor": "grupo13-hito6-cassandra-1",
+          "cpu_pct": 198.23,
+          "memoria": "2.983GiB / 15.42GiB",
+          "memoria_pct": 19.35,
+          "lectura_s": 2.003
+        },
+        {
+          "fecha": "2026-11-16T02:36:53.096898+00:00",
+          "contenedor": "grupo13-hito12-api-1",
+          "cpu_pct": 103.42,
+          "memoria": "96.31MiB / 512MiB",
+          "memoria_pct": 18.81,
+          "lectura_s": 2.026
+        },
+        {
+          "fecha": "2026-11-16T02:36:53.096898+00:00",
+          "contenedor": "grupo13-hito6-cassandra-1",
+          "cpu_pct": 221.18,
+          "memoria": "2.976GiB / 15.42GiB",
+          "memoria_pct": 19.3,
+          "lectura_s": 2.026
+        },
+        {
+          "fecha": "2026-11-16T02:36:55.123418+00:00",
+          "contenedor": "grupo13-hito12-api-1",
+          "cpu_pct": 104.75,
+          "memoria": "96.54MiB / 512MiB",
+          "memoria_pct": 18.85,
+          "lectura_s": 2.022
+        },
+        {
+          "fecha": "2026-11-16T02:36:55.123418+00:00",
+          "contenedor": "grupo13-hito6-cassandra-1",
+          "cpu_pct": 214.46,
+          "memoria": "2.976GiB / 15.42GiB",
+          "memoria_pct": 19.3,
+          "lectura_s": 2.022
+        },
+        {
+          "fecha": "2026-11-16T02:36:57.145520+00:00",
+          "contenedor": "grupo13-hito12-api-1",
+          "cpu_pct": 0.24,
+          "memoria": "96.34MiB / 512MiB",
+          "memoria_pct": 18.82,
+          "lectura_s": 1.994
+        },
+        {
+          "fecha": "2026-11-16T02:36:57.145520+00:00",
+          "contenedor": "grupo13-hito6-cassandra-1",
+          "cpu_pct": 2.25,
+          "memoria": "2.976GiB / 15.42GiB",
+          "memoria_pct": 19.3,
+          "lectura_s": 1.994
+        }
+      ],
+      "interrumpida": false,
+      "fallo_proceso": null,
+      "asignadas": 4762,
+      "sin_resultado": 0,
+      "api_log": {
+        "n": 4762,
+        "min_ms": 10.42,
+        "promedio_ms": 22.243,
+        "p50_ms": 21.6,
+        "p95_ms": 31.4,
+        "p99_ms": 45.46
+      },
+      "correlacion_completa": true
+    }
+  ],
+  "fallos": [],
+  "integridad": "OK",
+  "completa": true,
+  "commit_base": "5054f7f333133228cc23c635ad4c4491a4567974",
+  "cambios_locales": [],
+  "entorno": {
+    "docker": "29.7.2",
+    "cpu_docker": 24,
+    "memoria_docker_bytes": 16558772224,
+    "generador": "Windows-11-10.0.26300-SP0",
+    "python_generador": "3.13.7",
+    "cpu_logicas_host": 24,
+    "versiones_api": {
+      "api": "1.0.0",
+      "python": "3.12.16",
+      "fastapi": "0.143.2",
+      "uvicorn": "0.54.0",
+      "cassandra-driver": "3.30.1"
+    },
+    "contenedores": [
+      {
+        "nombre": "grupo13-hito12-api-1",
+        "imagen": "fixture-h12-verificacion:5054f7f",
+        "image_id": "sha256:f8fa7472e6f99c4f308dfd97d552b3a49d4bd4dcb6792eeb0820c2a797c9d76c",
+        "cpu_limite": 2.0,
+        "memoria_limite_bytes": 536870912
+      },
+      {
+        "nombre": "grupo13-hito6-cassandra-1",
+        "imagen": "cassandra:latest",
+        "image_id": "sha256:ee178b38a2746a8e15a115bd038ad1f864391d04a84162a018cb0dd79511709a",
+        "cpu_limite": 0.0,
+        "memoria_limite_bytes": 0
+      }
+    ]
+  },
+  "fuente_antes": {
+    "fecha": "2026-11-16T02:36:28.036513+00:00",
+    "cassandra": "5.0.9",
+    "keyspace": "fixture2030_h12",
+    "escrituras_en_esta_ejecucion": 0,
+    "integridad": "OK",
+    "puntos_logicos": 2400,
+    "distribucion": {
+      "PAR-001": {
+        "filas": 1200,
+        "particiones": {
+          "minuto0-segmento0": 60,
+          "minuto0-segmento1": 60,
+          "minuto0-segmento2": 60,
+          "minuto0-segmento3": 60,
+          "minuto1-segmento0": 60,
+          "minuto1-segmento1": 60,
+          "minuto1-segmento2": 60,
+          "minuto1-segmento3": 60,
+          "minuto2-segmento0": 60,
+          "minuto2-segmento1": 60,
+          "minuto2-segmento2": 60,
+          "minuto2-segmento3": 60,
+          "minuto3-segmento0": 60,
+          "minuto3-segmento1": 60,
+          "minuto3-segmento2": 60,
+          "minuto3-segmento3": 60,
+          "minuto4-segmento0": 60,
+          "minuto4-segmento1": 60,
+          "minuto4-segmento2": 60,
+          "minuto4-segmento3": 60
+        }
+      },
+      "PAR-002": {
+        "filas": 1200,
+        "particiones": {
+          "minuto0-segmento0": 60,
+          "minuto0-segmento1": 60,
+          "minuto0-segmento2": 60,
+          "minuto0-segmento3": 60,
+          "minuto1-segmento0": 60,
+          "minuto1-segmento1": 60,
+          "minuto1-segmento2": 60,
+          "minuto1-segmento3": 60,
+          "minuto2-segmento0": 60,
+          "minuto2-segmento1": 60,
+          "minuto2-segmento2": 60,
+          "minuto2-segmento3": 60,
+          "minuto3-segmento0": 60,
+          "minuto3-segmento1": 60,
+          "minuto3-segmento2": 60,
+          "minuto3-segmento3": 60,
+          "minuto4-segmento0": 60,
+          "minuto4-segmento1": 60,
+          "minuto4-segmento2": 60,
+          "minuto4-segmento3": 60
+        }
+      }
+    },
+    "comparacion": "Todas las claves y atributos coinciden con el generador fijo"
+  },
+  "api_antes": {
+    "PAR-001": {
+      "filas": 1200,
+      "paginas": 24,
+      "atributos_y_orden": "OK"
+    },
+    "PAR-002": {
+      "filas": 1200,
+      "paginas": 24,
+      "atributos_y_orden": "OK"
+    }
+  },
+  "logs_ejemplo": [
+    "req=h12-20261116T023626-calentamiento-0 dep=cassandra op=listar_ventana resultado=ok ms=7.46",
+    "req=h12-20261116T023626-calentamiento-0 metodo=GET ruta=/api/v1/partidos/PAR-001/comentarios estado=200 ms=8.62",
+    "req=h12-20261116T023626-calentamiento-1 dep=cassandra op=listar_ventana resultado=ok ms=8.95",
+    "req=h12-20261116T023626-calentamiento-1 metodo=GET ruta=/api/v1/partidos/PAR-001/comentarios estado=200 ms=10.04"
+  ],
+  "fuente_despues": {
+    "fecha": "2026-11-16T02:36:59.845416+00:00",
+    "cassandra": "5.0.9",
+    "keyspace": "fixture2030_h12",
+    "escrituras_en_esta_ejecucion": 0,
+    "integridad": "OK",
+    "puntos_logicos": 2400,
+    "distribucion": {
+      "PAR-001": {
+        "filas": 1200,
+        "particiones": {
+          "minuto0-segmento0": 60,
+          "minuto0-segmento1": 60,
+          "minuto0-segmento2": 60,
+          "minuto0-segmento3": 60,
+          "minuto1-segmento0": 60,
+          "minuto1-segmento1": 60,
+          "minuto1-segmento2": 60,
+          "minuto1-segmento3": 60,
+          "minuto2-segmento0": 60,
+          "minuto2-segmento1": 60,
+          "minuto2-segmento2": 60,
+          "minuto2-segmento3": 60,
+          "minuto3-segmento0": 60,
+          "minuto3-segmento1": 60,
+          "minuto3-segmento2": 60,
+          "minuto3-segmento3": 60,
+          "minuto4-segmento0": 60,
+          "minuto4-segmento1": 60,
+          "minuto4-segmento2": 60,
+          "minuto4-segmento3": 60
+        }
+      },
+      "PAR-002": {
+        "filas": 1200,
+        "particiones": {
+          "minuto0-segmento0": 60,
+          "minuto0-segmento1": 60,
+          "minuto0-segmento2": 60,
+          "minuto0-segmento3": 60,
+          "minuto1-segmento0": 60,
+          "minuto1-segmento1": 60,
+          "minuto1-segmento2": 60,
+          "minuto1-segmento3": 60,
+          "minuto2-segmento0": 60,
+          "minuto2-segmento1": 60,
+          "minuto2-segmento2": 60,
+          "minuto2-segmento3": 60,
+          "minuto3-segmento0": 60,
+          "minuto3-segmento1": 60,
+          "minuto3-segmento2": 60,
+          "minuto3-segmento3": 60,
+          "minuto4-segmento0": 60,
+          "minuto4-segmento1": 60,
+          "minuto4-segmento2": 60,
+          "minuto4-segmento3": 60
+        }
+      }
+    },
+    "comparacion": "Todas las claves y atributos coinciden con el generador fijo"
+  },
+  "api_despues": {
+    "PAR-001": {
+      "filas": 1200,
+      "paginas": 24,
+      "atributos_y_orden": "OK"
+    },
+    "PAR-002": {
+      "filas": 1200,
+      "paginas": 24,
+      "atributos_y_orden": "OK"
+    }
+  }
+}

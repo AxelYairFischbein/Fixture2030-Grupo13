@@ -10,3 +10,4 @@ httpx==0.28.1
 intersystems-irispython==5.4.1
 PyYAML==6.0.3
 pytest==9.1.1
+prometheus-client==0.22.1

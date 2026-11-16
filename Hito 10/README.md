@@ -51,7 +51,19 @@ Hito 10/
 - [Pruebas, evidencia y rendimiento](docs/pruebas_y_evidencia.md)
 - [Evaluación de conectividad de la API](../Hito%2011/README.md)
 
-## Inicio rápido (cualquier PC con Windows)
+## Inicio con datos existentes
+
+Con Docker Desktop iniciado, arrancar los contenedores existentes sin cargar muestras:
+
+```powershell
+docker start fixture2030-mongodb grupo13-hito5-neo4j-1 grupo13-hito6-cassandra-1 grupo13-hito7-redis-1 grupo13-hito8-influxdb-1 grupo13-hito9-iris-1
+docker compose up -d --build api
+Invoke-RestMethod http://127.0.0.1:8000/api/v1/salud
+```
+
+Esperar el arranque de Cassandra y repetir salud si aún devuelve 503. `fixture.cmd todo`, `preparar` e `influx` cargan datos. No son necesarios para encender un entorno ya preparado. Un resultado vacío de InfluxDB con HTTP 200 puede indicar que venció su retención de siete días.
+
+## Preparación de un entorno nuevo
 
 Requisitos: **Windows 10/11 y Docker Desktop** iniciado (contenedores Linux). No hace falta instalar Python ni ninguna base. Se recomiendan 16 GB de RAM: Cassandra, IRIS, Neo4j e InfluxDB corren a la vez.
 
@@ -64,7 +76,7 @@ Clonar el repositorio, abrir una terminal (PowerShell o cmd) en `Hito 10` y ejec
 Ese comando, sin pasos manuales y de forma repetible:
 
 1. comprueba que Docker responda y que los puertos 27017, 7474, 7687, 9042, 16379, 8181, 1972, 52773 y 8000 no estén ocupados por otro programa;
-2. crea las carpetas de datos (`%USERPROFILE%\docker\data\...`), `Hito 5\.env` desde su ejemplo y `Hito 10\.env` con las credenciales de laboratorio y una clave IRIS aleatoria;
+2. crea las carpetas de datos (`%USERPROFILE%\docker\data\...`), `Hito 5\.env` desde su ejemplo y `Hito 10\.env` con las credenciales del entorno de prueba y una clave IRIS aleatoria
 3. inicia los contenedores de los Hitos 4 a 9 y espera a cada base;
 4. carga las muestras con los scripts de cada hito (MongoDB, Neo4j, Cassandra, clases y demo de IRIS), corrige el `chown` de IRIS si la carpeta es nueva, crea el usuario IRIS de la API y el token y la base de InfluxDB;
 5. construye y levanta la API en un contenedor, agrega 30 minutos de estadísticas recientes y abre <http://127.0.0.1:8000/>.
@@ -89,7 +101,7 @@ La primera vez tarda varios minutos (descarga de imágenes y arranque de Cassand
 
 ## Modo sin Docker para la API (opcional)
 
-La API también puede ejecutarse con Python 3.12+ en la notebook. Los pasos siguientes son los mismos que automatiza `fixture.cmd`, hechos a mano.
+La API también puede ejecutarse con Python 3.12+ en la notebook. Es una alternativa al contenedor de la API. Detener primero `docker compose stop api` para liberar el puerto 8000. Los pasos siguientes incluyen preparación opcional de datos y no deben repetirse sobre muestras existentes.
 
 ## Puesta en marcha manual
 
@@ -106,7 +118,7 @@ Todos los comandos se ejecutan desde `Hito 10/` en PowerShell.
 2. **Configurar secretos locales**:
 
    ```powershell
-   Copy-Item .env.example .env
+   if (-not (Test-Path .env)) { Copy-Item .env.example .env }
    notepad .env   # completar MONGO_PASSWORD, NEO4J_PASSWORD e IRIS_PASSWORD (letras y números, 12+)
    ```
 
@@ -162,12 +174,13 @@ Resultado registrado: **36 pruebas aprobadas** ([evidencia](docs/evidencia/02_pr
 
 ## Detener sin perder datos
 
-- API: `Ctrl+C` en su consola.
+- API en contenedor: `docker compose stop api`.
+- API en Python local: `Ctrl+C` en su consola.
 - Fuentes: `docker compose -f "..\Hito N\docker-compose.yml" stop`. **No usar `down -v`**, que elimina volúmenes.
 
 ## Limitaciones conocidas
 
 - Entorno local de un nodo por producto, sin autenticación de consumidores ni TLS; la API escucha solo en `127.0.0.1`.
-- El healthcheck del contenedor Neo4j del Hito 5 figura `unhealthy` en Windows porque `cypher.sh` se descarga con fin de línea CRLF; la base responde normalmente (ver `docs/evidencia/01_conectividad.txt`). No se modificó el Hito 5.
+- Las evidencias iniciales registraron un healthcheck de Neo4j afectado por CRLF. El estado depende del checkout y debe verificarse con `docker ps` y una consulta real.
 - Las transiciones de un acta IRIS son permanentes; las pruebas las ejercitan sobre un acta temporal que se borra al terminar.
-- La carpeta `Hito 10a/` del repositorio es una copia del Hito 9 con la consigna en PDF; esta entrega vive en `Hito 10/`.
+- `PAR-001` de Neo4j está FINALIZADO y el acta de IRIS está PENDIENTE por el diseño de dos muestras independientes. No hay sincronización entre ellas. El [Hito 13](../Hito%2013/README.md) explica su alcance y el monitoreo de `/metrics`.

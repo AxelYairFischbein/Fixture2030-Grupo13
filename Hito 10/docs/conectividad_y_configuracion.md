@@ -4,7 +4,7 @@
 
 | Componente | Entorno | Escucha en |
 | --- | --- | --- |
-| API y consola web | Notebook (Python 3.14, `.venv`) | `127.0.0.1:8000` |
+| API y consola web | Contenedor Python 3.12 o notebook con Python 3.12+ | `127.0.0.1:8000` |
 | MongoDB (Hito 4) | Contenedor `fixture2030-mongodb` | `27017` |
 | Neo4j (Hito 5) | Contenedor `grupo13-hito5-neo4j-1` | `127.0.0.1:7687` (bolt), `7474` |
 | Cassandra (Hito 6) | Contenedor `grupo13-hito6-cassandra-1` | `127.0.0.1:9042` |
@@ -12,18 +12,18 @@
 | InfluxDB 3 Core (Hito 8) | Contenedor `grupo13-hito8-influxdb-1` | `127.0.0.1:8181` |
 | IRIS (Hito 9) | Contenedor `grupo13-hito9-iris-1` | `127.0.0.1:1972` (superserver) |
 
-**Notebook vs. contenedor**: desde la notebook se usan los puertos publicados en `127.0.0.1`. Si la API se ejecutara dentro de un contenedor, `127.0.0.1` sería el propio contenedor: habría que usar `host.docker.internal` con los mismos puertos publicados, o unir la API a las redes de los Compose y usar los nombres de servicio con los puertos internos (por ejemplo Redis en `redis:6379`, no 16379). Solo cambian las variables de `.env`, no el código. Esta entrega ejecuta la API en la notebook.
+**Notebook y contenedor**: desde Python local se usan los puertos publicados en `127.0.0.1`. El Compose de la API configura `host.docker.internal` para acceder a esos mismos puertos desde Docker Desktop. Por ejemplo, Redis usa el puerto publicado 16379. El token de InfluxDB se monta en `/run/influx/admin.token`. Las variables de `environment` del Compose prevalecen sobre `.env`. No iniciar las dos variantes de la API en el puerto 8000 al mismo tiempo.
 
 ## Variables de entorno
 
 Se leen del entorno del proceso y, si faltan, de `.env` (ignorado por Git). [.env.example](../.env.example) documenta todas sin secretos.
 
-| Variable | Valor del laboratorio | Uso |
+| Variable | Valor para Python local | Uso |
 | --- | --- | --- |
 | `DEP_TIMEOUT_SEGUNDOS` | `3` | Límite por operación de red en los seis clientes |
 | `MONGO_HOST`, `MONGO_PORT`, `MONGO_DB`, `MONGO_USER`, `MONGO_PASSWORD` | `127.0.0.1`, `27017`, `fixture2030`, `admin`, *secreto* | `authSource=admin` |
 | `NEO4J_URI`, `NEO4J_DATABASE`, `NEO4J_USER`, `NEO4J_PASSWORD` | `bolt://127.0.0.1:7687`, `neo4j`, `neo4j`, *secreto* | |
-| `CASSANDRA_HOSTS`, `CASSANDRA_PORT`, `CASSANDRA_KEYSPACE` | `127.0.0.1`, `9042`, `fixture2030_comentarios` | Sin autenticación en el laboratorio |
+| `CASSANDRA_HOSTS`, `CASSANDRA_PORT`, `CASSANDRA_KEYSPACE` | `127.0.0.1`, `9042`, `fixture2030_comentarios` | Sin autenticación en el entorno local |
 | `REDIS_HOST`, `REDIS_PORT`, `REDIS_PASSWORD`, `REDIS_PREFIX` | `127.0.0.1`, `16379`, vacío, `fixture2030:h10` | Prefijo propio: no pisa las claves de la demo del Hito 7 |
 | `SESION_TTL_SEGUNDOS`, `CACHE_EQUIPO_TTL_SEGUNDOS`, `IDEMPOTENCIA_TTL_SEGUNDOS` | `1800`, `300`, `86400` | Mismos TTL que el Hito 7 para sesión y ficha |
 | `INFLUX_URL`, `INFLUX_DB`, `INFLUX_TOKEN` / `INFLUX_TOKEN_FILE` | `http://127.0.0.1:8181`, `fixture2030_h8`, `../Hito 8/.local/admin.token` | El token viaja solo en el encabezado `Authorization` |
@@ -48,6 +48,8 @@ Medido con cada fuente inaccesible: 503 en 1,2 a 3,2 s con timeout de 1 s; con e
 .\.venv\Scripts\python scripts\verificar_conectividad.py      # sin iniciar la API; sale con 1 si alguna falla
 Invoke-RestMethod http://127.0.0.1:8000/api/v1/salud          # con la API iniciada; 503 con detalle si alguna falla
 ```
+
+En contenedor: `docker compose exec -T api python scripts/verificar_conectividad.py`.
 
 Equivalentes por producto: `mongosh ... --eval "db.adminCommand({ping:1})"`, `cypher-shell "RETURN 1"`, `cqlsh -e "SHOW VERSION"`, `redis-cli PING`, `influxdb3 show databases`, `iris session IRIS -U USER`.
 

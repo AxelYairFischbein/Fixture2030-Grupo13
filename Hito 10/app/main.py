@@ -8,11 +8,13 @@ import uuid
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.openapi.utils import get_openapi
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, Response
+from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 from starlette.exceptions import HTTPException
 
 from app import config, contexto
 from app.errors import ApiError, cuerpo_error
+from app.metricas import Metricas, MiddlewareMetricas
 from app.routes import router
 from app.services import Servicios
 
@@ -51,6 +53,7 @@ def crear_app(servicios: Servicios | None = None) -> FastAPI:
     app = FastAPI(title="Fixture 2030 - API integrada (Grupo 13, Hito 10)", version=VERSION,
                   description="Acceso controlado a los módulos NoSQL del Fixture Mundial 2030. Datos sintéticos.")
     app.state.servicios = servicios or servicios_reales(config.cargar())
+    app.state.metricas = Metricas()
     app.include_router(router)
 
     @app.middleware("http")
@@ -71,6 +74,12 @@ def crear_app(servicios: Servicios | None = None) -> FastAPI:
         log.info("req=%s metodo=%s ruta=%s estado=%s ms=%.2f", rid, request.method, request.url.path,
                  respuesta.status_code, (time.perf_counter() - inicio) * 1000)
         return respuesta
+
+    app.add_middleware(MiddlewareMetricas, metricas=app.state.metricas)
+
+    @app.get("/metrics", include_in_schema=False)
+    def metricas():
+        return Response(generate_latest(app.state.metricas.registro), headers={"Content-Type": CONTENT_TYPE_LATEST})
 
     @app.exception_handler(ApiError)
     async def error_api(request: Request, error: ApiError):
