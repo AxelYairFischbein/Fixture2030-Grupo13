@@ -1,6 +1,6 @@
 {
   "uid": "fixture2030-h13",
-  "title": "Fixture 2030 ? API, MongoDB y Redis",
+  "title": "Fixture 2030 · API, MongoDB y Redis",
   "description": "Un nodo por producto. Scraping cada 15 s. Tasas y latencias sobre 2 min. Salud se consulta aparte.",
   "schemaVersion": 41,
   "version": 1,
@@ -18,7 +18,7 @@
   "panels": [
     {
       "id": 1,
-      "title": "Endpoints de m?tricas ? 1 accesible / 0 inaccesible",
+      "title": "Endpoints de métricas · 1 accesible / 0 inaccesible",
       "description": "UP solo acredita el scraping. No acredita consultas de negocio.",
       "type": "timeseries",
       "datasource": {
@@ -76,7 +76,7 @@
         {
           "refId": "A",
           "expr": "up{job=~\"fixture-api|mongodb|redis\"}",
-          "legendFormat": "{{component}} ? scrape",
+          "legendFormat": "{{component}} · scrape",
           "datasource": {
             "type": "prometheus",
             "uid": "fixture-prometheus"
@@ -88,8 +88,8 @@
     },
     {
       "id": 2,
-      "title": "Bases observadas ? 1 responde / 0 falla",
-      "description": "MongoDB y Redis seg?n su exporter. Si falta una serie, no hay observaci?n. Consultar tambi?n los endpoints de m?tricas.",
+      "title": "Bases observadas · 1 responde / 0 falla",
+      "description": "MongoDB y Redis según su exporter. Si falta una serie, no hay observación. Consultar también los endpoints de métricas.",
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
@@ -169,8 +169,8 @@
     },
     {
       "id": 3,
-      "title": "Latencia de negocio ? P95 y media ? ventana 2 min",
-      "description": "P95 estimado por buckets. Duraci?n dentro de la API, hasta finalizar el env?o del cuerpo. Sin scraping ni salud.",
+      "title": "Latencia de negocio · P95 y media · ventana 2 min",
+      "description": "P95 estimado por buckets. Duración dentro de la API, hasta finalizar el envío del cuerpo. Sin scraping ni salud.",
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
@@ -248,8 +248,8 @@
     },
     {
       "id": 4,
-      "title": "Requests de negocio por segundo ? ventana 2 min",
-      "description": "Promedio por segundo de requests finalizados, incluidos errores. Ventana m?vil de 2 minutos.",
+      "title": "Requests de negocio por segundo · ventana 2 min",
+      "description": "Promedio por segundo de requests finalizados, incluidos errores. Ventana móvil de 2 minutos.",
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
@@ -316,8 +316,8 @@
     },
     {
       "id": 5,
-      "title": "Respuestas 4xx y 5xx por segundo ? ventana 2 min",
-      "description": "4xx incluye el 404 deliberado. 5xx incluye la falla controlada de Redis. Cero solo si existe tr?fico medido sin errores de esa clase.",
+      "title": "Respuestas 4xx y 5xx por segundo · ventana 2 min",
+      "description": "4xx incluye el 404 deliberado. 5xx incluye la falla controlada de Redis. Cero solo si existe tráfico medido sin errores de esa clase.",
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
@@ -395,7 +395,7 @@
     },
     {
       "id": 6,
-      "title": "Conexiones actuales ? MongoDB y Redis",
+      "title": "Conexiones actuales · MongoDB y Redis",
       "description": "Gauges distintos: conexiones actuales de MongoDB y clientes conectados de Redis. Incluyen monitoreo. No son usuarios ni throughput comparable.",
       "type": "timeseries",
       "datasource": {
@@ -451,7 +451,7 @@
         {
           "refId": "A",
           "expr": "mongodb_ss_connections{job=\"mongodb\",conn_type=\"current\"}",
-          "legendFormat": "MongoDB ? conexiones",
+          "legendFormat": "MongoDB · conexiones",
           "datasource": {
             "type": "prometheus",
             "uid": "fixture-prometheus"
@@ -462,7 +462,7 @@
         {
           "refId": "B",
           "expr": "redis_connected_clients{job=\"redis\"}",
-          "legendFormat": "Redis ? clientes",
+          "legendFormat": "Redis · clientes",
           "datasource": {
             "type": "prometheus",
             "uid": "fixture-prometheus"

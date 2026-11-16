@@ -95,7 +95,7 @@ def test_cassandra_ventana_y_cursor(app_real):
                 ("PAR-001", desde.replace(minute=minuto, second=0), segmento, desde, hasta)))
     esperados = [f.comentario_id for f in sorted(
         filas, key=lambda f: (-f.creado_en.replace(tzinfo=timezone.utc).timestamp(), f.comentario_id))]
-    vistos, cursor = [], None
+    vistos, cursores, cursor = [], set(), None
     while True:
         r = cliente.get(f"{API}/partidos/PAR-001/comentarios", params={**params, **({"cursor": cursor} if cursor else {})})
         assert r.status_code == 200 and fuentes(r) == {"cassandra"} and r.json()["data"]["particiones"] == 12
@@ -103,10 +103,14 @@ def test_cassandra_ventana_y_cursor(app_real):
         cursor = r.json()["meta"]["paginacion"]["siguienteCursor"]
         if not cursor:
             break
+        assert len(r.json()["data"]["items"]) == params["limite"]
+        assert cursor not in cursores
+        cursores.add(cursor)
     assert vistos == esperados and len(vistos) == len(set(vistos))
     # Se mantienen las comprobaciones de la muestra original, sin borrar la carga masiva.
     muestra = [c for c in vistos if c.startswith("MUESTRA-")]
-    assert len(muestra) == 8 and "MUESTRA-010" not in muestra and "MUESTRA-002" in muestra
+    assert muestra == ["MUESTRA-009", "MUESTRA-008", "MUESTRA-007", "MUESTRA-005",
+                       "MUESTRA-006", "MUESTRA-004", "MUESTRA-003", "MUESTRA-002"]
 
 
 def test_cassandra_ventana_vacia_valida(app_real):

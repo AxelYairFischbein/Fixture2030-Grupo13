@@ -153,4 +153,4 @@ docker compose -f 'Hito 13/docker-compose.yml' stop
 docker compose -f 'Hito 10/docker-compose.yml' stop api
 ```
 
-Estos comandos conservan datos y contenedores. Las bases se pueden detener individualmente al terminar, coordinando su uso. No ejecutar `down -v` ni eliminar carpetas persistentes. `.env`, `.local` y `Documentacion/` permanecen fuera de Git.
+Estos comandos conservan datos y contenedores. Las bases se pueden detener individualmente al terminar, coordinando su uso. No ejecutar `down -v` ni eliminar carpetas persistentes. `.env` y `.local` permanecen fuera de Git para proteger credenciales.
