@@ -28,9 +28,8 @@ function assertCondition(condition, message) {
   }
 }
 
-// Recuperación segura frente a una ejecución anterior interrumpida.
-fixtureDb.jugadores.deleteMany({ origen: DEMO_ORIGIN });
-fixtureDb.equipos.deleteMany({ origen: DEMO_ORIGIN });
+assertCondition(!fixtureDb.jugadores.findOne({ jugadorId: PLAYER_ID }) &&
+  !fixtureDb.equipos.findOne({ equipoId: TEAM_ID }), "Los identificadores temporales ya existen. No se borran datos previos.");
 
 try {
   const now = new Date();
@@ -79,8 +78,6 @@ try {
     numeroCamiseta: 99,
     pieHabil: "DERECHO",
     alturaCm: 184,
-    partidosInternacionales: 5,
-    golesInternacionales: 1,
     estadoPlantel: "CONVOCADO",
     esDatoSintetico: true,
     origen: DEMO_ORIGIN,
@@ -114,12 +111,12 @@ try {
   const playerUpdate = fixtureDb.jugadores.updateOne(
     { jugadorId: PLAYER_ID },
     {
-      $set: { partidosInternacionales: 6, golesInternacionales: 2, actualizadoEn: new Date() }
+      $set: { estadoPlantel: "RESERVA", actualizadoEn: new Date() }
     }
   );
   emit(
     "OP04",
-    "Actualizar estadísticas del jugador sin cambiar su referencia al equipo.",
+    "Actualizar el estado del jugador sin cambiar su referencia al equipo.",
     "jugadores",
     { jugadorId: PLAYER_ID },
     ["matchedCount", "modifiedCount"],
@@ -144,8 +141,7 @@ try {
         jugadorId: 1,
         nombre: 1,
         apellido: 1,
-        partidosInternacionales: 1,
-        golesInternacionales: 1,
+        estadoPlantel: 1,
         equipoId: "$equipo.equipoId",
         equipoNombre: "$equipo.nombre",
         equipoEstado: "$equipo.estado"
@@ -157,12 +153,13 @@ try {
     "Comprobar las actualizaciones y la relación del jugador temporal.",
     "jugadores + equipos",
     { jugadorId: PLAYER_ID },
-    ["jugadorId", "estadísticas", "equipoId", "equipoNombre", "equipoEstado"],
+    ["jugadorId", "estadoPlantel", "equipoId", "equipoNombre", "equipoEstado"],
     "uq_jugadores_jugadorId; uq_equipos_equipoId",
     linkedDocument
   );
 
-  assertCondition(linkedDocument.length === 1, "No se pudo comprobar la relación temporal.");
+  assertCondition(linkedDocument.length === 1 && linkedDocument[0].estadoPlantel === "RESERVA" &&
+    linkedDocument[0].equipoEstado === "CONFIRMADO", "No se pudo comprobar la actualización temporal.");
 } finally {
   const playerDelete = fixtureDb.jugadores.deleteOne({ jugadorId: PLAYER_ID, origen: DEMO_ORIGIN });
   emit(

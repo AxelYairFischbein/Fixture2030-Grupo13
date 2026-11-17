@@ -123,8 +123,6 @@ class Jugador(BaseModel):
     fechaNacimiento: str
     alturaCm: int
     pieHabil: str
-    partidosInternacionales: int
-    golesInternacionales: int
     estadoPlantel: str
 
 

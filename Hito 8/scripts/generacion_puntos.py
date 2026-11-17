@@ -34,10 +34,10 @@ def main():
         for segundo in range(0, meta["minutos"] * 60, meta["paso"]):
             for partido in range(1, meta["partidos"] + 1):
                 for lado in (0, 1):
-                    pid, equipo, estadio = dimensiones(partido, lado)
+                    pid, equipo = dimensiones(partido, lado)
                     posesion, pases, tiros = medidas(partido, lado, segundo, meta["paso"])
                     archivo.write(
-                        f"{TABLA},partido_id={pid},equipo_id={equipo},estadio_id={estadio} "
+                        f"{TABLA},partido_id={pid},equipo_id={equipo} "
                         f"posesion_pct={posesion:.1f},pases_acumulados={pases}i,"
                         f"tiros_intervalo={tiros}i {meta['inicio'] + segundo}\n"
                     )

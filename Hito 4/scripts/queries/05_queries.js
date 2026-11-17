@@ -1,4 +1,4 @@
-/* Consultas funcionales del módulo; cada bloque declara su contrato. */
+/* Consultas funcionales del módulo. Cada bloque declara su contrato. */
 
 "use strict";
 
@@ -46,16 +46,16 @@ query("Q03", {
 ).sort({ rankingReferencia: 1, equipoId: 1 }).toArray());
 
 query("Q04", {
-  objective: "Buscar delanteros con experiencia internacional y ordenarlos por partidos.",
+  objective: "Buscar delanteros con altura desde 180 cm y ordenarlos por altura.",
   collection: "jugadores",
-  filter: { posicion: "DELANTERO", partidosInternacionales: { $gte: 120 } },
-  returnedFields: ["jugadorId", "equipoId", "apellido", "partidosInternacionales", "golesInternacionales"],
-  relatedIndex: "idx_jugadores_posicion_partidos",
-  expected: "Los primeros diez delanteros por partidos internacionales."
+  filter: { posicion: "DELANTERO", alturaCm: { $gte: 180 } },
+  returnedFields: ["jugadorId", "equipoId", "apellido", "alturaCm", "pieHabil"],
+  relatedIndex: "idx_jugadores_posicion_altura",
+  expected: "Los primeros diez delanteros por altura."
 }, () => fixtureDb.jugadores.find(
-  { posicion: "DELANTERO", partidosInternacionales: { $gte: 120 } },
-  { _id: 0, jugadorId: 1, equipoId: 1, apellido: 1, partidosInternacionales: 1, golesInternacionales: 1 }
-).sort({ partidosInternacionales: -1, jugadorId: 1 }).limit(10).toArray());
+  { posicion: "DELANTERO", alturaCm: { $gte: 180 } },
+  { _id: 0, jugadorId: 1, equipoId: 1, apellido: 1, alturaCm: 1, pieHabil: 1 }
+).sort({ alturaCm: -1, jugadorId: 1 }).limit(10).toArray());
 
 query("Q05", {
   objective: "Proyectar una ficha resumida de equipos sintéticos.",
@@ -94,10 +94,10 @@ query("Q07", {
 ).sort({ apellido: 1, nombre: 1, jugadorId: 1 }).toArray());
 
 query("Q08", {
-  objective: "Agregar la composición y experiencia del plantel por posición.",
+  objective: "Agregar la composición y altura del plantel por posición.",
   collection: "jugadores",
   filter: { equipoId: "EQ-001" },
-  returnedFields: ["posicion", "cantidad", "promedioPartidos", "promedioAlturaCm"],
+  returnedFields: ["posicion", "cantidad", "promedioAlturaCm"],
   relatedIndex: "idx_jugadores_equipo_nombre (prefijo equipoId)",
   expected: "Un resumen por cada posición presente en el plantel."
 }, () => fixtureDb.jugadores.aggregate([
@@ -106,7 +106,6 @@ query("Q08", {
     $group: {
       _id: "$posicion",
       cantidad: { $sum: 1 },
-      promedioPartidos: { $avg: "$partidosInternacionales" },
       promedioAlturaCm: { $avg: "$alturaCm" }
     }
   },
@@ -115,7 +114,6 @@ query("Q08", {
       _id: 0,
       posicion: "$_id",
       cantidad: 1,
-      promedioPartidos: { $round: ["$promedioPartidos", 2] },
       promedioAlturaCm: { $round: ["$promedioAlturaCm", 2] }
     }
   },
@@ -126,7 +124,7 @@ query("Q09", {
   objective: "Consolidar equipo y resumen de su plantel mediante $lookup.",
   collection: "equipos + jugadores",
   filter: { confederacion: "AFC" },
-  returnedFields: ["equipoId", "nombre", "cantidadJugadores", "promedioPartidos"],
+  returnedFields: ["equipoId", "nombre", "cantidadJugadores", "promedioAlturaCm"],
   relatedIndex: "idx_equipos_confederacion_ranking; idx_jugadores_equipo_nombre",
   expected: "Resumen de los primeros cinco equipos AFC."
 }, () => fixtureDb.equipos.aggregate([
@@ -147,7 +145,7 @@ query("Q09", {
       equipoId: 1,
       nombre: 1,
       cantidadJugadores: { $size: "$plantel" },
-      promedioPartidos: { $round: [{ $avg: "$plantel.partidosInternacionales" }, 2] }
+      promedioAlturaCm: { $round: [{ $avg: "$plantel.alturaCm" }, 2] }
     }
   }
 ]).toArray());

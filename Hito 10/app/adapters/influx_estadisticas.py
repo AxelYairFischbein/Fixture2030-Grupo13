@@ -1,4 +1,4 @@
-"""Adaptador temporal (Hito 8): tabla estadisticas_equipo de InfluxDB 3 Core vía SQL HTTP."""
+"""Adaptador temporal (Hito 8): tabla estadisticas_equipo_v2 de InfluxDB 3 Core vía SQL HTTP."""
 
 from datetime import datetime, timezone
 
@@ -7,7 +7,7 @@ import httpx
 from app.contexto import operacion
 
 ERRORES = (httpx.HTTPError,)
-TABLA = "estadisticas_equipo"
+TABLA = "estadisticas_equipo_v2"
 # Lista cerrada: el intervalo nunca se toma literalmente del consumidor.
 INTERVALOS_SQL = {"10s": "10 seconds", "30s": "30 seconds", "1m": "1 minute", "5m": "5 minutes"}
 

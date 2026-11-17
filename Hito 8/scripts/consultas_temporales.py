@@ -9,7 +9,7 @@ def main():
     meta = muestra()
     fin = meta["fin"]
     consultas = {
-        "ultimas_muestras_equipo": f"""SELECT time, equipo_id, estadio_id,
+        "ultimas_muestras_equipo": f"""SELECT time, equipo_id,
           posesion_pct, pases_acumulados, tiros_intervalo FROM {TABLA}
           WHERE {filtro(fin - 60, fin)}
             AND partido_id = 'PAR-001' AND equipo_id = 'EQ-001'

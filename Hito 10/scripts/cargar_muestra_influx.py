@@ -1,7 +1,7 @@
 """Escribe una muestra reciente en InfluxDB cuando la del Hito 8 ya venció por retención (7 días).
 
 Reutiliza dimensiones() y medidas() del Hito 8: misma tabla, tags y fields. Solo agrega puntos
-de los últimos N minutos para PAR-001 y PAR-002; no borra ni reescribe la muestra original.
+de los últimos N minutos para PAR-001 y PAR-002. No borra ni reescribe la muestra original.
 Uso: .venv\\Scripts\\python scripts\\cargar_muestra_influx.py [--minutos 30] [--paso 5]
 """
 
@@ -29,11 +29,11 @@ def main():
     lineas = []
     for partido in (1, 2):
         for lado in (0, 1):
-            p, e, s = dimensiones(partido, lado)
+            p, e = dimensiones(partido, lado)
             pases = 0
             for t in range(inicio, fin, a.paso):
                 posesion, pases, tiros = medidas(partido, lado, t - inicio, a.paso)
-                lineas.append(f"{TABLA},partido_id={p},equipo_id={e},estadio_id={s} "
+                lineas.append(f"{TABLA},partido_id={p},equipo_id={e} "
                               f"posesion_pct={posesion},pases_acumulados={pases}i,tiros_intervalo={tiros}i {t}")
     r = httpx.post(f"{cfg.influx_url}/api/v3/write_lp", params={"db": cfg.influx_db, "precision": "second"},
                    content="\n".join(lineas), headers={"Authorization": f"Bearer {cfg.influx_token}"}, timeout=30)

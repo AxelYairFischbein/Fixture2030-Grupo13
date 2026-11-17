@@ -1356,12 +1356,6 @@ components:
         pieHabil:
           type: string
           title: Piehabil
-        partidosInternacionales:
-          type: integer
-          title: Partidosinternacionales
-        golesInternacionales:
-          type: integer
-          title: Golesinternacionales
         estadoPlantel:
           type: string
           title: Estadoplantel
@@ -1376,8 +1370,6 @@ components:
       - fechaNacimiento
       - alturaCm
       - pieHabil
-      - partidosInternacionales
-      - golesInternacionales
       - estadoPlantel
       title: Jugador
     JugadorActa:
