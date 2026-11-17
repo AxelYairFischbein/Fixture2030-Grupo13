@@ -73,7 +73,7 @@ Para el Hito 12 mostrar la nueva verificación contra `5054f7f333133228cc23c635a
 
 ## Alternativa si el entorno no responde
 
-Abrir el [resumen de la ejecución](evidencia/demo-20261116-final/README.md), la captura de targets y su `demostracion.json`. Mostrar en orden `fases.antes`, `fases.durante` y `fases.despues`, con sus consultas, respuestas y alertas. La sección `version` identifica el código ejecutado. El dashboard y la captura de alertas están pendientes de guardar según las instrucciones del resumen. Hasta completarlas, no presentarlas como evidencia obtenida. Los JSON permiten explicar los resultados aunque Grafana no responda o sus series hayan vencido.
+Abrir el [resumen de la ejecución](evidencia/demo-20261116-final/README.md) y mostrar las capturas de [targets disponibles](evidencia/demo-20261116-final/01_targets.png), [dashboard con actividad, falla y recuperación](evidencia/demo-20261116-final/02_dashboard.png) y [alertas activas en el instante de falla](evidencia/demo-20261116-final/03_alertas.png). La última imagen es una consulta histórica y no indica que las alertas sigan activas. En [demostracion.json](evidencia/demo-20261116-final/demostracion.json), recorrer `fases.antes`, `fases.durante` y `fases.despues`, con sus consultas, respuestas y alertas. La sección `version` identifica el código ejecutado. Las imágenes y los JSON permiten explicar los resultados aunque Grafana no responda o sus series hayan vencido.
 
 Para la paginación e integridad usar la evidencia independiente del Hito 12. Explicar que se muestran resultados anteriores identificados, no una prueba en vivo. No improvisar recargas de datos ni recrear bases para salvar una demostración.
 
