@@ -1,0 +1,78 @@
+Validación del commit 10f3c7d37e1bb6cb48067cc256a54991ade1d7c6
+
+2026-11-16T23:50:51.987337-03:00
+
+docker compose -f "Hito 10/docker-compose.yml" config --quiet
+
+Salida: 0
+
+
+
+docker compose -f "Hito 13/docker-compose.yml" config --quiet
+
+Salida: 0
+
+
+
+docker compose -f "Hito 13/docker-compose.yml" exec -T prometheus promtool check config /etc/prometheus/prometheus.yml
+
+Salida: 0
+
+Checking /etc/prometheus/prometheus.yml
+  SUCCESS: 1 rule files found
+ SUCCESS: /etc/prometheus/prometheus.yml is valid prometheus config file syntax
+
+Checking /etc/prometheus/reglas.yml
+  SUCCESS: 2 rules found
+
+
+
+docker compose -f "Hito 13/docker-compose.yml" exec -T prometheus promtool check rules /etc/prometheus/reglas.yml
+
+Salida: 0
+
+Checking /etc/prometheus/reglas.yml
+  SUCCESS: 2 rules found
+
+
+
+python -X utf8 -m unittest discover -s "Hito 13" -p test_demo.py -v
+
+Salida: 0
+
+Esperando observación: Las alertas esperadas no llegaron a firing
+Esperando observación: Quedan alertas pendientes o activas
+test_cierre_no_exitoso_impide_completa (test_demo.FinalizacionTest.test_cierre_no_exitoso_impide_completa) ... ok
+test_espera_con_carga_hasta_activacion_o_resolucion (test_demo.FinalizacionTest.test_espera_con_carga_hasta_activacion_o_resolucion) ... ok
+test_no_se_reemplaza_el_error_original_y_se_guarda (test_demo.FinalizacionTest.test_no_se_reemplaza_el_error_original_y_se_guarda) ... ok
+test_pending_no_sustituye_firing (test_demo.FinalizacionTest.test_pending_no_sustituye_firing) ... ok
+test_plazo_agotado_conserva_medicion_y_motivo (test_demo.FinalizacionTest.test_plazo_agotado_conserva_medicion_y_motivo) ... ok
+test_recuperacion_confirmada_y_cierre_exitoso (test_demo.FinalizacionTest.test_recuperacion_confirmada_y_cierre_exitoso) ... ok
+test_recuperacion_y_limpieza_fallan_pero_se_guarda_todo (test_demo.FinalizacionTest.test_recuperacion_y_limpieza_fallan_pero_se_guarda_todo) ... ok
+test_redis_iniciado_sin_ping_no_cuenta_como_recuperado (test_demo.FinalizacionTest.test_redis_iniciado_sin_ping_no_cuenta_como_recuperado) ... ok
+test_series_presentes_no_demuestran_caida (test_demo.FinalizacionTest.test_series_presentes_no_demuestran_caida) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.025s
+
+OK
+
+
+docker compose -f "Hito 10/docker-compose.yml" exec -T api python -m pytest tests/unit tests/integration -q -rs -p no:cacheprovider
+
+..................................s.........                             [100%]
+=========================== short test summary info ============================
+SKIPPED [1] tests/integration/test_integracion.py:179: Sin puntos retenidos: ejecutar scripts/cargar_muestra_influx.py
+43 passed, 1 skipped in 10.37s
+
+
+No se recargaron puntos de InfluxDB. La sugerencia automática del motivo de skip no se ejecutó.
+
+Revisión local 2026-11-17T12:49:54.721947-03:00
+Imagen y revisión de API: coinciden con la ejecución guardada.
+Salud: seis fuentes disponibles. Targets: cuatro UP. Alertas: ninguna.
+Auditoría: enlaces locales existentes, JSON UTF-8 válidos, sin valores de credenciales locales en los archivos de la entrega.
+Evidencia Hito 12 coherente e intacta. Cambio ajeno Hito 6 intacto.
+Pendientes: 02_dashboard.png, 03_alertas.png, enlaces de ambas capturas, integración y publicación.
+
+La revisión de espacios de Git advierte retornos CR duplicados en pruebas-iniciales-9e93200.txt y una línea final vacía en demo-20261116/validacion.txt. Se conservan esos registros históricos sin editarlos. Código, configuración y documentación no presentan errores de espacios.

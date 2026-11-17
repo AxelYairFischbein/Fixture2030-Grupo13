@@ -63,17 +63,17 @@ Usar `/actas/PAR-001` e InfluxDB como respuestas guardadas si el tiempo es corto
 
 ## Monitoreo, falla y resultados
 
-Antes de exponer, ejecutar la demostración del README y abrir Grafana en el rango absoluto de esa ejecución. Mostrar los seis paneles y una request funcional. Si se decide repetir en vivo, iniciar la carga antes del bloque de monitoreo para acumular dos minutos de muestras. El script completo dura aproximadamente seis minutos y no debe consumirse íntegro como tiempo de exposición.
+Usar el [resultado completo guardado](evidencia/demo-20261116-final/README.md) y abrir Grafana en su rango absoluto. La ejecución duró 6 min 4 s y la exposición reserva 3 min 30 s para explicarla. Mostrar sus seis paneles y una request funcional. Si se decide repetir en vivo, iniciar la carga antes del bloque de monitoreo para acumular dos minutos de muestras. Las esperas acotadas pueden extender el recorrido hasta unos once minutos, más el cierre de requests en curso. No esperar toda la ejecución durante ese bloque.
 
 Con Redis detenido, distinguir el endpoint del exporter que sigue UP de `redis_up=0`. La sesión responde 503 y la ficha puede responder 200 con BYPASS desde MongoDB. Esto muestra por qué HTTP 200 no basta para detectar una degradación de caché. Tras iniciar el mismo contenedor, comprobar sesión, salud y `redis_up=1`. Las tasas usan dos minutos de historia y tardan en bajar, aunque la fuente ya se haya recuperado.
 
-Explicar contador, gauge e histograma mediante una métrica real. P95 es una estimación por buckets. Los 404 del equipo inexistente y los 503 de Redis son provocados. Las alertas tienen condiciones, duración y responsables documentados. No se enviaron notificaciones externas.
+Explicar contador, gauge e histograma mediante una métrica real. Se emitieron 1.405 requests de carga, con 349 respuestas 404 y 102 respuestas 503 deliberadas. No hubo errores inesperados. Las dos alertas llegaron a `firing` y luego se resolvieron. La sesión temporal cerró con 204. P95 es una estimación por buckets y fue de aproximadamente 9 a 10 ms en las observaciones. No aumentó durante esta falla porque el error se respondió rápidamente. Por eso se necesitan las señales de disponibilidad y errores además de latencia. Las alertas tienen condiciones, duración y responsables documentados. No se enviaron notificaciones externas.
 
 Para el Hito 12 mostrar la nueva verificación contra `5054f7f333133228cc23c635ad4c4491a4567974`, su imagen y comparación de archivos, las 2.400 filas verificadas antes y después y la paginación íntegra. Es una ejecución nueva. La comparación histórica no mostró mejora uniforme de P95 y P99. No comparar sus cifras con la nueva corrida como si el entorno fuera idéntico.
 
 ## Alternativa si el entorno no responde
 
-Abrir los JSON y el resumen de evidencia guardados desde el repositorio. Mostrar en orden los targets y consultas durante actividad, la observación de Redis durante la falla y la recuperación. Usar las capturas reales cuando estén disponibles. Una captura pendiente no se presenta como evidencia obtenida. Las respuestas funcionales quedan guardadas en `demostracion.json`, junto con fechas y versión ejecutada.
+Abrir el [resumen de la ejecución](evidencia/demo-20261116-final/README.md), la captura de targets y su `demostracion.json`. Mostrar en orden `fases.antes`, `fases.durante` y `fases.despues`, con sus consultas, respuestas y alertas. La sección `version` identifica el código ejecutado. El dashboard y la captura de alertas están pendientes de guardar según las instrucciones del resumen. Hasta completarlas, no presentarlas como evidencia obtenida. Los JSON permiten explicar los resultados aunque Grafana no responda o sus series hayan vencido.
 
 Para la paginación e integridad usar la evidencia independiente del Hito 12. Explicar que se muestran resultados anteriores identificados, no una prueba en vivo. No improvisar recargas de datos ni recrear bases para salvar una demostración.
 

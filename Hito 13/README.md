@@ -137,7 +137,23 @@ La verificación inicial encontró Cassandra, Redis del Hito 7 e InfluxDB deteni
 
 La nueva [verificación del Hito 12](../Hito%2012/evidencia/verificacion-20261115/README.md) identifica la variante optimizada en `5054f7f333133228cc23c635ad4c4491a4567974`. Conserva datos e históricos. No cambia la conclusión anterior: no hubo una mejora uniforme de P95 y P99 en las mediciones históricas.
 
-La evidencia de esta entrega y sus resultados se incorporan después de ejecutar la versión instrumentada. El guion está en [defensa.md](defensa.md). La prueba es breve, local y con dos clientes. No acredita tolerancia a particiones de red, réplicas, regiones, alta disponibilidad ni capacidad para tráfico mundial. Los pings no cubren todas las operaciones. La retención vacía no prueba agregaciones con datos recientes.
+La [ejecución completa del 16 de noviembre](evidencia/demo-20261116-final/README.md) duró 6 min 4 s, de 23:47:01 a 23:53:05, UTC−03. Se reconstruyó la API desde `10f3c7d37e1bb6cb48067cc256a54991ade1d7c6` y se compararon los 30 archivos del contenedor con ese commit. El [resultado](evidencia/demo-20261116-final/demostracion.json) conserva `completa: true`, tres fases comprobadas, cierre de sesión 204 y ningún fallo inesperado. Los commits posteriores de documentación y evidencia no sustituyen el SHA ejecutado.
+
+| Fase | Respuestas de la carga | Resultado observado al cierre de la fase |
+| --- | --- | --- |
+| Antes, 120 s programados | 352 de estado 200 y 116 de estado 404 | Seis fuentes sanas, tres endpoints de métricas UP, MongoDB y Redis en 1, caché HIT y ninguna alerta |
+| Durante, 105 s programados | 206 de estado 200, 102 de estado 404 y 102 de estado 503 | Exporter de Redis UP con `redis_up=0`, ficha 200 con BYPASS, sesión 503 y ambas alertas `firing` |
+| Después, 135 s programados | 396 de estado 200 y 131 de estado 404 | Redis con PONG, salud y sesión 200, `redis_up=1`, 5xx/s en cero y ninguna alerta pendiente o activa |
+
+Se emitieron 1.405 requests de carga. Los 349 errores 404 y 102 errores 503 fueron deliberados. Las consultas de los seis paneles devolvieron datos. La tasa de negocio al cierre de cada fase fue aproximadamente 3,88, 3,85 y 3,90 requests/s, sobre ventanas móviles de dos minutos. El P95 estimado fue 9,61, 9,28 y 9,12 ms. La falla no produjo un aumento sostenido de latencia, porque Redis rechazó pronto la operación y la ficha continuó desde MongoDB. El panel de errores y el estado del exporter detectaron la degradación.
+
+MongoDB mantuvo siete conexiones en las tres observaciones. Redis mostró tres clientes antes y después. Durante la caída, `redis_connected_clients` no tuvo muestra, por lo que ese hueco no debe interpretarse como una medición de cero clientes. La disponibilidad de Redis se interpreta con `redis_up` y se confirma con las requests de sesión.
+
+El [intento previo incompleto](evidencia/demo-20261116/README.md) se conserva por separado. La nueva ejecución alcanzó ambas alertas dentro del primer tramo de 105 s. No necesitó extender la espera, cuyo comportamiento de reintento y vencimiento está cubierto por pruebas unitarias. No se cambiaron umbrales para obtener ese resultado.
+
+Están guardados la [captura de targets](evidencia/demo-20261116-final/01_targets.png), el [entorno y la fuente Grafana](evidencia/demo-20261116-final/entorno.json) y las [validaciones](evidencia/demo-20261116-final/validacion.txt). Las capturas `02_dashboard.png` y `03_alertas.png` están pendientes. Sus pantallas, rango y rutas exactas figuran en el [resumen de la ejecución](evidencia/demo-20261116-final/README.md). La publicación queda pendiente hasta completar esas dos capturas.
+
+El guion está en [defensa.md](defensa.md). La prueba es breve, local y con dos clientes. No acredita tolerancia a particiones de red, réplicas, regiones, alta disponibilidad ni capacidad para tráfico mundial. Los pings no cubren todas las operaciones. La retención vacía no prueba agregaciones con datos recientes.
 
 Una mejora transversal propuesta es definir la autoridad del estado de partido y versionar las muestras compartidas. La diferencia comprobada entre Neo4j e IRIS justifica ese acuerdo de integración. Primero habría que especificar qué representa cada estado y cómo se valida una proyección. No se implementa sincronización distribuida en esta entrega. Como mejora de observación, medir el porcentaje de `BYPASS` permitiría detectar degradación de caché aunque la respuesta HTTP siga siendo 200.
 
@@ -151,7 +167,9 @@ docker compose -f 'Hito 10/docker-compose.yml' exec -T api python -m pytest test
 docker compose -f 'Hito 10/docker-compose.yml' exec -T api python -m pytest tests/integration -q -rs -p no:cacheprovider
 ```
 
-Las pruebas de integración usan datos temporales y limpian sus escrituras. La prueba de estadísticas recientes puede quedar omitida cuando no existen puntos retenidos. Revisar siempre el resumen de omisiones. No ejecutar una carga de datos solo para obtener un resultado verde.
+La versión ejecutada aprobó 43 pruebas de la API y nueve pruebas de la demostración. No hubo fallos en esta validación. Se omitió una prueba de estadísticas recientes de InfluxDB por ausencia de puntos retenidos. La consulta vacía válida y la disponibilidad de InfluxDB sí se comprobaron. Las pruebas de integración usan datos temporales y limpian sus escrituras. La paginación Cassandra comprueba orden completo contra una lectura directa, cursores distintos, ausencia de duplicados y conservación de los ocho comentarios de la muestra original, aunque coexistan otros comentarios. Los errores tipados distinguen indisponibilidad 503 de timeout 504 y comprueban su código y dependencia. Revisar siempre el resumen de omisiones. No ejecutar una carga de datos solo para obtener un resultado verde.
+
+Se conserva el [registro inicial de pruebas](evidencia/pruebas-iniciales-9e93200.txt), con 41 aprobadas, dos fallidas y una omitida en `9e93200`. Sus fallos correspondían a esperar solo ocho comentarios cuando coexistían 108 y a exigir 503 ante un timeout MongoDB que devuelve 504. Se ajustaron las comprobaciones a los datos coexistentes y al contrato de errores, conservando las verificaciones de orden, integridad y tiempo. Ese registro histórico no corresponde al resultado de la versión final ejecutada.
 
 ```powershell
 docker compose -f 'Hito 13/docker-compose.yml' stop

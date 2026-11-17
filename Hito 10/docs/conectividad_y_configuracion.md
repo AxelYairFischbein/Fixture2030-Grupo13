@@ -36,11 +36,11 @@ Se leen del entorno del proceso y, si faltan, de `.env` (ignorado por Git). [.en
 | MongoDB | `serverSelectionTimeoutMS`, `connectTimeoutMS`, `socketTimeoutMS` = timeout |
 | Neo4j | `connection_timeout`, `connection_acquisition_timeout`, `max_transaction_retry_time` y timeout de transacción por consulta |
 | Cassandra | `connect_timeout`, `control_connection_timeout`, `default_timeout` de la sesión |
-| Redis | `socket_timeout`, `socket_connect_timeout`; reintentos internos desactivados (con los reintentos por defecto la espera llegaba a ~15 s) |
+| Redis | `socket_timeout` y `socket_connect_timeout`, con reintentos internos desactivados (con los reintentos por defecto la espera llegaba a ~15 s) |
 | InfluxDB | `httpx` con timeout total |
 | IRIS | `timeout` de `iris.connect` |
 
-Medido con cada fuente inaccesible: 503 en 1,2 a 3,2 s con timeout de 1 s; con el contenedor Redis detenido, 2,05 s con timeout de 3 s ([evidencia](evidencia/04_dependencia_detenida.txt)).
+La [medición inicial](evidencia/04_dependencia_detenida.txt) registró respuestas 503 en 1,2 a 3,2 s con timeout de 1 s. Con Redis detenido registró 2,05 s con timeout de 3 s. La API distingue `DEPENDENCIA_NO_DISPONIBLE` (503) de `DEPENDENCIA_TIMEOUT` (504). Una conexión a un destino inaccesible puede producir cualquiera de esos resultados según el error del cliente. Las pruebas actuales comprueban la correspondencia entre estado HTTP, código, dependencia y tiempo acotado.
 
 ## Verificar las dependencias
 
@@ -56,16 +56,16 @@ Equivalentes por producto: `mongosh ... --eval "db.adminCommand({ping:1})"`, `cy
 ## Seguridad
 
 - Secretos solo en `.env` y en `../Hito 8/.local/admin.token`, ambos ignorados por Git. El repositorio contiene `.env.example` sin valores secretos.
-- La contraseña IRIS se pasa por stdin al Terminal del contenedor; PowerShell se configura sin BOM para que el script ObjectScript se interprete correctamente.
+- La contraseña IRIS se pasa por stdin al Terminal del contenedor. PowerShell se configura sin BOM para que el script ObjectScript se interprete correctamente.
 - Usuario IRIS propio (`fixture_api`) con rol `fixture_api_rol`: `%DB_USER` (datos de `USER`) y `%Native_ClassExecution` (invocar `CambiarEstado()`), más `GRANT SELECT ON SCHEMA FixtureH9`. No usa `_SYSTEM`.
 - Los logs registran tipo de excepción, nunca su mensaje (que podría incluir host o URI). Se verificó que `api.log` no contiene `password` ni `Bearer`.
-- Las respuestas de error no exponen consultas, trazas ni nombres internos; el detalle queda en el log por `requestId`.
+- Las respuestas de error no exponen consultas, trazas ni nombres internos. El detalle queda en el log por `requestId`.
 - La consola escapa todo dato antes de insertarlo en el HTML (los comentarios son texto de usuarios).
 - La API solo escucha en `127.0.0.1` y no implementa autenticación de consumidores: no debe exponerse a otra red tal como está.
 
 ## Datos que la API agrega a las fuentes
 
 - **Redis**: sesiones (TTL 1800 s), fichas en caché (TTL 300 s) y claves de idempotencia (TTL 24 h), todas bajo `fixture2030:h10:`.
-- **Cassandra**: los comentarios publicados (prefijo `API-`). Las pruebas de integración borran los suyos; la colección Postman y la evidencia cURL dejan los propios en `PAR-064`.
+- **Cassandra**: los comentarios publicados (prefijo `API-`). Las pruebas de integración borran los suyos. La colección Postman y la evidencia cURL dejan los propios en `PAR-064`.
 - **InfluxDB**: `scripts/cargar_muestra_influx.py` agrega puntos recientes de PAR-001 y PAR-002 cuando venció la muestra del Hito 8.
-- **IRIS**: usuario y rol de la API. Las pruebas crean y borran el acta `H10-TEMPORAL`; `PAR-001` no se modifica.
+- **IRIS**: usuario y rol de la API. Las pruebas crean y borran el acta `H10-TEMPORAL`. `PAR-001` no se modifica.

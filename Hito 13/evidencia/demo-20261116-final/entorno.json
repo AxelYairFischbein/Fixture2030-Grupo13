@@ -1,0 +1,117 @@
+{
+  "fecha": "2026-11-16T23:50:53.061385-03:00",
+  "grafana": {
+    "dashboard_provisionado": true,
+    "paneles": 6,
+    "titulo": "Fixture 2030 · API, MongoDB y Redis",
+    "consultas_coinciden": true,
+    "fuente": {
+      "details": {
+        "application": "Prometheus",
+        "features": {
+          "rulerApiEnabled": false
+        }
+      },
+      "message": "Successfully queried the Prometheus API.",
+      "status": "OK"
+    }
+  },
+  "componentes": [
+    {
+      "nombre": "/grupo13-hito10-api-1",
+      "container_id": "dccaeebc5e214c99c9baac0a3e48a6ebc2ed662b3d3adce80e44f775657ac9d2",
+      "imagen": "grupo13-hito10-api",
+      "image_id": "sha256:c5fed5ced746a672c6dd1bda37504907aec5061436caeaf3a816e081f218ee04",
+      "inicio": "2026-11-17T02:46:28.696800275Z",
+      "estado": "running"
+    },
+    {
+      "nombre": "/grupo13-hito13-prometheus-1",
+      "container_id": "377b5b7a9a821de5595a42a6fa9325d8b68009b9fe07b652c95205d223bf657f",
+      "imagen": "prom/prometheus:v3.5.0",
+      "image_id": "sha256:63805ebb8d2b3920190daf1cb14a60871b16fd38bed42b857a3182bc621f4996",
+      "inicio": "2026-11-17T02:40:49.840032602Z",
+      "estado": "running"
+    },
+    {
+      "nombre": "/grupo13-hito13-grafana-1",
+      "container_id": "c538893abe5e7447fa8444f7f8f867896e9c3996160d585b6c70f40ebcbd8923",
+      "imagen": "grafana/grafana:12.1.1",
+      "image_id": "sha256:a1701c2180249361737a99a01bc770db39381640e4d631825d38ff4535efa47d",
+      "inicio": "2026-11-17T02:40:49.848931916Z",
+      "estado": "running"
+    },
+    {
+      "nombre": "/grupo13-hito13-mongodb-exporter-1",
+      "container_id": "62bda0061ea75bb02c49b546ffd1bab5319bdc23659d72c3bfd91726d9e77741",
+      "imagen": "percona/mongodb_exporter:0.47.1",
+      "image_id": "sha256:8ba5d6e25fe7e30912f10b01a9e16e14c6c3af05f36dcaed0659690d70dc1670",
+      "inicio": "2026-11-17T02:40:49.818208494Z",
+      "estado": "running"
+    },
+    {
+      "nombre": "/grupo13-hito13-redis-exporter-1",
+      "container_id": "b1171e9413f6554c4363638bee36e3404a35fe2160dc509eed51a76d87013432",
+      "imagen": "oliver006/redis_exporter:v1.76.0",
+      "image_id": "sha256:1542bc6a88decfc16db6603045accd502cc3a46c46659d7cfd568e1f6965fe59",
+      "inicio": "2026-11-17T02:40:49.811243014Z",
+      "estado": "running"
+    },
+    {
+      "nombre": "/fixture2030-mongodb",
+      "container_id": "942f9be6ffd14efa544d3fe41021b94e5fd8f9cf3fb1affdd8aa72cda9759fad",
+      "imagen": "mongodb/mongodb-community-server:8.0-ubi8-slim",
+      "image_id": "sha256:f161f58d3fd773ad9f01a7f217fc27ade85c866f9bb9c6993a6b507e24ce05a5",
+      "inicio": "2026-11-17T02:40:49.844243772Z",
+      "estado": "running"
+    },
+    {
+      "nombre": "/grupo13-hito5-neo4j-1",
+      "container_id": "f52a2619114dc5eff534ce9a2f43745a3a10e4d0f360ee4cd8bbef25884b53df",
+      "imagen": "neo4j:latest",
+      "image_id": "sha256:956faa5d14b6beaa629b80c718bfd389ec12064f97e276ed9a58b0c53b25a323",
+      "inicio": "2026-11-17T02:40:49.827742219Z",
+      "estado": "running"
+    },
+    {
+      "nombre": "/grupo13-hito6-cassandra-1",
+      "container_id": "de17ecb18a01896618ef0986ff8abec9942b54e88406125fae94c49f622674a8",
+      "imagen": "cassandra:latest",
+      "image_id": "sha256:ee178b38a2746a8e15a115bd038ad1f864391d04a84162a018cb0dd79511709a",
+      "inicio": "2026-11-17T02:44:01.737827169Z",
+      "estado": "running"
+    },
+    {
+      "nombre": "/grupo13-hito7-redis-1",
+      "container_id": "71b4f301f6c0f9e2f35e9ae49487debadfc7836434dc3c2f06888b718a1e2fc6",
+      "imagen": "redis:latest",
+      "image_id": "sha256:718f745deb7dfefeac6eed7041fc7ec9476b50e61b247932682457c41adafa0e",
+      "inicio": "2026-11-17T02:50:49.636320366Z",
+      "estado": "running"
+    },
+    {
+      "nombre": "/grupo13-hito8-influxdb-1",
+      "container_id": "921dfe8ad2774ba87c749ae8ce4066e25b6600f6e06a19e311108be1234029bf",
+      "imagen": "influxdb:3-core",
+      "image_id": "sha256:624d69bca6bf6fb174aca5a974e1d96e5c5486994e6ae35bc9b4fe02b9520076",
+      "inicio": "2026-11-17T02:44:02.189584725Z",
+      "estado": "running"
+    },
+    {
+      "nombre": "/grupo13-hito9-iris-1",
+      "container_id": "c4f6c35fa27490e1f796e5d6fdfc5da9ec3960ed1a4c391f836f82db87bb1e73",
+      "imagen": "intersystems/iris-community:latest-cd",
+      "image_id": "sha256:cd2ebcab02d1ef80ec155def4418399f353d867162688c36a3705760e750bdaa",
+      "inicio": "2026-11-17T02:40:49.841848876Z",
+      "estado": "running"
+    },
+    {
+      "nombre": "/fixture2030-redis",
+      "container_id": "d59ff6dca516b31cd739b9f952e2a023654ed48f6b0e285ec143e4af195d4cf3",
+      "imagen": "redis:latest",
+      "image_id": "sha256:718f745deb7dfefeac6eed7041fc7ec9476b50e61b247932682457c41adafa0e",
+      "inicio": "2026-11-17T02:40:49.83688183Z",
+      "estado": "running"
+    }
+  ]
+}
