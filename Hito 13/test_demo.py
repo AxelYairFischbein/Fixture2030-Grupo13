@@ -68,6 +68,57 @@ class FinalizacionTest(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, "exporter"):
             demo.comprobar_fase(fase, True)
 
+    def test_espera_con_carga_hasta_activacion_o_resolucion(self):
+        tramo = {"estados_http": {"200": 2}, "cache": {"HIT": 1}, "inesperados": [],
+                 "ejemplos": {}, "errores_deliberados": [404]}
+        for caida, motivo in [(True, "Las alertas esperadas no llegaron a firing"),
+                              (False, "Quedan alertas pendientes o activas")]:
+            with self.subTest(caida=caida), patch.object(demo, "carga", return_value=tramo) as carga, \
+                    patch.object(demo, "estado", return_value={"alertas": []}), \
+                    patch.object(demo, "comprobar_fase", side_effect=[demo.ObservacionPendiente(motivo), None]), \
+                    patch.object(demo.time, "monotonic", side_effect=[0, 110]):
+                fase, guardar = {}, Mock()
+                demo.observar_fase(fase, "SES-secreto", caida, 105, 240, guardar)
+            self.assertEqual([c.args[0] for c in carga.call_args_list], [105, 15])
+            self.assertEqual(fase["estados_http"], {"200": 4})
+            self.assertEqual(fase["evaluaciones"][-1]["motivo"], "Condiciones verificadas")
+            self.assertGreaterEqual(guardar.call_count, 4)
+
+    def test_pending_no_sustituye_firing(self):
+        fase = {"inesperados": [], "ejemplos": {
+            "/equipos/EQ-001": {"status": 200, "cache": "BYPASS"},
+            "/sesiones/{sesionId}": {"status": 503}}, "observacion": {
+            "targets": [{"labels": {"job": j}, "health": "up"}
+                        for j in ("fixture-api", "mongodb", "redis", "prometheus")],
+            "consultas": [{"panel": p, "leyenda": l, "resultado": {"result": [{"value": [1, str(v)]}]}}
+                          for p, l, v in [(2, "MongoDB", 1), (2, "Redis", 0),
+                              (3, "P95", .1), (4, "requests", 3), (5, "5xx", 1),
+                              (6, "MongoDB · conexiones", 10)]],
+            "salud": {"status": 503, "body": {"error": {"detalles": [
+                {"fuente": f, "estado": "no_disponible" if f == "redis" else "ok"}
+                for f in ("mongodb", "neo4j", "cassandra", "redis", "influxdb", "iris")]}}},
+            "alertas": [{"labels": {"alertname": "FuenteNoDisponible"}, "state": "firing"},
+                        {"labels": {"alertname": "ErroresAPIAltos"}, "state": "pending"}]}}
+        with self.assertRaisesRegex(demo.ObservacionPendiente, "firing"):
+            demo.comprobar_fase(fase, True)
+        fase["observacion"]["alertas"][1]["state"] = "firing"
+        demo.comprobar_fase(fase, True)
+        self.assertIn("OK", fase["comprobaciones"])
+
+    def test_plazo_agotado_conserva_medicion_y_motivo(self):
+        tramo = {"estados_http": {"503": 2}, "cache": {"BYPASS": 1}, "inesperados": [],
+                 "ejemplos": {}, "errores_deliberados": [404, 503]}
+        with patch.object(demo, "carga", return_value=tramo), \
+                patch.object(demo, "estado", return_value={"alertas": []}), \
+                patch.object(demo, "comprobar_fase", side_effect=demo.ObservacionPendiente("Alerta pendiente")), \
+                patch.object(demo.time, "monotonic", side_effect=[0, 240]):
+            fase, guardar = {}, Mock()
+            with self.assertRaisesRegex(demo.EsperaAgotada, "240 s agotado: Alerta pendiente"):
+                demo.observar_fase(fase, "SES-secreto", True, 105, 240, guardar)
+        self.assertEqual(fase["estados_http"], {"503": 2})
+        self.assertEqual(fase["evaluaciones"][-1]["motivo"], "Alerta pendiente")
+        guardar.assert_called()
+
 
 if __name__ == "__main__":
     unittest.main()

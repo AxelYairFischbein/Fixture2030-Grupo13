@@ -21,6 +21,14 @@ PROM = "http://127.0.0.1:9090/api/v1"
 REDIS = "grupo13-hito7-redis-1"
 
 
+class ObservacionPendiente(RuntimeError):
+    """Condición que puede necesitar otra muestra o evaluación de Prometheus."""
+
+
+class EsperaAgotada(RuntimeError):
+    """Plazo agotado con un motivo fijo y seguro para la evidencia."""
+
+
 def fecha():
     return datetime.now(timezone(timedelta(hours=-3))).isoformat()
 
@@ -138,25 +146,25 @@ def comprobar_fase(fase, caida):
         raise RuntimeError("Hubo respuestas inesperadas")
     targets = {t["labels"]["job"]: t["health"] for t in observacion["targets"]}
     if any(targets.get(j) != "up" for j in ("fixture-api", "mongodb", "redis", "prometheus")):
-        raise RuntimeError("No están accesibles todos los endpoints de métricas")
+        raise ObservacionPendiente("No están accesibles todos los endpoints de métricas")
     valores = {}
     for q in observacion["consultas"]:
         valores[(q["panel"], q["leyenda"])] = [float(s["value"][1]) for s in q["resultado"]["result"]]
     for clave, esperado in [((2, "MongoDB"), 1), ((2, "Redis"), 0 if caida else 1)]:
         if valores.get(clave) != [esperado]:
-            raise RuntimeError("El exporter no observó el estado esperado")
+            raise ObservacionPendiente("El exporter no observó el estado esperado")
     for (panel, _), numeros in valores.items():
         if panel in (3, 4, 5) and (not numeros or not all(math.isfinite(n) and n >= 0 for n in numeros)):
-            raise RuntimeError("Una métrica de actividad no tiene valores válidos")
+            raise ObservacionPendiente("Una métrica de actividad no tiene valores válidos")
     if not valores.get((6, "MongoDB · conexiones")) or not all(n > 0 for n in valores[(6, "MongoDB · conexiones")]):
-        raise RuntimeError("No se observaron conexiones de MongoDB")
+        raise ObservacionPendiente("No se observaron conexiones de MongoDB")
     if not caida and (not valores.get((6, "Redis · clientes")) or not all(n > 0 for n in valores[(6, "Redis · clientes")])):
-        raise RuntimeError("No se observaron clientes de Redis disponible")
+        raise ObservacionPendiente("No se observaron clientes de Redis disponible")
     if not any(n > 0 for (p, _), ns in valores.items() if p == 4 for n in ns):
-        raise RuntimeError("No se observó volumen de requests")
+        raise ObservacionPendiente("No se observó volumen de requests")
     cinco = valores[(5, "5xx")]
     if (caida and not any(n > 0 for n in cinco)) or (not caida and any(n != 0 for n in cinco)):
-        raise RuntimeError("Los errores no corresponden a la fase")
+        raise ObservacionPendiente("Los errores no corresponden a la fase")
     salud = observacion["salud"]
     if salud["status"] != (503 if caida else 200):
         raise RuntimeError("Salud no refleja el estado de la fase")
@@ -168,10 +176,47 @@ def comprobar_fase(fase, caida):
         raise RuntimeError("La consulta funcional no confirma caché y sesión")
     alertas = {a["labels"]["alertname"] for a in observacion["alertas"] if a["state"] == "firing"}
     if caida and not {"FuenteNoDisponible", "ErroresAPIAltos"} <= alertas:
-        raise RuntimeError("Las alertas esperadas no llegaron a firing")
+        raise ObservacionPendiente("Las alertas esperadas no llegaron a firing")
     if not caida and observacion["alertas"]:
-        raise RuntimeError("Quedan alertas pendientes o activas")
+        raise ObservacionPendiente("Quedan alertas pendientes o activas")
     fase["comprobaciones"] = "OK: targets, exporters, salud, actividad, errores, caché, sesión y alertas"
+
+
+def observar_fase(fase, sesion, caida, minimo, maximo, guardar):
+    inicio = time.monotonic()
+    fase.update({"inicio": fecha(), "minimo_s": minimo, "plazo_s": maximo,
+                 "duracion_programada_s": 0, "estados_http": {}, "cache": {},
+                 "inesperados": [], "ejemplos": {}, "evaluaciones": []})
+    segundos = minimo
+    while True:
+        tramo = carga(segundos, sesion, caida)
+        for clave in ("estados_http", "cache"):
+            fase[clave] = dict(Counter(fase[clave]) + Counter(tramo[clave]))
+        fase["inesperados"].extend(tramo["inesperados"])
+        fase["ejemplos"].update(tramo["ejemplos"])
+        fase["errores_deliberados"] = tramo["errores_deliberados"]
+        fase["duracion_programada_s"] += segundos
+        fase["fin"] = fecha()
+        guardar()
+        fase["observacion"] = estado()
+        try:
+            comprobar_fase(fase, caida)
+        except ObservacionPendiente as error:
+            motivo = str(error)  # Solo mensajes fijos de comprobar_fase, sin datos de requests.
+            fase["evaluaciones"].append({"fecha": fecha(), "motivo": motivo,
+                "alertas": [{"nombre": a["labels"]["alertname"], "estado": a["state"]}
+                            for a in fase["observacion"]["alertas"]]})
+            guardar()
+            restante = maximo - (time.monotonic() - inicio)
+            if restante <= 0:
+                raise EsperaAgotada(f"Plazo de {maximo} s agotado: {motivo}") from error
+            # La espera conserva carga real y comprueba de nuevo tras un ciclo de scraping.
+            segundos = min(15, restante)
+            print("Esperando observación:", motivo, flush=True)
+        else:
+            fase["evaluaciones"].append({"fecha": fecha(), "motivo": "Condiciones verificadas"})
+            guardar()
+            return
 
 
 def ejecutar(salida, falla):
@@ -201,7 +246,8 @@ def ejecutar(salida, falla):
         if r["status"] != 201:
             raise RuntimeError("No se pudo crear la sesión temporal")
         sesion = r["body"]["data"]["sesionId"]
-        for nombre, segundos, caida in [("antes", 120, False), *([("durante", 105, True), ("despues", 135, False)] if falla else [])]:
+        for nombre, minimo, maximo, caida in [("antes", 120, 180, False),
+                *([("durante", 105, 240, True), ("despues", 135, 240, False)] if falla else [])]:
             if caida:
                 detenido = True
                 subprocess.run(["docker", "stop", REDIS], check=True, capture_output=True, timeout=60)
@@ -210,10 +256,8 @@ def ejecutar(salida, falla):
                 resultado["recuperacion"] = {"fecha": fecha(), "redis": "PONG"}
                 detenido = False
             print(nombre, fecha(), flush=True)
-            resultado["fases"][nombre] = carga(segundos, sesion, caida)
-            resultado["fases"][nombre]["observacion"] = estado()
-            guardar()
-            comprobar_fase(resultado["fases"][nombre], caida)
+            resultado["fases"][nombre] = {}
+            observar_fase(resultado["fases"][nombre], sesion, caida, minimo, maximo, guardar)
         resultado["series"] = [{**q, "resultado": prom("/query_range", query=q["expr"], start=comienzo, end=time.time(), step="15s")} for q in consultas()]
         if any(not q["resultado"]["result"] for q in resultado["series"]):
             raise RuntimeError("Hay una consulta del dashboard sin series")
@@ -221,6 +265,8 @@ def ejecutar(salida, falla):
     except BaseException as error:
         error_original = error
         resultado["fallos"].append({"etapa": "ejecucion", "tipo": type(error).__name__})
+        if isinstance(error, EsperaAgotada):
+            resultado["fallos"][-1]["motivo"] = str(error)
         raise
     finally:
         try:
@@ -236,6 +282,6 @@ def ejecutar(salida, falla):
 if __name__ == "__main__":
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--salida", type=Path, required=True, help="Carpeta nueva para no reemplazar evidencias")
-    p.add_argument("--falla-redis", action="store_true", help="Detener Redis 105 s y recuperarlo, conservando datos")
+    p.add_argument("--falla-redis", action="store_true", help="Falla de Redis de 105 a 240 s con recuperación comprobada")
     a = p.parse_args()
     ejecutar(a.salida, a.falla_redis)

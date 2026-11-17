@@ -121,7 +121,11 @@ python -X utf8 'Hito 13/demo.py' --falla-redis --salida "Hito 13/evidencia/demo-
 
 El script exige una carpeta nueva y verifica la imagen contra el commit antes de emitir carga. Comprueba salud y lecturas de las seis fuentes. Crea una sesión temporal que cierra al finalizar. Dos clientes alternan listado de equipos, ficha cacheada, lectura de sesión y equipo inexistente. Cada cliente espera medio segundo después de cada respuesta. El máximo teórico es cuatro requests por segundo y la tasa real baja con la latencia.
 
-Las fases son 120 s de actividad previa, 105 s con Redis detenido y 135 s de recuperación. Las ventanas de PromQL reciben muestras suficientes antes de registrar cada fase. El 404 del equipo inexistente es deliberado. El 503 de la sesión durante la falla también lo es. Cualquier otro estado inesperado interrumpe la prueba y se registra. `finally` vuelve a iniciar Redis si la ejecución se interrumpe. Ante un cierre forzado de la terminal o del equipo, recuperar manualmente con `docker start grupo13-hito7-redis-1` y comprobar salud.
+Las fases comienzan con 120 s de actividad previa, 105 s con Redis detenido y 135 s de recuperación. Si falta observar una condición, se mantiene la carga y se vuelve a comprobar cada 15 s. Los límites son 180 s para la primera fase y 240 s para cada una de las otras dos, más el cierre de las requests y consultas en curso. No se considera una alerta `pending` como `firing`.
+
+La ventana móvil de dos minutos, el período sostenido de un minuto de `ErroresAPIAltos` y los ciclos independientes de scraping y evaluación impiden fijar la activación en un segundo exacto. El límite de cuatro minutos deja margen para esos ciclos. Al recuperar Redis también debe salir de la ventana el tráfico 5xx anterior y desaparecer toda alerta pendiente o activa. Si vence el plazo, se guarda el resultado incompleto con el motivo observado.
+
+El 404 del equipo inexistente es deliberado. El 503 de la sesión durante la falla también lo es. Cualquier otro estado inesperado interrumpe la prueba y se registra. `finally` intenta recuperar Redis y cerrar la sesión por separado, conserva el error original y guarda el resultado parcial aunque falle alguna limpieza. La recuperación exige `PONG` y el cierre exige 204. Ante un cierre forzado de la terminal o del equipo, recuperar manualmente con `docker start grupo13-hito7-redis-1` y comprobar salud.
 
 Sin `--falla-redis`, el script ejecuta solo los dos minutos iniciales. No hay escrituras en MongoDB, Neo4j, Cassandra, InfluxDB ni IRIS. La caché de la API puede renovarse y la sesión temporal usa el TTL existente de 1800 s. No se borran volúmenes ni se vuelven a cargar muestras.
 
@@ -142,6 +146,7 @@ Una mejora transversal propuesta es definir la autoridad del estado de partido y
 ```powershell
 docker compose -f 'Hito 13/docker-compose.yml' config --quiet
 docker compose -f 'Hito 13/docker-compose.yml' exec -T prometheus promtool check config /etc/prometheus/prometheus.yml
+python -X utf8 -m unittest discover -s 'Hito 13' -p 'test_demo.py' -v
 docker compose -f 'Hito 10/docker-compose.yml' exec -T api python -m pytest tests/unit -q -p no:cacheprovider
 docker compose -f 'Hito 10/docker-compose.yml' exec -T api python -m pytest tests/integration -q -rs -p no:cacheprovider
 ```
