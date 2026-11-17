@@ -1,0 +1,10 @@
+apiVersion: 1
+providers:
+  - name: Fixture 2030
+    folder: Fixture 2030
+    type: file
+    disableDeletion: true
+    allowUiUpdates: false
+    updateIntervalSeconds: 15
+    options:
+      path: /var/lib/grafana/dashboards

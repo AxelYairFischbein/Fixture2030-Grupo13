@@ -7,8 +7,8 @@ API HTTP (FastAPI) que da acceso controlado a los seis módulos NoSQL de los Hit
 | Fuente | Hito | Qué expone la API |
 | --- | --- | --- |
 | MongoDB | 4 | Listado paginado de equipos, ficha y plantel |
-| Neo4j | 5 | Partido con equipos, estadio y eventos; agenda de un equipo |
-| Cassandra | 6 | Comentarios por ventana de hasta 5 minutos con cursor; publicación idempotente |
+| Neo4j | 5 | Partido con equipos, estadio y eventos, y agenda de un equipo |
+| Cassandra | 6 | Comentarios por ventana de hasta 5 minutos con cursor y publicación idempotente |
 | Redis | 7 | Sesiones con TTL, caché de la ficha de equipo, claves de idempotencia |
 | InfluxDB | 8 | Resumen temporal agregado por intervalo |
 | IRIS | 9 | Acta del partido (objetos) y transición de estado validada por el dominio |
@@ -51,7 +51,19 @@ Hito 10/
 - [Pruebas, evidencia y rendimiento](docs/pruebas_y_evidencia.md)
 - [Evaluación de conectividad de la API](../Hito%2011/README.md)
 
-## Inicio rápido (cualquier PC con Windows)
+## Inicio con datos existentes
+
+Con Docker Desktop iniciado, arrancar los contenedores existentes sin cargar muestras:
+
+```powershell
+docker start fixture2030-mongodb grupo13-hito5-neo4j-1 grupo13-hito6-cassandra-1 grupo13-hito7-redis-1 grupo13-hito8-influxdb-1 grupo13-hito9-iris-1
+docker compose up -d --build api
+Invoke-RestMethod http://127.0.0.1:8000/api/v1/salud
+```
+
+Esperar el arranque de Cassandra y repetir salud si aún devuelve 503. `fixture.cmd todo`, `preparar` e `influx` cargan datos. No son necesarios para encender un entorno ya preparado. Un resultado vacío de InfluxDB con HTTP 200 puede indicar que venció su retención de siete días.
+
+## Preparación de un entorno nuevo
 
 Requisitos: **Windows 10/11 y Docker Desktop** iniciado (contenedores Linux). No hace falta instalar Python ni ninguna base. Se recomiendan 16 GB de RAM: Cassandra, IRIS, Neo4j e InfluxDB corren a la vez.
 
@@ -63,10 +75,10 @@ Clonar el repositorio, abrir una terminal (PowerShell o cmd) en `Hito 10` y ejec
 
 Ese comando, sin pasos manuales y de forma repetible:
 
-1. comprueba que Docker responda y que los puertos 27017, 7474, 7687, 9042, 16379, 8181, 1972, 52773 y 8000 no estén ocupados por otro programa;
-2. crea las carpetas de datos (`%USERPROFILE%\docker\data\...`), `Hito 5\.env` desde su ejemplo y `Hito 10\.env` con las credenciales de laboratorio y una clave IRIS aleatoria;
-3. inicia los contenedores de los Hitos 4 a 9 y espera a cada base;
-4. carga las muestras con los scripts de cada hito (MongoDB, Neo4j, Cassandra, clases y demo de IRIS), corrige el `chown` de IRIS si la carpeta es nueva, crea el usuario IRIS de la API y el token y la base de InfluxDB;
+1. comprueba que Docker responda y que los puertos 27017, 7474, 7687, 9042, 16379, 8181, 1972, 52773 y 8000 no estén ocupados por otro programa.
+2. crea las carpetas de datos (`%USERPROFILE%\docker\data\...`), `Hito 5\.env` desde su ejemplo y `Hito 10\.env` con las credenciales del entorno de prueba y una clave IRIS aleatoria
+3. inicia los contenedores de los Hitos 4 a 9 y espera a cada base.
+4. carga las muestras con los scripts de cada hito (MongoDB, Neo4j, Cassandra, clases y demo de IRIS), corrige el `chown` de IRIS si la carpeta es nueva, crea el usuario IRIS de la API y el token y la base de InfluxDB.
 5. construye y levanta la API en un contenedor, agrega 30 minutos de estadísticas recientes y abre <http://127.0.0.1:8000/>.
 
 La primera vez tarda varios minutos (descarga de imágenes y arranque de Cassandra e IRIS). Las siguientes, menos de un minuto.
@@ -89,7 +101,7 @@ La primera vez tarda varios minutos (descarga de imágenes y arranque de Cassand
 
 ## Modo sin Docker para la API (opcional)
 
-La API también puede ejecutarse con Python 3.12+ en la notebook. Los pasos siguientes son los mismos que automatiza `fixture.cmd`, hechos a mano.
+La API también puede ejecutarse con Python 3.12+ en la notebook. Es una alternativa al contenedor de la API. Detener primero `docker compose stop api` para liberar el puerto 8000. Los pasos siguientes incluyen preparación opcional de datos y no deben repetirse sobre muestras existentes.
 
 ## Puesta en marcha manual
 
@@ -101,18 +113,18 @@ Todos los comandos se ejecutan desde `Hito 10/` en PowerShell.
    foreach ($h in 'Hito 4','Hito 5','Hito 6','Hito 7','Hito 8','Hito 9') { docker compose -f "..\$h\docker-compose.yml" up -d }
    ```
 
-   Cargar las muestras según cada README si el entorno es nuevo (MongoDB: scripts 01-03 y `02_seed.js`; Neo4j: `estructura` y `carga`; Cassandra: `esquema.cql` y `carga_muestra.cql`; IRIS: `LoadDir` y `FixtureH9.Demo.Ejecutar()`; InfluxDB: `inicializacion.py`).
+   Cargar las muestras según cada README si el entorno es nuevo. MongoDB usa scripts 01-03 y `02_seed.js`, Neo4j usa `estructura` y `carga`, Cassandra usa `esquema.cql` y `carga_muestra.cql`, IRIS usa `LoadDir` y `FixtureH9.Demo.Ejecutar()`, e InfluxDB usa `inicializacion.py`.
 
 2. **Configurar secretos locales**:
 
    ```powershell
-   Copy-Item .env.example .env
+   if (-not (Test-Path .env)) { Copy-Item .env.example .env }
    notepad .env   # completar MONGO_PASSWORD, NEO4J_PASSWORD e IRIS_PASSWORD (letras y números, 12+)
    ```
 
    `.env` está en `.gitignore`. El token de InfluxDB se lee de `..\Hito 8\.local\admin.token` (también ignorado).
 
-3. **Crear el usuario IRIS de la API** (una vez por instancia; rol mínimo `%DB_USER` + `%Native_ClassExecution` y `SELECT` sobre `FixtureH9`):
+3. **Crear el usuario IRIS de la API** (una vez por instancia, con rol mínimo `%DB_USER` + `%Native_ClassExecution` y `SELECT` sobre `FixtureH9`):
 
    ```powershell
    powershell -ExecutionPolicy Bypass -File .\scripts\iris_crear_usuario_api.ps1
@@ -145,7 +157,7 @@ La página `web/index.html` la sirve la propia API, por lo que no requiere CORS 
 - **Equipos**: listado paginado por confederación (MongoDB), ficha con indicador de caché `HIT/MISS/BYPASS` e invalidación (Redis), plantel filtrable y agenda (Neo4j). Un partido de la agenda abre su detalle.
 - **Partido**: detalle y eventos (Neo4j), gráfico de posesión y totales por intervalo (InfluxDB), lectura de comentarios por ventana con "Cargar más" por cursor (Cassandra) y publicación con `Idempotency-Key`, con un botón para reintentar el mismo envío y comprobar que no duplica.
 - **Sesiones**: abrir, consultar (TTL restante) y cerrar sesiones (Redis).
-- **Actas**: acta del partido con árbitro y eventos (IRIS) y botones de transición; las inválidas muestran el 409 sin modificar el acta.
+- **Actas**: acta del partido con árbitro y eventos (IRIS) y botones de transición. Las inválidas muestran el 409 sin modificar el acta.
 
 La barra inferior muestra en cada llamada el método, el estado HTTP, la duración, el `X-Request-ID` y las operaciones que el servidor ejecutó en cada fuente (`meta.fuentes`), y permite ver el JSON completo.
 
@@ -162,12 +174,13 @@ Resultado registrado: **36 pruebas aprobadas** ([evidencia](docs/evidencia/02_pr
 
 ## Detener sin perder datos
 
-- API: `Ctrl+C` en su consola.
+- API en contenedor: `docker compose stop api`.
+- API en Python local: `Ctrl+C` en su consola.
 - Fuentes: `docker compose -f "..\Hito N\docker-compose.yml" stop`. **No usar `down -v`**, que elimina volúmenes.
 
 ## Limitaciones conocidas
 
-- Entorno local de un nodo por producto, sin autenticación de consumidores ni TLS; la API escucha solo en `127.0.0.1`.
-- El healthcheck del contenedor Neo4j del Hito 5 figura `unhealthy` en Windows porque `cypher.sh` se descarga con fin de línea CRLF; la base responde normalmente (ver `docs/evidencia/01_conectividad.txt`). No se modificó el Hito 5.
-- Las transiciones de un acta IRIS son permanentes; las pruebas las ejercitan sobre un acta temporal que se borra al terminar.
-- La carpeta `Hito 10a/` del repositorio es una copia del Hito 9 con la consigna en PDF; esta entrega vive en `Hito 10/`.
+- Entorno local de un nodo por producto, sin autenticación de consumidores ni TLS. La API escucha solo en `127.0.0.1`.
+- Las evidencias iniciales registraron un healthcheck de Neo4j afectado por CRLF. El estado depende del checkout y debe verificarse con `docker ps` y una consulta real.
+- Las transiciones de un acta IRIS son permanentes. Las pruebas las ejercitan sobre un acta temporal que se borra al terminar.
+- `PAR-001` de Neo4j está FINALIZADO y el acta de IRIS está PENDIENTE por el diseño de dos muestras independientes. No hay sincronización entre ellas. El [Hito 13](../Hito%2013/README.md) explica su alcance y el monitoreo de `/metrics`.

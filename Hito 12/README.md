@@ -171,6 +171,8 @@ Estos resultados son locales y breves. La distribución, los datos calientes, el
 
 ## Evidencias y comprobaciones
 
+La [verificación nueva del 15 de noviembre de 2026](evidencia/verificacion-20261115/README.md) cierra la trazabilidad de la variante optimizada contra el commit completo `5054f7f333133228cc23c635ad4c4491a4567974`. Incluye checkout limpio, imagen construida desde esa versión, comparación de archivos dentro del contenedor, configuración efectiva e integridad antes y después. Es una ejecución separada, sin comparación nueva contra la base. Los JSON y las capturas históricas permanecen intactos.
+
 | Archivo | Contenido |
 | --- | --- |
 | [01_humo.json](evidencia/01_humo.json) | Primer intento real incompleto por la consulta de memoria de Windows, conservado y excluido de la comparación |

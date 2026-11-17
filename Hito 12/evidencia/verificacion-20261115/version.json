@@ -1,0 +1,54 @@
+{
+  "fecha": "2026-11-15T23:36:25.301070-03:00",
+  "commit": "5054f7f333133228cc23c635ad4c4491a4567974",
+  "contenedor": "grupo13-hito12-api-1",
+  "imagen": "fixture-h12-verificacion:5054f7f",
+  "image_id": "sha256:f8fa7472e6f99c4f308dfd97d552b3a49d4bd4dcb6792eeb0820c2a797c9d76c",
+  "repo_digests": [
+    "fixture-h12-verificacion@sha256:f8fa7472e6f99c4f308dfd97d552b3a49d4bd4dcb6792eeb0820c2a797c9d76c"
+  ],
+  "inicio_contenedor": "2026-11-16T02:35:39.807168419Z",
+  "cambios_api": "",
+  "archivos_coinciden": true,
+  "metodo": "SHA256 de cada archivo copiado a /app contra git show del commit, normalizando CRLF a LF",
+  "sha256_archivos": {
+    "app/adapters/cassandra_comentarios.py": "c4495d014a1b7575f50adb6ee84b9045cde783a079e3881c914ae6aed4998405",
+    "app/adapters/influx_estadisticas.py": "b7ed7edd17be2bd0c8281f3b103c2f8522d3c96b619a14f596e095478df973e7",
+    "app/adapters/iris_actas.py": "c24900c6d993b6e7f4b153c332b683fbba5fcc3b8a2d1d0b4aff3a4555fe9cef",
+    "app/adapters/mongo_equipos.py": "a25ff3d34e10a716e7a36b863f0dd858152efca99c8020702c3ea098b0e55b7a",
+    "app/adapters/neo4j_partidos.py": "d2888f200ebec25e715d3010b7b78aa9f88a703a193707e6720c806821b02e5c",
+    "app/adapters/redis_kv.py": "a2289d961d5c9eec4f25af1e6f7431a542bc8491d0a2bd830a3828121aa8934f",
+    "app/config.py": "0cabc9b09803a5ff4a539c8166d6a834e712965a3d7c61d8b3a04a49b988de1e",
+    "app/contexto.py": "766ec6d00061ecf9beedff7cd2459903f375c1273a8de8500b2b8985ffe3dca6",
+    "app/errors.py": "c61f15165fd47f218220ecff803fd686f363c5b819bd3dc1d4e06b2c698efc28",
+    "app/main.py": "cc96335ab4b36934c9f9a86b2889201a067e186764e0f46ddf7cf242ba95d7ad",
+    "app/routes.py": "1701660c76afa0bbb539496ec8f1acbd85f44530b786387bce639a401880b569",
+    "app/schemas.py": "903397e70a73bff7e821059118999af5bce5a0f7b96e910b2fa36865d774a6ca",
+    "app/services.py": "1559fe5cd4b6881e175c5366f8bbd9de188e98b9cfcf60dc52e1f3a75fef13a8",
+    "openapi/openapi.yaml": "d4bf78ed66f7cbac2aa15872018dd1b7dfd2b70828f70d9eee9ca9c9f56aa9e1",
+    "pytest.ini": "c4aeae2c3ec807a94ef0c8e8b2dcf9a2ae71f6a626b8274149f9c517635e0340",
+    "requirements.txt": "2907adb2ea19ec41c19c9b4598b98eca5d525e897ca23e542752248ad9f1c580",
+    "scripts/cargar_muestra_influx.py": "e9e48b90be945e916de6221d907cf67ec70c7fb2a01616ff42ef4f88dde8e836",
+    "scripts/ejecutar_pruebas.ps1": "29d3cf04bb45ed3342c42ec8032fefd13f73590dd0c668dca1b5719bab1e473e",
+    "scripts/exportar_openapi.py": "cc29c9af590bb6ef0ac2d77eb0e9fb4d16b5cdc7cc7988979a80487342bb139f",
+    "scripts/iniciar_api.ps1": "5f509a57a62750c72ebc74a0ad88af99d27a7090263bed8ccd3e7283c98b40a2",
+    "scripts/iris_crear_usuario_api.ps1": "ca9f9eaa46287383116bbb93ec19b2f4ddd0fa167ab8cfb22a84a60c800fcf08",
+    "scripts/medir_latencia.py": "dbbd61eea6fefa5e87c586185c870797f75970cf7502df43946f2487061ffa50",
+    "scripts/verificar_conectividad.py": "0cbbb5334ad6c7a868ff6185fdbe69f2193088c54b91fbc55b729d7dfb4c470f",
+    "tests/README.md": "7ee57605f3757cbb647462dfbf70f2c5242982ccebe8a4a02a224e52d6efb0ae",
+    "tests/integration/test_integracion.py": "d79f7a748a73741284fe5cabf35f841d552ef9e2e24c43d96d7cc54cc7411865",
+    "tests/unit/test_api.py": "f567686630fdb5c35d1f5f139130703c4db1bb9305fe51b917616527bce099aa",
+    "tests/unit/test_cursor_comentarios.py": "f09d81e228ff4367a66f09deec8a261edd96b2c2d722e607d445972e73fa2f31",
+    "web/index.html": "1ce95212f6e005eaba2fdbd93022c20d3c78a48a113979594ccce770bb2f0e1d"
+  },
+  "montajes": [
+    {
+      "destino": "/h12",
+      "solo_lectura": true
+    },
+    {
+      "destino": "/h6-esquema.cql",
+      "solo_lectura": true
+    }
+  ]
+}

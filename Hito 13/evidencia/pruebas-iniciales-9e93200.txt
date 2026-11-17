@@ -1,0 +1,43 @@
+.............................F....s...F.....                             [100%]
+=================================== FAILURES ===================================
+_______________________ test_cassandra_ventana_y_cursor ________________________
+
+app_real = (<starlette.testclient.TestClient object at 0x7687fd375bb0>, <app.services.Servicios object at 0x7687fdcadf70>)
+
+    def test_cassandra_ventana_y_cursor(app_real):
+        cliente, _ = app_real
+        params = {"desde": "2030-06-10T18:00:30Z", "hasta": "2030-06-10T18:02:10Z", "limite": 3}
+        vistos, cursor = [], None
+        while True:
+            r = cliente.get(f"{API}/partidos/PAR-001/comentarios", params={**params, **({"cursor": cursor} if cursor else {})})
+            assert r.status_code == 200 and fuentes(r) == {"cassandra"} and r.json()["data"]["particiones"] == 12
+            vistos += [c["comentarioId"] for c in r.json()["data"]["items"]]
+            cursor = r.json()["meta"]["paginacion"]["siguienteCursor"]
+            if not cursor:
+                break
+        # Muestra del Hito 6: Q2 devuelve ocho comentarios en [18:00:30, 18:02:10), sin repetidos.
+>       assert len(vistos) == 8 == len(set(vistos)) and "MUESTRA-010" not in vistos and "MUESTRA-002" in vistos
+E       AssertionError: assert (108 == 8)
+E        +  where 108 = len(['MASIVO-000000008321', 'MASIVO-000000008257', 'MASIVO-000000008193', 'MASIVO-000000008129', 'MASIVO-000000008065', 'MUESTRA-009', ...])
+
+tests/integration/test_integracion.py:93: AssertionError
+___________ test_dependencia_detenida_responde_503_acotado[mongodb] ____________
+
+fuente = 'mongodb'
+
+    @pytest.mark.parametrize("fuente", CAIDAS)
+    def test_dependencia_detenida_responde_503_acotado(fuente):
+        cambios, ruta = CAIDAS[fuente]
+        cliente = TestClient(crear_app(servicios_reales(replace(CFG, timeout=1, **cambios))))
+        inicio = time.perf_counter()
+        r = cliente.get(API + ruta)
+        duracion = time.perf_counter() - inicio
+>       assert r.status_code == 503, r.text
+E       AssertionError: {"error":{"codigo":"DEPENDENCIA_TIMEOUT","mensaje":"La fuente mongodb excedió el tiempo de espera.","requestId":"bc8f5b3446f8452696125c987e322132","dependencia":"mongodb"}}
+E       assert 504 == 503
+E        +  where 504 = <Response [504 Gateway Timeout]>.status_code
+
+tests/integration/test_integracion.py:240: AssertionError
+=========================== short test summary info ============================
+SKIPPED [1] tests/integration/test_integracion.py:159: Sin puntos retenidos: ejecutar scripts/cargar_muestra_influx.py
+2 failed, 41 passed, 1 skipped in 7.88s

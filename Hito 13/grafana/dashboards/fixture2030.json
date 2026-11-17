@@ -1,0 +1,479 @@
+{
+  "uid": "fixture2030-h13",
+  "title": "Fixture 2030 · API, MongoDB y Redis",
+  "description": "Un nodo por producto. Scraping cada 15 s. Tasas y latencias sobre 2 min. Salud se consulta aparte.",
+  "schemaVersion": 41,
+  "version": 1,
+  "editable": false,
+  "timezone": "browser",
+  "refresh": "15s",
+  "time": {
+    "from": "now-15m",
+    "to": "now"
+  },
+  "tags": [
+    "fixture2030",
+    "grupo13"
+  ],
+  "panels": [
+    {
+      "id": 1,
+      "title": "Endpoints de métricas · 1 accesible / 0 inaccesible",
+      "description": "UP solo acredita el scraping. No acredita consultas de negocio.",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "fixture-prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0,
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "stepAfter",
+            "lineWidth": 2,
+            "fillOpacity": 10,
+            "spanNulls": false
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "max": 1,
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "up{job=~\"fixture-api|mongodb|redis\"}",
+          "legendFormat": "{{component}} · scrape",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "fixture-prometheus"
+          },
+          "range": true,
+          "editorMode": "code"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Bases observadas · 1 responde / 0 falla",
+      "description": "MongoDB y Redis según su exporter. Si falta una serie, no hay observación. Consultar también los endpoints de métricas.",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "fixture-prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0,
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "stepAfter",
+            "lineWidth": 2,
+            "fillOpacity": 10,
+            "spanNulls": false
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "max": 1,
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "mongodb_up{job=\"mongodb\"}",
+          "legendFormat": "MongoDB",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "fixture-prometheus"
+          },
+          "range": true,
+          "editorMode": "code"
+        },
+        {
+          "refId": "B",
+          "expr": "redis_up{job=\"redis\"}",
+          "legendFormat": "Redis",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "fixture-prometheus"
+          },
+          "range": true,
+          "editorMode": "code"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Latencia de negocio · P95 y media · ventana 2 min",
+      "description": "P95 estimado por buckets. Duración dentro de la API, hasta finalizar el envío del cuerpo. Sin scraping ni salud.",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "fixture-prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "min": 0,
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "fillOpacity": 10,
+            "spanNulls": false
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(fixture_http_request_duration_seconds_bucket{job=\"fixture-api\",traffic=\"negocio\"}[2m])))",
+          "legendFormat": "P95 estimado",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "fixture-prometheus"
+          },
+          "range": true,
+          "editorMode": "code"
+        },
+        {
+          "refId": "B",
+          "expr": "sum(rate(fixture_http_request_duration_seconds_sum{job=\"fixture-api\",traffic=\"negocio\"}[2m])) / sum(rate(fixture_http_request_duration_seconds_count{job=\"fixture-api\",traffic=\"negocio\"}[2m]))",
+          "legendFormat": "Media",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "fixture-prometheus"
+          },
+          "range": true,
+          "editorMode": "code"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Requests de negocio por segundo · ventana 2 min",
+      "description": "Promedio por segundo de requests finalizados, incluidos errores. Ventana móvil de 2 minutos.",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "fixture-prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "min": 0,
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "fillOpacity": 10,
+            "spanNulls": false
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (route) (rate(fixture_http_requests_total{job=\"fixture-api\",traffic=\"negocio\"}[2m]))",
+          "legendFormat": "{{route}}",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "fixture-prometheus"
+          },
+          "range": true,
+          "editorMode": "code"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Respuestas 4xx y 5xx por segundo · ventana 2 min",
+      "description": "4xx incluye el 404 deliberado. 5xx incluye la falla controlada de Redis. Cero solo si existe tráfico medido sin errores de esa clase.",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "fixture-prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 16
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "min": 0,
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "fillOpacity": 10,
+            "spanNulls": false
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(fixture_http_requests_total{job=\"fixture-api\",traffic=\"negocio\",status=~\"4..\"}[2m])) or (0 * sum(rate(fixture_http_requests_total{job=\"fixture-api\",traffic=\"negocio\"}[2m])))",
+          "legendFormat": "4xx",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "fixture-prometheus"
+          },
+          "range": true,
+          "editorMode": "code"
+        },
+        {
+          "refId": "B",
+          "expr": "sum(rate(fixture_http_requests_total{job=\"fixture-api\",traffic=\"negocio\",status=~\"5..\"}[2m])) or (0 * sum(rate(fixture_http_requests_total{job=\"fixture-api\",traffic=\"negocio\"}[2m])))",
+          "legendFormat": "5xx",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "fixture-prometheus"
+          },
+          "range": true,
+          "editorMode": "code"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Conexiones actuales · MongoDB y Redis",
+      "description": "Gauges distintos: conexiones actuales de MongoDB y clientes conectados de Redis. Incluyen monitoreo. No son usuarios ni throughput comparable.",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "fixture-prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 16
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0,
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "fillOpacity": 10,
+            "spanNulls": false
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "mongodb_ss_connections{job=\"mongodb\",conn_type=\"current\"}",
+          "legendFormat": "MongoDB · conexiones",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "fixture-prometheus"
+          },
+          "range": true,
+          "editorMode": "code"
+        },
+        {
+          "refId": "B",
+          "expr": "redis_connected_clients{job=\"redis\"}",
+          "legendFormat": "Redis · clientes",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "fixture-prometheus"
+          },
+          "range": true,
+          "editorMode": "code"
+        }
+      ]
+    }
+  ],
+  "annotations": {
+    "list": []
+  }
+}

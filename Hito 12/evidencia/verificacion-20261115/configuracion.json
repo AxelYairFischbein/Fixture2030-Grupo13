@@ -1,0 +1,70 @@
+{
+  "checkout": "C:\\Users\\denis\\Documents\\GitHub\\Fixture-h12-verificacion",
+  "commit": "5054f7f333133228cc23c635ad4c4491a4567974",
+  "estado_checkout": "",
+  "compose_efectivo": {
+    "name": "grupo13-hito12",
+    "networks": {
+      "default": {
+        "name": "grupo13-hito12_default",
+        "ipam": {}
+      }
+    },
+    "services": {
+      "api": {
+        "build": {
+          "context": "C:\\Users\\denis\\Documents\\GitHub\\Fixture-h12-verificacion\\Hito 10",
+          "dockerfile": "Dockerfile"
+        },
+        "cpus": 2,
+        "command": null,
+        "entrypoint": null,
+        "environment": {
+          "CASSANDRA_HOSTS": "host.docker.internal",
+          "CASSANDRA_KEYSPACE": "fixture2030_h12",
+          "CASSANDRA_PORT": "9042",
+          "DEP_TIMEOUT_SEGUNDOS": "3",
+          "PYTHONDONTWRITEBYTECODE": "1"
+        },
+        "extra_hosts": [
+          "host.docker.internal=host-gateway"
+        ],
+        "image": "fixture-h12-verificacion:5054f7f",
+        "mem_limit": "536870912",
+        "networks": {
+          "default": null
+        },
+        "ports": [
+          {
+            "mode": "ingress",
+            "host_ip": "127.0.0.1",
+            "target": 8000,
+            "published": "8012",
+            "protocol": "tcp"
+          }
+        ],
+        "restart": "no",
+        "volumes": [
+          {
+            "type": "bind",
+            "source": "C:\\Users\\denis\\Documents\\GitHub\\Fixture-h12-verificacion\\Hito 12",
+            "target": "/h12",
+            "read_only": true
+          },
+          {
+            "type": "bind",
+            "source": "C:\\Users\\denis\\Documents\\GitHub\\Fixture-h12-verificacion\\Hito 6\\scripts\\esquema.cql",
+            "target": "/h6-esquema.cql",
+            "read_only": true
+          }
+        ]
+      }
+    }
+  },
+  "archivos_medidor": {
+    "Hito 12/medir.py": "af5a9085fff2f95b3f58d8de61ebd785746e0f1398a3f5c79146f821acbd99d5",
+    "Hito 12/datos.py": "1a3eb2a13d2c7a823c38ae01fa96197d4dce8a4fa68d12f6f56d0800d2072de3",
+    "Hito 12/config.ejemplo.json": "61503459a4aaf880ae7242465e5e04f9670d27be5840d07212d2f63c0e246df8",
+    "Hito 6/scripts/esquema.cql": "9296df728be6e9b2ab5d2040d464c541311705ea253908c8ff1aba291f41901b"
+  }
+}

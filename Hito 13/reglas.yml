@@ -1,0 +1,30 @@
+groups:
+  - name: fixture2030
+    rules:
+      - alert: FuenteNoDisponible
+        expr: >-
+          (up{job=~"fixture-api|mongodb|redis"} == 0)
+          or (mongodb_up{job="mongodb"} == 0)
+          or (redis_up{job="redis"} == 0)
+          or absent(up{job="fixture-api"})
+          or absent(mongodb_up{job="mongodb"})
+          or absent(redis_up{job="redis"})
+        for: 30s
+        labels:
+          severity: critical
+          responsable: operacion-grupo13
+        annotations:
+          summary: "Fuente o medición no disponible: {{ $labels.job }}"
+          description: "Revisar target, exporter, contenedor y consulta funcional. Recuperar el servicio conservando sus datos."
+      - alert: ErroresAPIAltos
+        expr: >-
+          (sum(rate(fixture_http_requests_total{job="fixture-api",traffic="negocio",status=~"5.."}[2m]))
+          / sum(rate(fixture_http_requests_total{job="fixture-api",traffic="negocio"}[2m])) > 0.05)
+          and (sum(increase(fixture_http_requests_total{job="fixture-api",traffic="negocio"}[2m])) >= 20)
+        for: 1m
+        labels:
+          severity: warning
+          responsable: api-grupo13
+        annotations:
+          summary: "Más de 5 % de respuestas 5xx con al menos 20 requests en 2 minutos"
+          description: "Revisar rutas, salud y logs por requestId. Recuperar la dependencia afectada y repetir el recorrido."
