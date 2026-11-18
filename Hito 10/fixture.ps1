@@ -69,21 +69,26 @@ function Leer-Env($ruta) {
 
 function Preparar-Archivos {
     Paso 'Archivos locales'
-    foreach ($d in 'cassandra', 'influxdb', 'iris') { New-Item -ItemType Directory -Force -Path (Join-Path $env:USERPROFILE "docker\data\$d") | Out-Null }
+    $h4 = Leer-Env (Join-Path $repo 'Hito 4\.env')
+    if (-not $h4['MONGO_ROOT_USERNAME'] -or -not $h4['MONGO_ROOT_PASSWORD'] -or
+        $h4['MONGO_ROOT_PASSWORD'] -eq 'CAMBIAR_EN_EL_ARCHIVO_LOCAL') {
+        Fallar 'Completar las credenciales locales de MongoDB en Hito 4\.env antes de preparar las bases.'
+    }
+    $neo = (Leer-Env (Join-Path $repo 'Hito 5\.env'))['NEO4J_AUTH']
+    if ($neo -notmatch '^neo4j/.+$' -or $neo -eq 'neo4j/CAMBIAR_EN_EL_ARCHIVO_LOCAL') {
+        Fallar 'Completar NEO4J_AUTH en Hito 5\.env antes de preparar las bases.'
+    }
+    foreach ($d in 'influxdb', 'iris') { New-Item -ItemType Directory -Force -Path (Join-Path $env:USERPROFILE "docker\data\$d") | Out-Null }
     New-Item -ItemType Directory -Force -Path (Join-Path $repo 'Hito 8\.local') | Out-Null
-    $env5 = Join-Path $repo 'Hito 5\.env'
-    if (-not (Test-Path -LiteralPath $env5)) { Copy-Item (Join-Path $repo 'Hito 5\.env.example') $env5; Write-Host 'Creado Hito 5\.env desde su ejemplo.' }
     if (-not (Test-Path -LiteralPath '.env')) {
-        $h4 = Leer-Env (Join-Path $repo 'Hito 4\.env')
-        $neo = (Leer-Env $env5)['NEO4J_AUTH']
         $clave = 'Api' + (-join ((48..57) + (65..90) + (97..122) | Get-Random -Count 24 | ForEach-Object { [char]$_ }))
         $texto = (Get-Content -LiteralPath '.env.example' -Raw) `
-            -replace '(?m)^MONGO_USER=.*$', "MONGO_USER=$(if ($h4['MONGO_ROOT_USERNAME']) { $h4['MONGO_ROOT_USERNAME'] } else { 'admin' })" `
-            -replace '(?m)^MONGO_PASSWORD=.*$', "MONGO_PASSWORD=$(if ($h4['MONGO_ROOT_PASSWORD']) { $h4['MONGO_ROOT_PASSWORD'] } else { 'password123' })" `
+            -replace '(?m)^MONGO_USER=.*$', "MONGO_USER=$($h4['MONGO_ROOT_USERNAME'])" `
+            -replace '(?m)^MONGO_PASSWORD=.*$', "MONGO_PASSWORD=$($h4['MONGO_ROOT_PASSWORD'])" `
             -replace '(?m)^NEO4J_PASSWORD=.*$', "NEO4J_PASSWORD=$($neo.Split('/', 2)[1])" `
             -replace '(?m)^IRIS_PASSWORD=.*$', "IRIS_PASSWORD=$clave"
         [IO.File]::WriteAllText((Join-Path $raiz '.env'), $texto, (New-Object System.Text.UTF8Encoding $false))
-        Write-Host 'Creado Hito 10\.env con las credenciales de laboratorio y una clave IRIS aleatoria.'
+        Write-Host 'Creado Hito 10\.env con las credenciales locales y una clave IRIS aleatoria.'
     }
 }
 
@@ -205,7 +210,7 @@ switch ($Comando) {
         @'
 Hito 10 - requiere solo Windows + Docker Desktop. Ejecutar dentro de la carpeta "Hito 10":
 
-  .\fixture.cmd todo        Prepara todo (bases, datos, credenciales), levanta la API y abre el navegador
+  .\fixture.cmd todo        Usa los .env de Hitos 4 y 5, prepara los datos e inicia la API
   .\fixture.cmd preparar    Solo prepara bases y datos (idempotente: se puede repetir)
   .\fixture.cmd api         (Re)construye y levanta la API en http://127.0.0.1:8000/
   .\fixture.cmd abrir       Abre la interfaz y Swagger

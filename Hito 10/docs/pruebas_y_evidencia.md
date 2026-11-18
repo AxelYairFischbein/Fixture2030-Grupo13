@@ -4,7 +4,7 @@
 
 | Herramienta | Qué cubre | Cómo |
 | --- | --- | --- |
-| `pytest` unitarias (`tests/unit`, 16) | Contrato, validación previa, errores, idempotencia, degradación, OpenAPI | Adaptadores en memoria; más un cliente Redis real contra un puerto cerrado. No requiere bases |
+| `pytest` unitarias (`tests/unit`, 26) | Contrato, validación previa, errores, idempotencia, degradación, OpenAPI | Adaptadores en memoria, errores del driver y un cliente Redis real contra un puerto cerrado. No requiere bases iniciadas |
 | `pytest` integración (`tests/integration`, 20) | Cada endpoint contra su fuente real, vacíos válidos, límites, escritura repetida, sesión vencida, transiciones IRIS, las seis fuentes inaccesibles | `TestClient` con los adaptadores reales y `.env` |
 | Postman (32 requests) | Rutas principales y errores, encadenando cursor, sesión y comentario | Colección v2.1 con aserciones de estado y encabezados |
 | cURL | Recorrido manual reproducible | [evidencia/03_recorrido_curl.txt](evidencia/03_recorrido_curl.txt) |
@@ -21,11 +21,11 @@ Ejecución: `scripts/ejecutar_pruebas.ps1` (exporta OpenAPI, verifica conectivid
 | Recurso inexistente | `EQ-999`, `PAR-999`, acta `NO-EXISTE` |
 | Respuesta vacía válida | `test_cassandra_ventana_vacia_valida`, `test_influx_ventana_sin_puntos` |
 | Sesión ausente o expirada | `test_sesion_ausente`, `test_redis_sesion_vencida` (TTL 1 s), sesión cerrada |
-| Dependencia detenida | `test_dependencia_detenida_responde_503_acotado[6 fuentes]`, contenedor Redis detenido |
+| Dependencia detenida | `test_dependencia_detenida_responde_error_tipado_acotado[6 fuentes]`, contenedor Redis detenido |
 | Escritura repetida | `test_cassandra_escritura_repetida_no_duplica` (cuenta la fila en Cassandra), `test_escritura_repetida_no_duplica` |
-| Límites, paginación, ventanas | Listado paginado (total 10 UEFA), cursor de comentarios (8 sin repetidos), tope de intervalos |
+| Límites, paginación, ventanas | Listado paginado (total 10 UEFA), cursor contra lectura directa, sin duplicados ni omisiones y con los ocho comentarios originales, tope de intervalos |
 | Documentación = respuesta real | `test_openapi_versionado_coincide_con_la_aplicacion` + códigos verificados por Postman |
-| Conflicto de negocio | Transición prohibida 409 sin cambio; `Idempotency-Key` con otro cuerpo 409 |
+| Conflicto de negocio | Transición prohibida 409 sin cambio. `Idempotency-Key` con otro cuerpo 409 |
 
 ## Evidencia registrada (16/10/2026, UTC)
 
@@ -34,7 +34,7 @@ Ejecución: `scripts/ejecutar_pruebas.ps1` (exporta OpenAPI, verifica conectivid
 | [01_conectividad.txt](evidencia/01_conectividad.txt) | Las seis fuentes `ok` con su latencia y los contenedores activos |
 | [02_pruebas.txt](evidencia/02_pruebas.txt) | `ejecutar_pruebas.ps1`: **36 aprobadas, 0 fallidas** |
 | [03_recorrido_curl.txt](evidencia/03_recorrido_curl.txt) | 22 requests con encabezados y cuerpos: éxitos, 400, 404, 409, MISS/HIT, repetición idempotente |
-| [04_dependencia_detenida.txt](evidencia/04_dependencia_detenida.txt) | Redis detenido: sesiones 503, ficha 200 `BYPASS`, salud 503 con detalle; Redis iniciado: 201 |
+| [04_dependencia_detenida.txt](evidencia/04_dependencia_detenida.txt) | Redis detenido: sesiones 503, ficha 200 `BYPASS`, salud 503 con detalle. Redis iniciado: 201 |
 | [05_logs_correlacion.txt](evidencia/05_logs_correlacion.txt) | Líneas del log de la API para los `requestId` de la evidencia 04 |
 | [06_latencia.txt](evidencia/06_latencia.txt) | Medición de latencia con método y entorno |
 
@@ -44,7 +44,7 @@ Además, la colección Postman se validó ejecutando sus 32 requests en orden co
 
 ## Rendimiento básico
 
-Método: `scripts/medir_latencia.py`, 200 requests secuenciales por ruta tras 10 de calentamiento, un cliente en la misma notebook, tiempo de ida y vuelta HTTP. Entorno: Windows 10, AMD Ryzen 5 3600, 32 GB, Python 3.14, uvicorn con un worker, seis contenedores en Docker Desktop. Volumen: muestras de laboratorio.
+Método: `scripts/medir_latencia.py`, 200 requests secuenciales por ruta tras 10 de calentamiento, un cliente en la misma notebook, tiempo de ida y vuelta HTTP. Entorno: Windows 10, AMD Ryzen 5 3600, 32 GB, Python 3.14, uvicorn con un worker, seis contenedores en Docker Desktop. Volumen: muestras de entorno de prueba.
 
 | Ruta | p50 ms | p95 ms | máx ms | Errores |
 | --- | ---: | ---: | ---: | ---: |
@@ -55,10 +55,16 @@ Método: `scripts/medir_latencia.py`, 200 requests secuenciales por ruta tras 10
 | InfluxDB estadísticas por minuto | 17,43 | 24,23 | 27,75 | 0 |
 | IRIS `GET /actas/PAR-001` | 3,37 | 4,38 | 5,33 | 0 |
 
-Interpretación acotada: la ficha en caché es la lectura más rápida; Neo4j, Cassandra e InfluxDB cuestan más por resolver dos consultas, 12 particiones o una agregación. La primera conexión a Cassandra tarda ~1,4 s (descubrimiento del clúster) y no está incluida porque hay calentamiento. **No** se midió concurrencia, carga sostenida ni volumen productivo; las cifras no permiten afirmar capacidad para millones de usuarios.
+Interpretación acotada: la ficha en caché es la lectura más rápida. Neo4j, Cassandra e InfluxDB cuestan más por resolver dos consultas, 12 particiones o una agregación. La primera conexión a Cassandra tarda ~1,4 s (descubrimiento del clúster) y no está incluida porque hay calentamiento. **No** se midió concurrencia, carga sostenida ni volumen productivo. Las cifras no permiten afirmar capacidad para millones de usuarios.
 
 ## Coherencia con el TPO
 
 - Mismos identificadores en todas las fuentes: `EQ-001`, `JUG-0001`, `PAR-001`, `EST-01`, `USR-00001`, `ARB-001`.
-- Se reutilizan índices (Hito 4), Cypher de los patrones Q01/Q06/Q07 (Hito 5), la tabla y la regla de segmento (Hito 6), el hash de sesión con Lua y los TTL (Hito 7), la tabla `estadisticas_equipo` y su agregación por intervalo (Hito 8) y el método `CambiarEstado()` (Hito 9).
-- Ningún hito anterior fue modificado. Se documentan dos hallazgos del entorno: el healthcheck CRLF de Neo4j y el vencimiento de la muestra de InfluxDB por su retención de 7 días.
+- Se reutilizan índices (Hito 4), Cypher de los patrones Q01/Q06/Q07 (Hito 5), la tabla y la regla de segmento (Hito 6), el hash de sesión con Lua y los TTL (Hito 7), la tabla actual `estadisticas_equipo_v2` y su agregación por intervalo (Hito 8) y el método `CambiarEstado()` (Hito 9).
+- La revisión integrada actualiza los modelos de MongoDB e InfluxDB y la persistencia de Cassandra. Las evidencias de octubre conservan sus resultados y su contexto original.
+
+## Auditoría del 17 y 18 de noviembre de 2026
+
+En `ed49e3fcb1dad4f1767dc17dbb0c87753e9cc4aa` se aprobaron 26 pruebas unitarias y 19 de integración. Una prueba de integración se omitió porque no había puntos recientes retenidos en InfluxDB. No hubo fallos. Las pruebas con drivers hacia un puerto cerrado verifican errores 503 o 504 según el caso, sin detener esas seis bases.
+
+Por separado se creó una base temporal de InfluxDB, se escribieron 20 puntos con el mecanismo existente y se repitieron las tres pruebas seleccionadas de InfluxDB, todas aprobadas. Se comprobó la agregación HTTP con datos y se eliminó únicamente esa base temporal. La falla real de Redis se registró con recuperación, alertas y cierre de sesión. Los resultados, la identidad de la imagen, las migraciones y la revisión visual están en la [auditoría integrada](../../Hito%2013/evidencia/auditoria-20261117/README.md). No se volvieron a medir las latencias históricas de este documento ni a ejecutar Postman.

@@ -103,7 +103,7 @@ a { color: var(--accent); }
       <div class="card">
         <h2>Plantel</h2><div class="fuente">MongoDB · colección jugadores</div>
         <div class="fila"><label>Posición<select id="pos"><option value="">Todas</option><option>ARQUERO</option><option>DEFENSOR</option><option>MEDIOCAMPISTA</option><option>DELANTERO</option></select></label></div>
-        <div class="tabla"><table><thead><tr><th>#</th><th>Jugador</th><th>Posición</th><th>Altura</th><th>PJ</th><th>Goles</th></tr></thead><tbody id="plantel"></tbody></table></div>
+        <div class="tabla"><table><thead><tr><th>#</th><th>Jugador</th><th>Posición</th><th>Altura</th><th>Estado del plantel</th></tr></thead><tbody id="plantel"></tbody></table></div>
       </div>
       <div class="card">
         <h2>Agenda</h2><div class="fuente">Neo4j · Equipo-[:DISPUTA]->Partido-[:SE_JUEGA_EN]->Estadio</div>
@@ -292,7 +292,7 @@ async function plantel() {
   const pos = $("pos").value;
   const r = await llamar("GET", `/equipos/${eq.sel}/jugadores?tamanio=24${pos ? "&posicion=" + pos : ""}`);
   if (!r.ok) { $("plantel").innerHTML = `<tr><td colspan="6">${errorHtml(r)}</td></tr>`; return; }
-  $("plantel").innerHTML = tabla(r.json.data.map((j) => `<tr><td>${j.numeroCamiseta}</td><td>${esc(j.nombre)} ${esc(j.apellido)}<br><span class="nota">${esc(j.jugadorId)}</span></td><td>${esc(j.posicion)}</td><td>${j.alturaCm} cm</td><td>${j.partidosInternacionales}</td><td>${j.golesInternacionales}</td></tr>`));
+  $("plantel").innerHTML = tabla(r.json.data.map((j) => `<tr><td>${j.numeroCamiseta}</td><td>${esc(j.nombre)} ${esc(j.apellido)}<br><span class="nota">${esc(j.jugadorId)}</span></td><td>${esc(j.posicion)}</td><td>${j.alturaCm} cm</td><td>${esc(j.estadoPlantel)}</td></tr>`));
 }
 $("pos").onchange = plantel;
 async function agenda(id) {

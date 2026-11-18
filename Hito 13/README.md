@@ -129,7 +129,17 @@ El 404 del equipo inexistente es deliberado. El 503 de la sesión durante la fal
 
 Sin `--falla-redis`, el script ejecuta solo los dos minutos iniciales. No hay escrituras en MongoDB, Neo4j, Cassandra, InfluxDB ni IRIS. La caché de la API puede renovarse y la sesión temporal usa el TTL existente de 1800 s. No se borran volúmenes ni se vuelven a cargar muestras.
 
-## Datos, resultados y límites
+## Revisión integrada del 17 y 18 de noviembre
+
+La [auditoría de los Hitos 4 a 13](evidencia/auditoria-20261117/README.md) registra los ajustes de MongoDB e InfluxDB, la migración reversible de Cassandra y las pruebas conjuntas de las seis fuentes, API, consola y monitoreo. La versión realmente ejecutada es `ed49e3fcb1dad4f1767dc17dbb0c87753e9cc4aa`, con 31 archivos de la API comprobados contra Git.
+
+La API aprobó 45 pruebas y omitió una por ausencia de puntos recientes en InfluxDB. Se verificó la agregación por separado con 20 puntos en una base temporal, eliminada al terminar. Las seis pruebas del diagnóstico y las nueve de la demostración también pasaron. Las verificaciones independientes de autenticación y permisos que el diagnóstico no puede completar se informan como tales, sin confundirlas con una caída.
+
+La [demostración posterior a los ajustes](evidencia/auditoria-20261117/monitoreo/demostracion.json) del 17 de noviembre, de 18:05:31 a 18:11:35 UTC−03, terminó completa. Registró 1.403 requests de carga, con 348 respuestas 404 y 102 respuestas 503 deliberadas. El exporter de Redis siguió accesible durante la caída, `redis_up` pasó a cero, la ficha respondió 200 BYPASS y la sesión respondió 503. Ambas alertas llegaron a firing y luego se resolvieron. Redis volvió a responder y la sesión temporal cerró con 204, sin fallos inesperados.
+
+La [interfaz verificada](evidencia/auditoria-20261117/01_interfaz.jpg) y el [dashboard del intervalo](evidencia/auditoria-20261117/02_monitoreo.jpg) respaldan la revisión visual. La [validación final](evidencia/auditoria-20261117/validacion-final.json) confirma Compose, configuración y reglas de Prometheus, targets UP, consultas con datos, dashboard provisionado y persistencia de Cassandra tras reinicio. El P95 estimado al cierre de las tres fases fue 8,34, 8,59 y 8,55 ms. Son observaciones locales, sin una nueva comparación de rendimiento contra los históricos.
+
+## Antecedentes del 16 de noviembre y límites
 
 La verificación inicial encontró Cassandra, Redis del Hito 7 e InfluxDB detenidos. Después de iniciar esos mismos contenedores, salud respondió correctamente para las seis fuentes. No fue necesario corregir sus adaptadores. InfluxDB respondió 200 con `puntos: []`. Su muestra anterior excede la retención de siete días y no se cargaron puntos nuevos para ocultar esa situación.
 
@@ -167,7 +177,7 @@ docker compose -f 'Hito 10/docker-compose.yml' exec -T api python -m pytest test
 docker compose -f 'Hito 10/docker-compose.yml' exec -T api python -m pytest tests/integration -q -rs -p no:cacheprovider
 ```
 
-La versión ejecutada aprobó 43 pruebas de la API y nueve pruebas de la demostración. No hubo fallos en esta validación. Se omitió una prueba de estadísticas recientes de InfluxDB por ausencia de puntos retenidos. La consulta vacía válida y la disponibilidad de InfluxDB sí se comprobaron. Las pruebas de integración usan datos temporales y limpian sus escrituras. La paginación Cassandra comprueba orden completo contra una lectura directa, cursores distintos, ausencia de duplicados y conservación de los ocho comentarios de la muestra original, aunque coexistan otros comentarios. Los errores tipados distinguen indisponibilidad 503 de timeout 504 y comprueban su código y dependencia. Revisar siempre el resumen de omisiones. No ejecutar una carga de datos solo para obtener un resultado verde.
+La ejecución del 16 de noviembre aprobó 43 pruebas de la API y nueve pruebas de la demostración. La auditoría posterior agregó dos casos de rechazo de escritura por memoria y obtuvo 45 aprobadas en la API. No hubo fallos en esta validación. Se omitió una prueba de estadísticas recientes de InfluxDB por ausencia de puntos retenidos. La consulta vacía válida y la disponibilidad de InfluxDB sí se comprobaron. Las pruebas de integración usan datos temporales y limpian sus escrituras. La paginación Cassandra comprueba orden completo contra una lectura directa, cursores distintos, ausencia de duplicados y conservación de los ocho comentarios de la muestra original, aunque coexistan otros comentarios. Los errores tipados distinguen indisponibilidad 503 de timeout 504 y comprueban su código y dependencia. Revisar siempre el resumen de omisiones. No ejecutar una carga de datos solo para obtener un resultado verde.
 
 Se conserva el [registro inicial de pruebas](evidencia/pruebas-iniciales-9e93200.txt), con 41 aprobadas, dos fallidas y una omitida en `9e93200`. Sus fallos correspondían a esperar solo ocho comentarios cuando coexistían 108 y a exigir 503 ante un timeout MongoDB que devuelve 504. Se ajustaron las comprobaciones a los datos coexistentes y al contrato de errores, conservando las verificaciones de orden, integridad y tiempo. Ese registro histórico no corresponde al resultado de la versión final ejecutada.
 

@@ -1,0 +1,298 @@
+{
+  "fecha": "2026-11-17T23:58:41.776876+00:00",
+  "mongo": {
+    "equipos": 64,
+    "jugadores": 1536,
+    "campos_retirados_ausentes": true,
+    "validador_rechaza_estadisticas": true,
+    "indice_q04": {
+      "isCached": false,
+      "stage": "LIMIT",
+      "limitAmount": 10,
+      "inputStage": {
+        "stage": "FETCH",
+        "inputStage": {
+          "stage": "IXSCAN",
+          "keyPattern": {
+            "posicion": 1,
+            "alturaCm": -1,
+            "jugadorId": 1
+          },
+          "indexName": "idx_jugadores_posicion_altura",
+          "isMultiKey": false,
+          "multiKeyPaths": {
+            "posicion": [],
+            "alturaCm": [],
+            "jugadorId": []
+          },
+          "isUnique": false,
+          "isSparse": false,
+          "isPartial": false,
+          "indexVersion": 2,
+          "direction": "forward",
+          "indexBounds": {
+            "posicion": [
+              "[\"DELANTERO\", \"DELANTERO\"]"
+            ],
+            "alturaCm": [
+              "[inf.0, 180]"
+            ],
+            "jugadorId": [
+              "[MinKey, MaxKey]"
+            ]
+          }
+        }
+      }
+    },
+    "estadisticas_q04": {
+      "nReturned": 10,
+      "totalKeysExamined": 10,
+      "totalDocsExamined": 10
+    }
+  },
+  "iris": {
+    "objetos_sql_herencia_relacion": true,
+    "save_hijo_invalido_rechazado": true,
+    "transiciones_y_borrado_temporal": true,
+    "muestra_conservada": true
+  },
+  "http": {
+    "/": {
+      "status": 200
+    },
+    "/docs": {
+      "status": 200
+    },
+    "/openapi.json": {
+      "status": 200
+    },
+    "/api/v1/equipos?confederacion=UEFA&pagina=2&tamanio=5": {
+      "status": 200,
+      "data": [
+        {
+          "equipoId": "EQ-036",
+          "codigo": "F36",
+          "nombre": "Seleccion Sintetica 36",
+          "confederacion": "UEFA",
+          "rankingReferencia": 36,
+          "estado": "PRESELECCIONADO"
+        },
+        {
+          "equipoId": "EQ-042",
+          "codigo": "F42",
+          "nombre": "Seleccion Sintetica 42",
+          "confederacion": "UEFA",
+          "rankingReferencia": 42,
+          "estado": "PRESELECCIONADO"
+        },
+        {
+          "equipoId": "EQ-048",
+          "codigo": "F48",
+          "nombre": "Seleccion Sintetica 48",
+          "confederacion": "UEFA",
+          "rankingReferencia": 48,
+          "estado": "PRESELECCIONADO"
+        },
+        {
+          "equipoId": "EQ-054",
+          "codigo": "F54",
+          "nombre": "Seleccion Sintetica 54",
+          "confederacion": "UEFA",
+          "rankingReferencia": 54,
+          "estado": "PRESELECCIONADO"
+        },
+        {
+          "equipoId": "EQ-060",
+          "codigo": "F60",
+          "nombre": "Seleccion Sintetica 60",
+          "confederacion": "UEFA",
+          "rankingReferencia": 60,
+          "estado": "PRESELECCIONADO"
+        }
+      ]
+    },
+    "/api/v1/equipos/EQ-001/jugadores?posicion=ARQUERO": {
+      "status": 200,
+      "data": [
+        {
+          "jugadorId": "JUG-0001",
+          "equipoId": "EQ-001",
+          "nombre": "Nombre0001",
+          "apellido": "Apellido0001",
+          "posicion": "ARQUERO",
+          "numeroCamiseta": 1,
+          "fechaNacimiento": "1992-01-06T00:00:00Z",
+          "alturaCm": 187,
+          "pieHabil": "DERECHO",
+          "estadoPlantel": "CONVOCADO"
+        },
+        {
+          "jugadorId": "JUG-0002",
+          "equipoId": "EQ-001",
+          "nombre": "Nombre0002",
+          "apellido": "Apellido0002",
+          "posicion": "ARQUERO",
+          "numeroCamiseta": 2,
+          "fechaNacimiento": "1993-02-11T00:00:00Z",
+          "alturaCm": 190,
+          "pieHabil": "IZQUIERDO",
+          "estadoPlantel": "CONVOCADO"
+        },
+        {
+          "jugadorId": "JUG-0003",
+          "equipoId": "EQ-001",
+          "nombre": "Nombre0003",
+          "apellido": "Apellido0003",
+          "posicion": "ARQUERO",
+          "numeroCamiseta": 3,
+          "fechaNacimiento": "1994-03-16T00:00:00Z",
+          "alturaCm": 193,
+          "pieHabil": "DERECHO",
+          "estadoPlantel": "CONVOCADO"
+        }
+      ]
+    },
+    "/api/v1/partidos/PAR-001": {
+      "status": 200,
+      "data": {
+        "partidoId": "PAR-001",
+        "grupo": "G01",
+        "fase": "GRUPOS_MUESTRA",
+        "estado": "FINALIZADO",
+        "jornada": 1,
+        "inicio": "2030-06-10T18:00:00Z",
+        "estadio": {
+          "estadioId": "EST-01",
+          "nombre": "Estadio Sintetico 01",
+          "ciudad": "Ciudad Sede 01"
+        },
+        "equipos": [
+          {
+            "equipoId": "EQ-001",
+            "codigo": "F01",
+            "nombre": "Seleccion Sintetica 01",
+            "rol": "LOCAL"
+          },
+          {
+            "equipoId": "EQ-002",
+            "codigo": "F02",
+            "nombre": "Seleccion Sintetica 02",
+            "rol": "VISITANTE"
+          }
+        ],
+        "eventos": [
+          {
+            "eventoId": "EVT-PAR-001-LOCAL",
+            "tipo": "SUSTITUCION",
+            "minuto": 60,
+            "involucrados": [
+              {
+                "jugadorId": "JUG-0020",
+                "nombre": "Nombre0020",
+                "apellido": "Apellido0020",
+                "rol": "SALE"
+              },
+              {
+                "jugadorId": "JUG-0021",
+                "nombre": "Nombre0021",
+                "apellido": "Apellido0021",
+                "rol": "ENTRA"
+              }
+            ]
+          },
+          {
+            "eventoId": "EVT-PAR-001-VISITANTE",
+            "tipo": "SUSTITUCION",
+            "minuto": 65,
+            "involucrados": [
+              {
+                "jugadorId": "JUG-0044",
+                "nombre": "Nombre0044",
+                "apellido": "Apellido0044",
+                "rol": "SALE"
+              },
+              {
+                "jugadorId": "JUG-0045",
+                "nombre": "Nombre0045",
+                "apellido": "Apellido0045",
+                "rol": "ENTRA"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "/api/v1/equipos/EQ-001/partidos": {
+      "status": 200,
+      "data": [
+        {
+          "partidoId": "PAR-001",
+          "grupo": "G01",
+          "estado": "FINALIZADO",
+          "inicio": "2030-06-10T18:00:00Z",
+          "rol": "LOCAL",
+          "estadioId": "EST-01",
+          "rivalId": "EQ-002"
+        },
+        {
+          "partidoId": "PAR-033",
+          "grupo": "G01",
+          "estado": "FINALIZADO",
+          "inicio": "2030-06-14T18:00:00Z",
+          "rol": "LOCAL",
+          "estadioId": "EST-01",
+          "rivalId": "EQ-003"
+        }
+      ]
+    },
+    "/api/v1/actas/PAR-001": {
+      "status": 200,
+      "data": {
+        "id": "1",
+        "codigo": "PAR-001",
+        "estadioCodigo": "EST-01",
+        "estado": "PENDIENTE",
+        "arbitro": {
+          "id": "1",
+          "codigo": "ARB-001",
+          "nombre": "Arbitro Sintetico 01",
+          "nacionalidad": "F01",
+          "licencia": "LIC-DEMO-001"
+        },
+        "eventos": [
+          {
+            "id": "1||1",
+            "tipo": "TARJETA",
+            "minuto": 15,
+            "jugador": {
+              "id": "2",
+              "codigo": "JUG-0001",
+              "nombre": "Nombre0001 Apellido0001",
+              "numero": 1,
+              "posicion": "ARQUERO"
+            }
+          },
+          {
+            "id": "1||2",
+            "tipo": "CAMBIO",
+            "minuto": 75,
+            "jugador": {
+              "id": "2",
+              "codigo": "JUG-0001",
+              "nombre": "Nombre0001 Apellido0001",
+              "numero": 1,
+              "posicion": "ARQUERO"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "openapi": {
+    "rutas": 13,
+    "campos_actuales": true,
+    "swagger_http": 200,
+    "interfaz_http": 200,
+    "limite": "La respuesta HTML no acredita interacción visual."
+  }
+}

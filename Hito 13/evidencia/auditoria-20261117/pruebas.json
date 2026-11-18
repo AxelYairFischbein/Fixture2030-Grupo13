@@ -1,0 +1,50 @@
+{
+  "fecha_ejecucion": "2026-11-17",
+  "commit": "ed49e3fcb1dad4f1767dc17dbb0c87753e9cc4aa",
+  "api": {
+    "comando": "docker exec grupo13-hito10-api-1 python -m pytest -q -ra",
+    "aprobadas": 45,
+    "fallidas": 0,
+    "omitidas": 1,
+    "unitarias_aprobadas": 26,
+    "integracion_aprobadas": 19,
+    "duracion_s": 10.43,
+    "motivo_omision": "No hay puntos recientes retenidos en InfluxDB para la muestra canónica"
+  },
+  "h11": {
+    "comando": "python -X utf8 -m unittest discover -s \"Hito 11/tests\" -v",
+    "aprobadas": 6,
+    "fallidas": 0,
+    "omitidas": 0,
+    "tipo": "dobles y clasificación de diagnóstico"
+  },
+  "h13": {
+    "comando": "python -X utf8 -m unittest discover -s \"Hito 13\" -p test_demo.py -v",
+    "aprobadas": 9,
+    "fallidas": 0,
+    "omitidas": 0,
+    "tipo": "dobles para esperas, comprobaciones y finalización"
+  },
+  "influx_temporal": {
+    "aprobadas": 3,
+    "fallidas": 0,
+    "deseleccionadas": 43,
+    "evidencia": "influx-muestra-temporal.json",
+    "nota": "Repetición selectiva con la base temporal. No sumar como tres casos nuevos a los 46 de la API"
+  },
+  "interfaz": {
+    "fecha": "2026-11-17",
+    "resultado": "Listado, ficha MISS/HIT, plantel filtrado con estado, agenda, partido, comentarios, mensaje de estadísticas sin puntos, acta y apertura/cierre de sesión comprobados en Chrome",
+    "captura": "01_interfaz.jpg"
+  },
+  "swagger_grafana": {
+    "fecha": "2026-11-18",
+    "resultado": "Swagger ejecutó GET /api/v1/salud: HTTP 200 y seis fuentes OK. Grafana mostró seis paneles con datos del intervalo original del 17 de noviembre",
+    "captura": "02_monitoreo.jpg"
+  },
+  "limites": [
+    "No se saturó Redis. OOM se comprobó con dobles del driver",
+    "La API de integración usa TestClient y adaptadores reales. El diagnóstico, la demostración y la revisión visual agregan requests HTTP reales",
+    "No se volvieron a ejecutar Postman ni las cargas históricas de rendimiento"
+  ]
+}

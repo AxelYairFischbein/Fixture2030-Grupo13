@@ -75,8 +75,9 @@ function Invoke-MongoEval {
 }
 
 Save-Evidence "01_docker_compose_config.txt" {
-    docker compose config
+    docker compose config --quiet
     Assert-LastExitCode "docker compose config"
+    Write-Output "Configuracion Compose valida"
 }
 
 Save-Evidence "02_inicio_y_estado_contenedor.txt" {

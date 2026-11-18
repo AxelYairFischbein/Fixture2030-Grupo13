@@ -63,7 +63,7 @@ const jugadorValidator = {
     required: [
       "_id", "jugadorId", "equipoId", "nombre", "apellido", "fechaNacimiento",
       "nacionalidadCodigo", "posicion", "numeroCamiseta", "pieHabil", "alturaCm",
-      "partidosInternacionales", "golesInternacionales", "estadoPlantel",
+      "estadoPlantel",
       "esDatoSintetico", "origen", "creadoEn", "actualizadoEn"
     ],
     properties: {
@@ -90,8 +90,6 @@ const jugadorValidator = {
       numeroCamiseta: { bsonType: "int", minimum: 1, maximum: 99 },
       pieHabil: { enum: ["DERECHO", "IZQUIERDO", "AMBIDIESTRO"] },
       alturaCm: { bsonType: "int", minimum: 150, maximum: 220 },
-      partidosInternacionales: { bsonType: "int", minimum: 0, maximum: 300 },
-      golesInternacionales: { bsonType: "int", minimum: 0, maximum: 250 },
       estadoPlantel: { enum: ["CONVOCADO", "RESERVA", "LESIONADO", "SUSPENDIDO"] },
       esDatoSintetico: { bsonType: "bool" },
       origen: { bsonType: "string", minLength: 3, maxLength: 80 },

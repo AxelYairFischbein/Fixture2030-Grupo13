@@ -6,7 +6,7 @@ from time import sleep
 from urllib.error import HTTPError, URLError
 from urllib.request import urlopen
 
-from comun import BASE, RAIZ, TOKEN, URL, ahora, cli, imprimir
+from comun import BASE, RAIZ, TABLA, TOKEN, URL, ahora, cli, consultar, imprimir
 
 
 def main():
@@ -41,6 +41,10 @@ def main():
     bases = json.loads(cli("show", "databases", "--format", "json"))
     if not any(BASE in fila.values() for fila in bases):
         cli("create", "database", "--retention-period", "7d", BASE)
+    tablas = consultar("SELECT table_name FROM information_schema.tables WHERE table_schema = 'iox'")
+    if not any(f["table_name"] == TABLA for f in tablas):
+        cli("create", "table", "--database", BASE, TABLA, "--tags", "partido_id,equipo_id",
+            "--fields", "posesion_pct:float64,pases_acumulados:int64,tiros_intervalo:int64")
     imprimir({"fecha_utc": ahora(), "bases_desde_cli_contenedor":
               json.loads(cli("show", "databases", "--format", "json"))})
     retencion = json.loads(cli("show", "retention", "--database", BASE, "--format", "json"))

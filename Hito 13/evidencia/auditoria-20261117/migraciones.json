@@ -1,0 +1,117 @@
+{
+  "fecha": "2026-11-17T21:03:58.326362+00:00",
+  "commit": "ed49e3fcb1dad4f1767dc17dbb0c87753e9cc4aa",
+  "mongo": [
+    {
+      "script": "verification/07_verify_integrity.js",
+      "codigo_salida": 0,
+      "resultado_final": "ey\": {\n          \"posicion\": 1,\n          \"alturaCm\": -1,\n          \"jugadorId\": 1\n        },\n        \"name\": \"idx_jugadores_posicion_altura\"\n      }\n    ]\n  },\n  \"status\": \"OK\"\n}\n"
+    },
+    {
+      "script": "verification/08_test_validation.js",
+      "codigo_salida": 0,
+      "resultado_final": "   \"rejected\": true,\n      \"mongoErrorCode\": 121,\n      \"reason\": \"Document failed validation\"\n    }\n  ],\n  \"leftovers\": {\n    \"teams\": 0,\n    \"players\": 0\n  },\n  \"status\": \"OK\"\n}\n"
+    },
+    {
+      "script": "operations/04_demo_crud.js",
+      "codigo_salida": 0,
+      "resultado_final": "ount\": 1\n  }\n}\n{\n  \"script\": \"04_demo_crud.js\",\n  \"finalCounts\": {\n    \"teams\": 64,\n    \"players\": 1536,\n    \"temporaryTeams\": 0,\n    \"temporaryPlayers\": 0\n  },\n  \"status\": \"OK\"\n}\n"
+    },
+    {
+      "script": "queries/05_queries.js",
+      "codigo_salida": 0,
+      "resultado_final": "OFC\"\n    },\n    {\n      \"equipos\": 10,\n      \"jugadores\": 240,\n      \"confederacion\": \"UEFA\"\n    }\n  ]\n}\n{\n  \"script\": \"05_queries.js\",\n  \"queriesExecuted\": 12,\n  \"status\": \"OK\"\n}\n"
+    }
+  ],
+  "cassandra": {
+    "antes": {
+      "fecha": "2026-11-17T21:00:28.483456+00:00",
+      "version": "5.0.9",
+      "tablas": {
+        "fixture2030_comentarios.comentarios_por_partido": {
+          "filas": 20012,
+          "huella": "912d31ce23ffb6d6391ffcf72f1ad4c3cec9e96833fa0cd7f8c461fc43f1fb7b"
+        },
+        "fixture2030_comentarios.comentarios_por_usuario": {
+          "filas": 20012,
+          "huella": "912d31ce23ffb6d6391ffcf72f1ad4c3cec9e96833fa0cd7f8c461fc43f1fb7b"
+        },
+        "fixture2030_h12.comentarios_por_partido": {
+          "filas": 2400,
+          "huella": "a5d70e2b5412bea43dfce4e99c9c59c461a84e4b4b246f46c2dcda953da3fea2"
+        },
+        "fixture2030_h12.comentarios_por_usuario": {
+          "filas": 0,
+          "huella": "0000000000000000000000000000000000000000000000000000000000000000"
+        }
+      },
+      "metodo": "Recuento y suma módulo 2^256 de SHA256 por fila JSON canónica. Incluye todas las columnas, sin depender del orden entre particiones."
+    },
+    "despues_migracion": {
+      "fecha": "2026-11-17T21:04:00.253534+00:00",
+      "version": "5.0.9",
+      "tablas": {
+        "fixture2030_comentarios.comentarios_por_partido": {
+          "filas": 20012,
+          "huella": "912d31ce23ffb6d6391ffcf72f1ad4c3cec9e96833fa0cd7f8c461fc43f1fb7b"
+        },
+        "fixture2030_comentarios.comentarios_por_usuario": {
+          "filas": 20012,
+          "huella": "912d31ce23ffb6d6391ffcf72f1ad4c3cec9e96833fa0cd7f8c461fc43f1fb7b"
+        },
+        "fixture2030_h12.comentarios_por_partido": {
+          "filas": 2400,
+          "huella": "a5d70e2b5412bea43dfce4e99c9c59c461a84e4b4b246f46c2dcda953da3fea2"
+        },
+        "fixture2030_h12.comentarios_por_usuario": {
+          "filas": 0,
+          "huella": "0000000000000000000000000000000000000000000000000000000000000000"
+        }
+      },
+      "metodo": "Recuento y suma módulo 2^256 de SHA256 por fila JSON canónica. Incluye todas las columnas, sin depender del orden entre particiones."
+    },
+    "integridad_identica": true,
+    "migracion": {
+      "fecha": "2026-11-17T21:02:35.359827+00:00",
+      "commit": "ed49e3fcb1dad4f1767dc17dbb0c87753e9cc4aa",
+      "imagen": "sha256:ee178b38a2746a8e15a115bd038ad1f864391d04a84162a018cb0dd79511709a",
+      "version": "5.0.9",
+      "origen_conservado": "C:\\Users\\denis/docker/data/cassandra",
+      "respaldo": "C:\\Users\\denis\\docker\\backups\\fixture-auditoria-20261117",
+      "tar_sha256": "16b319890dd5a881884112c3d09140d7fbf86929fab964921e3af2f75b919574",
+      "manifiesto_sha256": "4fd92efc617688fc0cc33027480ba9f81b0caaae25750f08d620e4d469b48cf1",
+      "archivos": 330,
+      "restauracion_identica": true,
+      "volumen": "grupo13-hito6_cassandra_data"
+    },
+    "despues_reinicio": {
+      "fecha": "2026-11-18T14:33:45.170267+00:00",
+      "version": "5.0.9",
+      "tablas": {
+        "fixture2030_comentarios.comentarios_por_partido": {
+          "filas": 20012,
+          "huella": "912d31ce23ffb6d6391ffcf72f1ad4c3cec9e96833fa0cd7f8c461fc43f1fb7b"
+        },
+        "fixture2030_comentarios.comentarios_por_usuario": {
+          "filas": 20012,
+          "huella": "912d31ce23ffb6d6391ffcf72f1ad4c3cec9e96833fa0cd7f8c461fc43f1fb7b"
+        },
+        "fixture2030_h12.comentarios_por_partido": {
+          "filas": 2400,
+          "huella": "a5d70e2b5412bea43dfce4e99c9c59c461a84e4b4b246f46c2dcda953da3fea2"
+        },
+        "fixture2030_h12.comentarios_por_usuario": {
+          "filas": 0,
+          "huella": "0000000000000000000000000000000000000000000000000000000000000000"
+        }
+      },
+      "metodo": "Recuento y suma módulo 2^256 de SHA256 por fila JSON canónica. Incluye todas las columnas, sin depender del orden entre particiones."
+    },
+    "persistencia_comprobada": true
+  },
+  "respaldo_mongodb": {
+    "archivo": "C:\\Users\\denis\\docker\\backups\\fixture-auditoria-20261117\\mongodb-jugadores-original.json",
+    "sha256": "faea2b77b08a839d70a68f97acc79245c9284c2cf5247ff5d3fadfb198844940",
+    "restauracion_real_ejecutada": false
+  }
+}

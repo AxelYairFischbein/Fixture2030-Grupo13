@@ -20,42 +20,42 @@ Si el motor no responde, iniciar Docker Desktop y esperar a que termine su arran
 
 ## Validar la persistencia e iniciar
 
-Compose toma el directorio personal de Windows de la variable de entorno `USERPROFILE`. El montaje `${USERPROFILE}/docker/data/cassandra` corresponde a `~/docker/data/cassandra`. En PowerShell, esa variable se consulta con `$env:USERPROFILE`. No hace falta cambiar la ruta del archivo Compose.
+El almacenamiento de `/var/lib/cassandra` usa el volumen nombrado `grupo13-hito6_cassandra_data`. El montaje de `/scripts` sigue siendo de solo lectura y `/data` conserva las salidas locales de COPY.
+
+Antes de aplicar este Compose sobre una instalación anterior con carpeta de Windows, completar la migración descrita más abajo. Iniciar un volumen vacío no migra datos existentes.
 
 ```powershell
 docker compose config --quiet
-$configHito6 = docker compose config --format json | ConvertFrom-Json
-$rutaHito6 = ($configHito6.services.cassandra.volumes |
-    Where-Object { $_.target -eq '/var/lib/cassandra' }).source
-$rutaHito6
-Join-Path $env:USERPROFILE 'docker\data\cassandra'
-docker compose up -d
-docker compose ps
-```
-
-Las dos rutas deben señalar el mismo directorio, aunque las barras se vean distintas. Docker lo crea si no existe y conserva los datos que ya tenga. Si pertenece a otra versión o cluster, revisar la compatibilidad antes de iniciar, sin borrar su contenido.
-
-Después del inicio, comprobar el montaje efectivo:
-
-```powershell
-$contenedorHito6 = docker compose ps -q cassandra
-docker inspect $contenedorHito6 --format '{{json .Mounts}}'
-```
-
-`/scripts` se monta como solo lectura y `/data` permite que COPY deje archivos de error y resultados locales. El primer arranque puede demorar. Repetir las siguientes comprobaciones hasta que `nodetool` muestre `UN` y `cqlsh` responda correctamente:
-
-```powershell
+docker compose up -d --pull never
+docker inspect grupo13-hito6-cassandra-1 --format '{{json .Mounts}}'
 docker compose exec -T cassandra nodetool status
 docker compose exec -T cassandra cqlsh --no-color -e 'SHOW VERSION'
 ```
 
-Si aún no está listo, revisar `docker compose logs --tail 40 cassandra`. Para abrir el cliente interactivo:
+El montaje de datos debe indicar `Type: volume` y el nombre anterior. Esperar hasta observar `UN` y respuesta CQL. La imagen efectiva de la migración es Cassandra 5.0.9 y se conservó sin descargar otra versión. La etiqueta `latest` no garantiza por sí sola esa identidad.
+
+## Migración reversible desde el montaje de Windows
+
+La migración del 17 de noviembre preservó el origen `$env:USERPROFILE\docker\data\cassandra` y el respaldo `$env:USERPROFILE\docker\backups\fixture-auditoria-20261117\cassandra.tar`. El archivo `docker-compose.rollback.yml` de esa carpeta conserva la configuración anterior. No se eliminó ninguna carpeta ni volumen.
+
+1. Registrar la imagen efectiva, los montajes y una huella lógica de las cuatro tablas usadas por los Hitos 6, 10 y 12.
+2. Ejecutar `nodetool flush`, `nodetool drain` y detener únicamente Cassandra.
+3. Montar el origen como solo lectura en un contenedor auxiliar de la misma imagen. Crear un TAR preservando permisos y un manifiesto SHA256 de sus archivos.
+4. Crear el volumen nombrado, restaurar el TAR y comparar todos los archivos con el manifiesto antes de iniciar el motor.
+5. Iniciar con `docker compose up -d --pull never`, comprobar imagen, montaje, estado del nodo y huellas de las tablas. Reiniciar y repetir la comprobación de persistencia y las requests de la API.
+
+La [evidencia de la migración](../Hito%2013/evidencia/auditoria-20261117/migraciones.json) registra los SHA256 y los recuentos. El respaldo contiene datos locales y queda fuera de Git. El procedimiento sigue el mecanismo de [respaldo y restauración de volúmenes de Docker](https://docs.docker.com/engine/storage/volumes/).
+
+Para volver al montaje anterior, detener primero el servicio y respaldar también el volumen actual. Verificar que no existan escrituras posteriores que deban conservarse en el retorno. Desde esta carpeta, usar la copia del Compose anterior con el directorio de proyecto correcto:
 
 ```powershell
-docker compose exec cassandra cqlsh
+$respaldoH6 = Join-Path $env:USERPROFILE 'docker\backups\fixture-auditoria-20261117'
+docker compose stop cassandra
+docker compose --project-directory (Get-Location).Path -f (Join-Path $respaldoH6 'docker-compose.rollback.yml') up -d --pull never
+docker exec grupo13-hito6-cassandra-1 nodetool status
 ```
 
-Salir con `EXIT`. Los siguientes comandos se ejecutan en PowerShell.
+Comparar nuevamente la imagen y la integridad antes de habilitar escrituras. Conservar ambos almacenamientos hasta decidir el cierre de la migración.
 
 ## Crear esquema y cargar la muestra
 

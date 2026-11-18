@@ -8,19 +8,19 @@ from comun import (TABLA, ahora, consultar, dimensiones, filtro, imprimir,
 
 def main():
     meta = muestra()
-    sql = f"""SELECT partido_id, equipo_id, estadio_id, COUNT(*) AS puntos,
+    sql = f"""SELECT partido_id, equipo_id, COUNT(*) AS puntos,
       MIN(time) AS primero, MAX(time) AS ultimo,
       MIN(posesion_pct) AS posesion_min, MAX(posesion_pct) AS posesion_max,
       MAX(pases_acumulados) AS pases_finales, SUM(tiros_intervalo) AS tiros_totales
       FROM {TABLA} WHERE {filtro(meta['inicio'], meta['fin'])}
-      GROUP BY partido_id, equipo_id, estadio_id ORDER BY partido_id, equipo_id"""
+      GROUP BY partido_id, equipo_id ORDER BY partido_id, equipo_id"""
     filas = consultar(sql)
     esperado_serie = meta["minutos"] * 60 // meta["paso"]
     assert len(filas) == meta["partidos"] * 2, "Cantidad inesperada de series"
     for partido in range(1, meta["partidos"] + 1):
         for lado in (0, 1):
             fila = filas[(partido - 1) * 2 + lado]
-            assert tuple(fila[k] for k in ("partido_id", "equipo_id", "estadio_id")) == dimensiones(partido, lado)
+            assert tuple(fila[k] for k in ("partido_id", "equipo_id")) == dimensiones(partido, lado)
             assert fila["puntos"] == esperado_serie, "Cantidad inesperada por serie"
             assert datetime.fromisoformat(fila["primero"]).replace(tzinfo=timezone.utc).timestamp() == meta["inicio"]
             assert datetime.fromisoformat(fila["ultimo"]).replace(tzinfo=timezone.utc).timestamp() == meta["fin"] - meta["paso"]

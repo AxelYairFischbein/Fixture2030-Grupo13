@@ -13,9 +13,8 @@ services:
     ports:
       - "127.0.0.1:9042:9042"
     volumes:
-      # Compose toma el directorio personal de la variable de entorno USERPROFILE.
-      - type: bind
-        source: ${USERPROFILE:?Definir USERPROFILE}/docker/data/cassandra
+      - type: volume
+        source: cassandra_data
         target: /var/lib/cassandra
       - type: bind
         source: ./scripts
@@ -24,3 +23,7 @@ services:
       - type: bind
         source: ./data
         target: /data
+
+volumes:
+  cassandra_data:
+    name: grupo13-hito6_cassandra_data

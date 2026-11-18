@@ -10,7 +10,7 @@ RAIZ = Path(__file__).resolve().parents[1]
 DATOS = RAIZ / "datos"
 TOKEN = RAIZ / ".local" / "admin.token"
 BASE = "fixture2030_h8"
-TABLA = "estadisticas_equipo"
+TABLA = "estadisticas_equipo_v2"
 URL = "http://127.0.0.1:8181"
 
 
@@ -66,8 +66,7 @@ def filtro(inicio, fin):
 
 
 def dimensiones(partido, lado):
-    return (f"PAR-{partido:03d}", f"EQ-{2 * partido - 1 + lado:03d}",
-            f"EST-{(partido - 1) % 8 + 1:02d}")
+    return (f"PAR-{partido:03d}", f"EQ-{2 * partido - 1 + lado:03d}")
 
 
 def medidas(partido, lado, segundo, paso):
@@ -83,10 +82,10 @@ def incrementos(inicio, fin, paso):
     return f"""WITH diferencias AS (
       SELECT time, equipo_id, posesion_pct, tiros_intervalo,
         pases_acumulados - LAG(pases_acumulados) OVER (
-          PARTITION BY partido_id, equipo_id, estadio_id ORDER BY time
+          PARTITION BY partido_id, equipo_id ORDER BY time
         ) AS pases_nuevos,
         time - LAG(time) OVER (
-          PARTITION BY partido_id, equipo_id, estadio_id ORDER BY time
+          PARTITION BY partido_id, equipo_id ORDER BY time
         ) AS separacion
       FROM {TABLA}
       WHERE {filtro(inicio - paso, fin)} AND partido_id = 'PAR-001'

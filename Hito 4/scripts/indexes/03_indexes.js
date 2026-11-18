@@ -33,8 +33,8 @@ const created = {
       { name: "idx_jugadores_equipo_nombre" }
     ),
     fixtureDb.jugadores.createIndex(
-      { posicion: 1, partidosInternacionales: -1, jugadorId: 1 },
-      { name: "idx_jugadores_posicion_partidos" }
+      { posicion: 1, alturaCm: -1, jugadorId: 1 },
+      { name: "idx_jugadores_posicion_altura" }
     ),
     fixtureDb.jugadores.createIndex(
       { nacionalidadCodigo: 1, alturaCm: -1, jugadorId: 1 },

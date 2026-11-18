@@ -2,9 +2,9 @@
 
 ## Series y volumen local
 
-La cardinalidad corresponde a combinaciones válidas de tags. En la muestra hay dos partidos, cada uno con dos equipos y un estadio fijo. Son **2 × 2 = 4 series**. No corresponde multiplicar dos partidos por cuatro equipos por dos estadios, porque la mayoría de esas combinaciones no existe.
+La cardinalidad corresponde a combinaciones válidas de tags. En la muestra hay dos partidos, cada uno con dos equipos. Son **2 × 2 = 4 series**. El estadio no es un tag del modelo actual. Su eliminación simplifica la clave sin reducir las cuatro combinaciones válidas que ya existían.
 
-El volumen es `2 partidos × 2 equipos × 90 minutos × 60 segundos / paso`. Con paso de un segundo se generan **21.600 puntos**, no 64.800. Cada punto contiene tres fields. Extender el modelo a 127 partidos produciría 254 series y 1.371.600 puntos para 90 minutos a 1 Hz. La cantidad de sedes no multiplica las series porque cada partido tiene una sede asignada. El tiempo aumenta los puntos, no la cardinalidad.
+El volumen es `2 partidos × 2 equipos × 90 minutos × 60 segundos / paso`. Con paso de un segundo se generan **21.600 puntos**, no 64.800. Cada punto contiene tres fields. Extender el modelo a 127 partidos produciría 254 series y 1.371.600 puntos para 90 minutos a 1 Hz. La sede no participa en la identidad de las series. El tiempo aumenta los puntos, no la cardinalidad.
 
 Un tag con UUID por punto haría crecer las series junto con cada observación. Un nombre libre de proveedor podría fragmentar una misma fuente por errores de escritura. Se evitan ambos. Si se agregara una fuente real, tendría un identificador estable y solo se incluiría como dimensión si fuese necesario distinguir sus observaciones.
 

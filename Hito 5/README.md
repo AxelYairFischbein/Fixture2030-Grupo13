@@ -2,7 +2,7 @@
 
 En este hito usamos Neo4j para consultar planteles, rivales, partidos por estadio e incidencias con sus participantes. La muestra contiene **64 equipos, 1.536 jugadores, 64 partidos, 8 estadios y 128 eventos**, con un total de **1.800 nodos y 2.112 relaciones**.
 
-Los datos son ficticios y representan dos jornadas de 16 grupos de cuatro equipos. El módulo funciona de forma local e independiente de MongoDB, sin API, frontend ni extensiones de Neo4j.
+Los datos son ficticios y representan dos jornadas de 16 grupos de cuatro equipos. El módulo funciona de forma local e independiente de MongoDB, sin extensiones de Neo4j. La API del Hito 10 consume este mismo grafo mediante su adaptador.
 
 ## Requisitos previos
 
@@ -19,19 +19,20 @@ Set-Location -LiteralPath '.\Hito 5'
 
 ## Preparar el ambiente
 
-Crear `.env` a partir del ejemplo si todavía no existe, iniciar el servicio y esperar a Neo4j:
+Crear `.env` a partir del ejemplo si todavía no existe. Completar `NEO4J_AUTH` con `neo4j/` y la contraseña propia antes de iniciar el servicio:
 
 ```powershell
 if (-not (Test-Path -LiteralPath '.env')) {
     Copy-Item -LiteralPath '.env.example' -Destination '.env'
 }
+notepad .env
 docker compose config --quiet
 docker compose up -d
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\ejecutar.ps1 esperar
 docker compose ps
 ```
 
-El contenedor debe mostrar el estado `healthy`. El ejemplo usa `NEO4J_AUTH=neo4j/fixture2030-g13-local` y `.env` queda ignorado por Git. Si la base ya existe, hay que usar sus credenciales, porque cambiar `.env` no modifica la contraseña guardada.
+El contenedor debe mostrar el estado `healthy`. El `.env` local queda ignorado por Git. Si la base ya existe, hay que usar sus credenciales, porque cambiar `.env` no modifica la contraseña guardada.
 
 ## Crear la estructura, cargar y verificar
 
@@ -101,3 +102,9 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\ejecutar.ps1 esper
 - [Decisiones de diseño](docs/decisiones.md).
 - [Catálogo de consultas](docs/catalogo_consultas.md).
 - [Evidencias](docs/evidencia/README.md).
+
+## Recorrido acotado para explicar el módulo
+
+La secuencia principal es estructura y carga idempotente en un entorno nuevo, verificación de integridad, CRUD temporal, Q04 para rivales, Q08 para el recorrido jugador-equipo-partido-estadio y A01 para analizar conectividad. Los identificadores permiten seleccionar esos bloques en los archivos existentes. Para un entorno ya cargado se omite la carga.
+
+El resto del catálogo y el generador completo de evidencias quedan como comprobaciones opcionales de la implementación anterior. No son pasos necesarios para iniciar ni demostrar el grafo. Se conservan porque enlazan resultados históricos y no participan en la API. Los consumidores actuales usan partido, eventos y agenda. No se modificaron sus relaciones ni se instalaron plugins.

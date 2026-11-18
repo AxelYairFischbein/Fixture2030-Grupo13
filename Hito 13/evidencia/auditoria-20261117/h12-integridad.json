@@ -1,0 +1,63 @@
+{
+  "fecha": "2026-11-18T00:01:13.562688+00:00",
+  "cassandra": "5.0.9",
+  "keyspace": "fixture2030_h12",
+  "escrituras_en_esta_ejecucion": 0,
+  "integridad": "OK",
+  "puntos_logicos": 2400,
+  "distribucion": {
+    "PAR-001": {
+      "filas": 1200,
+      "particiones": {
+        "minuto0-segmento0": 60,
+        "minuto0-segmento1": 60,
+        "minuto0-segmento2": 60,
+        "minuto0-segmento3": 60,
+        "minuto1-segmento0": 60,
+        "minuto1-segmento1": 60,
+        "minuto1-segmento2": 60,
+        "minuto1-segmento3": 60,
+        "minuto2-segmento0": 60,
+        "minuto2-segmento1": 60,
+        "minuto2-segmento2": 60,
+        "minuto2-segmento3": 60,
+        "minuto3-segmento0": 60,
+        "minuto3-segmento1": 60,
+        "minuto3-segmento2": 60,
+        "minuto3-segmento3": 60,
+        "minuto4-segmento0": 60,
+        "minuto4-segmento1": 60,
+        "minuto4-segmento2": 60,
+        "minuto4-segmento3": 60
+      }
+    },
+    "PAR-002": {
+      "filas": 1200,
+      "particiones": {
+        "minuto0-segmento0": 60,
+        "minuto0-segmento1": 60,
+        "minuto0-segmento2": 60,
+        "minuto0-segmento3": 60,
+        "minuto1-segmento0": 60,
+        "minuto1-segmento1": 60,
+        "minuto1-segmento2": 60,
+        "minuto1-segmento3": 60,
+        "minuto2-segmento0": 60,
+        "minuto2-segmento1": 60,
+        "minuto2-segmento2": 60,
+        "minuto2-segmento3": 60,
+        "minuto3-segmento0": 60,
+        "minuto3-segmento1": 60,
+        "minuto3-segmento2": 60,
+        "minuto3-segmento3": 60,
+        "minuto4-segmento0": 60,
+        "minuto4-segmento1": 60,
+        "minuto4-segmento2": 60,
+        "minuto4-segmento3": 60
+      }
+    }
+  },
+  "comparacion": "Todas las claves y atributos coinciden con el generador fijo",
+  "commit": "5054f7f333133228cc23c635ad4c4491a4567974",
+  "imagen": "sha256:f8fa7472e6f99c4f308dfd97d552b3a49d4bd4dcb6792eeb0820c2a797c9d76c"
+}

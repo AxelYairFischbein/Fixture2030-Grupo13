@@ -49,3 +49,11 @@ No se realizaron pruebas de saturación de RAM, caída abrupta del host, indispo
 ## Alcance del nodo local
 
 Hay un único Redis, sin réplicas ni conmutación automática. El volumen y AOF permiten recuperar archivos, pero no eliminan el punto único de falla. Ante crecimiento se revisarían memoria por clave, frecuencia de actualización y separación de cargas. Réplicas permitirían copias para lectura con posible atraso. Sentinel coordinaría failover y Redis Cluster distribuiría claves entre nodos. Esas topologías no están implementadas ni probadas en este módulo.
+
+## Consecuencias en la API integrada
+
+Con `noeviction`, alcanzar `maxmemory` rechaza escrituras que requieren más memoria. No elimina sesiones anticipadamente ni significa que el proceso se haya caído. Las claves existentes pueden seguir leyéndose y los TTL siguen venciendo. Una sesión vencida devuelve 404 `SESION_NO_VIGENTE`. Una nueva sesión rechazada por OOM devuelve 503 `DEPENDENCIA_NO_DISPONIBLE`, sin entregar una sesión válida al consumidor.
+
+Si falla la escritura de la caché después de leer MongoDB, la ficha continúa con HTTP 200 y `X-Cache: BYPASS`. Las próximas lecturas pueden volver a consultar MongoDB. Una caída del servidor también impide leer sesiones, mientras que un rechazo por memoria puede permitir lecturas existentes. Por eso se revisan el error de la operación, `redis_up` y el uso de memoria por separado.
+
+La traducción de OOM y la continuidad de la ficha se comprobaron con excepciones reales del driver simuladas en pruebas unitarias. La detención y recuperación del contenedor se comprobaron por separado. No se saturó la memoria de la instancia compartida. La API no ofrece renovación de sesión, aunque los scripts propios del Hito 7 sí la demuestran.

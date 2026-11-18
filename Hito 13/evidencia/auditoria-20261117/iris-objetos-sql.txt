@@ -1,0 +1,30 @@
+OBJ Partido ID=1 | PAR-001 | EST-01 | PENDIENTE
+OBJ Arbitro ID=1 | ARB-001 | Arbitro Sintetico 01 | LIC-DEMO-001
+OBJ Evento ID=1||1 | TARJETA | minuto=15 | inversa Partido=1
+OBJ Evento ID=1||2 | CAMBIO | minuto=75 | inversa Partido=1
+OBJ Jugador ID=2 | JUG-0001 | Nombre0001 Apellido0001 | ARQUERO
+SQL Partido ID=1 | PAR-001 | PENDIENTE
+SQL Evento ID=1||1 | Partido=1 | TARJETA | minuto=15
+SQL Evento ID=1||2 | Partido=1 | CAMBIO | minuto=75
+SQL Persona ID=2 | JUG-0001 | Nombre0001 Apellido0001
+SQL Persona ID=1 | ARB-001 | Arbitro Sintetico 01
+VERIFICACION OK: 1 partido, 2 eventos, 1 jugador y 1 arbitro. Objetos = SQL.
+RECHAZO ESPERADO: hijo sin Tipo obligatorio. ERROR #5659: Property 'FixtureH9.Evento::Tipo(14@FixtureH9.Evento,ID=)' required
+ERROR #7205: Datatype value '' not in VALUELIST ',GOL,TARJETA,CAMBIO'
+  > ERROR #5802: Datatype validation failed on property 'FixtureH9.Evento:Tipo', with value equal to ""
+ATOMICIDAD OK: padre invalido ausente, eventos antes=2, despues=2. Ningun hijo nuevo.
+TRANSICIONES OK: PENDIENTE -> EN_JUEGO -> FINALIZADO.
+RECHAZO ESPERADO: ERROR #5001: Transicion no permitida: FINALIZADO -> EN_JUEGO
+SQL estado posterior al rechazo: FINALIZADO
+BORRADO OK: padre temporal y sus 2 hijos ausentes. Muestra y personas conservadas.
+OBJ Partido ID=1 | PAR-001 | EST-01 | PENDIENTE
+OBJ Arbitro ID=1 | ARB-001 | Arbitro Sintetico 01 | LIC-DEMO-001
+OBJ Evento ID=1||1 | TARJETA | minuto=15 | inversa Partido=1
+OBJ Evento ID=1||2 | CAMBIO | minuto=75 | inversa Partido=1
+OBJ Jugador ID=2 | JUG-0001 | Nombre0001 Apellido0001 | ARQUERO
+SQL Partido ID=1 | PAR-001 | PENDIENTE
+SQL Evento ID=1||1 | Partido=1 | TARJETA | minuto=15
+SQL Evento ID=1||2 | Partido=1 | CAMBIO | minuto=75
+SQL Persona ID=2 | JUG-0001 | Nombre0001 Apellido0001
+SQL Persona ID=1 | ARB-001 | Arbitro Sintetico 01
+VERIFICACION OK: 1 partido, 2 eventos, 1 jugador y 1 arbitro. Objetos = SQL.

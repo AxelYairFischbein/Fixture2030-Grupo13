@@ -1,237 +1,87 @@
-# Hito 4 - Módulo Documental de Equipos y Jugadores
+# Hito 4 - Equipos y jugadores en MongoDB
 
-Grupo 13 - Fixture Mundial 2030. Este directorio contiene un módulo MongoDB local, reproducible y verificable mediante Docker Compose. El conjunto canónico tiene **64 equipos sintéticos** y **1.536 jugadores sintéticos** (24 por equipo). Los datos no representan participantes oficiales del Mundial 2030.
+Grupo 13, Fixture 2030. El módulo conserva 64 equipos sintéticos y 1.536 jugadores, con 24 integrantes por plantel. Los documentos describen identidad, nacionalidad, posición, camiseta, altura, pie hábil y estado del plantel. La relación usa `jugadores.equipoId`, con actualización independiente y consultas paginadas.
 
-## Requisitos previos
+Los atributos `partidosInternacionales` y `golesInternacionales` se retiraron del modelo, sus validadores y consumidores. No se trasladaron a otro módulo. La API y la interfaz muestran los atributos actuales del jugador. Las [evidencias anteriores](evidencias/README.md) conservan su fecha y el esquema que tenían al ejecutarse.
 
-- Docker Desktop o Docker Engine con el complemento Docker Compose.
-- Al menos 2 GB libres para imagen, contenedor y volumen.
-- PowerShell 5.1+ en Windows o Bash en Linux/macOS para generar todas las evidencias de una vez.
-- Puerto `27017` libre, o definir otro valor en `.env`.
+## Inicio y acceso
 
-MongoDB se ejecuta exclusivamente dentro de Docker. No hace falta instalar el servidor ni `mongosh` en Windows: el contenedor incluye el cliente utilizado por los comandos.
-
-## Estructura
-
-```text
-Hito 4/
-|-- .env.example
-|-- .gitignore
-|-- docker-compose.yml
-|-- README.md
-|-- docs/
-|   |-- Catalogo_Consultas.md
-|   `-- Grupo_13_Hito_4_Decisiones_Documentales_Fixture2030.md
-|-- evidencias/
-|   |-- README.md
-|   `-- 00...14_*.txt
-`-- scripts/
-    |-- init/01_collections.js
-    |-- validations/02_validators.js
-    |-- data/02_seed.js
-    |-- indexes/03_indexes.js
-    |-- operations/04_demo_crud.js
-    |-- queries/05_queries.js
-    |-- performance/06_compare_index.js
-    `-- verification/
-        |-- 07_verify_integrity.js
-        |-- 08_test_validation.js
-        |-- generar_evidencias.ps1
-        `-- generar_evidencias.sh
-```
-
-## Variables y credenciales locales
-
-El Compose mantiene los valores locales del archivo original y permite reemplazarlos:
-
-| Variable | Valor predeterminado | Uso |
-|---|---:|---|
-| `MONGO_PORT` | `27017` | Puerto publicado en la notebook. |
-| `MONGO_ROOT_USERNAME` | `admin` | Usuario administrador local. |
-| `MONGO_ROOT_PASSWORD` | `password123` | Contraseña local de desarrollo. |
-
-La base queda fijada en `fixture2030`, como exige el hito. Para personalizar puerto o credenciales, copiar `.env.example` como `.env` antes del primer inicio. `.env` está ignorado por Git. Las credenciales predeterminadas son sólo para el laboratorio local y no son adecuadas para producción. Si se cambia el usuario o la contraseña con un volumen ya inicializado, MongoDB no recrea las credenciales; las variables de inicialización se aplican a una base vacía.
-
-## Inicio desde cero
-
-Todos los comandos siguientes se ejecutan dentro de `Hito 4/`.
-
-1. Validar la configuración efectiva:
-
-   ```powershell
-   docker compose config
-   ```
-
-2. Iniciar MongoDB:
-
-   ```powershell
-   docker compose up -d
-   ```
-
-3. Esperar a que el estado sea `healthy`:
-
-   ```powershell
-   docker compose ps
-   ```
-
-4. Comprobar disponibilidad con las credenciales predeterminadas:
-
-   ```powershell
-   docker compose exec -T mongodb mongosh --quiet --username admin --password password123 --authenticationDatabase admin fixture2030 --eval "db.adminCommand({ ping: 1 })"
-   ```
-
-5. Crear o comprobar las colecciones:
-
-   ```powershell
-   docker compose exec -T mongodb mongosh --quiet --username admin --password password123 --authenticationDatabase admin fixture2030 --file /workspace/scripts/init/01_collections.js
-   ```
-
-6. Instalar o actualizar los validadores:
-
-   ```powershell
-   docker compose exec -T mongodb mongosh --quiet --username admin --password password123 --authenticationDatabase admin fixture2030 --file /workspace/scripts/validations/02_validators.js
-   ```
-
-7. Crear los índices:
-
-   ```powershell
-   docker compose exec -T mongodb mongosh --quiet --username admin --password password123 --authenticationDatabase admin fixture2030 --file /workspace/scripts/indexes/03_indexes.js
-   ```
-
-8. Cargar los datos canónicos:
-
-   ```powershell
-   docker compose exec -T mongodb mongosh --quiet --username admin --password password123 --authenticationDatabase admin fixture2030 --file /workspace/scripts/data/02_seed.js
-   ```
-
-La primera carga informa `upserted: 64` y `upserted: 1536` sobre colecciones vacías. Las ejecuciones posteriores informan `matched: 64`, `matched: 1536`, `modified: 0` y mantienen los mismos recuentos. No depende de un script de inicialización que se ejecute una única vez al crear el volumen.
-
-Si se personalizaron las credenciales, sustituir `admin` y `password123` en los comandos manuales. Los generadores automáticos de evidencia leen las credenciales efectivas dentro del contenedor.
-
-## Validaciones e integridad
-
-Ejecutar la verificación integral:
+Se necesita Docker Desktop con contenedores Linux y el puerto 27017 disponible. Los comandos se ejecutan desde esta carpeta. Antes del primer inicio, copiar `.env.example` a `.env` y configurar credenciales locales. Si ya existe un volumen, usar sus credenciales actuales. Cambiar `.env` no cambia la contraseña almacenada.
 
 ```powershell
-docker compose exec -T mongodb mongosh --quiet --username admin --password password123 --authenticationDatabase admin fixture2030 --file /workspace/scripts/verification/07_verify_integrity.js
+docker compose config --quiet
+docker compose up -d --pull never
+docker compose ps
 ```
 
-El script falla con código distinto de cero salvo que se cumpla todo lo siguiente:
-
-- 64 equipos y 1.536 jugadores;
-- cero duplicados de `equipoId`, código de equipo, `jugadorId` y camiseta dentro de un equipo;
-- cero jugadores huérfanos;
-- 24 jugadores por cada equipo;
-- cero campos críticos ausentes;
-- validadores con `validationLevel: strict` y `validationAction: error`;
-- índices disponibles.
-
-Para demostrar que MongoDB rechaza documentos inválidos sin dejar residuos:
+`--pull never` conserva la imagen disponible. En una instalación nueva hay que descargar primero la imagen declarada. El volumen `mongodb_data` conserva la base. Para abrir una sesión interactiva sin escribir la contraseña en el comando:
 
 ```powershell
-docker compose exec -T mongodb mongosh --quiet --username admin --password password123 --authenticationDatabase admin fixture2030 --file /workspace/scripts/verification/08_test_validation.js
+docker compose exec mongodb sh -c 'exec mongosh --username "$MONGO_INITDB_ROOT_USERNAME" --password "$MONGO_INITDB_ROOT_PASSWORD" --authenticationDatabase admin fixture2030'
 ```
 
-La relación entre colecciones no es una clave foránea nativa. La carga y la inserción controlada comprueban primero el equipo, y `07_verify_integrity.js` usa `$lookup` para detectar cualquier jugador sin equipo válido.
+No publicar `.env`, exportaciones, credenciales ni salidas de configuración que las incluyan. La comprobación de Compose usa `--quiet` para evitar mostrarlas.
 
-## Operaciones, consultas y agregaciones
+## Preparación de una base nueva
 
-La demostración CRUD inserta un equipo y un jugador temporales, actualiza ambos, comprueba la relación y elimina primero el jugador y luego el equipo. Puede repetirse y siempre restaura el conjunto canónico:
+Solo cuando no haya datos preparados, ejecutar los siguientes archivos en este orden: `init/01_collections.js`, `validations/02_validators.js`, `indexes/03_indexes.js` y `data/02_seed.js`. Para seleccionar cada archivo:
 
 ```powershell
-docker compose exec -T mongodb mongosh --quiet --username admin --password password123 --authenticationDatabase admin fixture2030 --file /workspace/scripts/operations/04_demo_crud.js
+$scriptH4 = 'init/01_collections.js'
+docker compose exec -T mongodb sh -c 'exec mongosh --quiet --username "$MONGO_INITDB_ROOT_USERNAME" --password "$MONGO_INITDB_ROOT_PASSWORD" --authenticationDatabase admin fixture2030 --file "$1"' sh "/workspace/scripts/$scriptH4"
 ```
 
-Las doce consultas Q01-Q12 incluyen recuperación por identificador, filtros, proyecciones, ordenamiento, paginación, plantel por equipo, dos controles de relación y agregaciones con `$group` y `$lookup`:
+La semilla usa identificadores deterministas y reemplazos con `upsert`. Puede restaurar atributos canónicos sobre sus identificadores. No se ejecuta para iniciar un entorno existente ni para migrarlo.
+
+## Consultas, CRUD e integridad
+
+Usar el mismo comando cambiando `$scriptH4` por el archivo correspondiente:
+
+| Archivo bajo `scripts/` | Comprobación |
+| --- | --- |
+| `verification/07_verify_integrity.js` | Recuentos, identificadores, camisetas, referencias y validadores estrictos |
+| `verification/08_test_validation.js` | Rechazo de documentos inválidos y ausencia de residuos |
+| `operations/04_demo_crud.js` | Inserción, actualización y eliminación de un equipo y jugador temporales |
+| `queries/05_queries.js` | Identificación, filtros, proyección, orden, paginación y agregaciones |
+| `performance/06_compare_index.js` | Comparación controlada del índice por nacionalidad y altura |
+
+El CRUD rechaza identificadores temporales preexistentes y solo limpia lo creado por esa ejecución. Actualiza `estadoPlantel` del jugador. Q04 filtra delanteros desde 180 cm, ordena por altura e ID y utiliza `idx_jugadores_posicion_altura`. Q08 agrega cantidad y altura por posición. Q09 resume cantidad y altura del plantel con `$lookup`.
+
+La comparación histórica de P01 examinó 1.536 documentos sin índice y 15 con índice, con los mismos 15 resultados. Ambos tiempos se informaron como 0 ms. Esa evidencia demuestra reducción del trabajo examinado, no una mejora de tiempo medible. No se volvió a medir durante la auditoría.
+
+## Migración de la instalación existente
+
+La revisión del 17 de noviembre respaldó los 1.536 documentos de jugadores, el validador y los índices en `$env:USERPROFILE\docker\backups\fixture-auditoria-20261117\mongodb-jugadores-original.json`. Comprobó la lectura del respaldo y su SHA256 antes de aplicar el cambio. No se recargaron equipos o jugadores.
+
+[migrar_atributos.py](scripts/operations/migrar_atributos.py) usa los drivers y la configuración del contenedor de la API. Sus acciones son `respaldar`, `aplicar` y `restaurar`. Se copia al directorio temporal del contenedor y se ejecuta con `PYTHONPATH=/app`. La secuencia separa respaldo y modificación para permitir conservar una copia en el host:
 
 ```powershell
-docker compose exec -T mongodb mongosh --quiet --username admin --password password123 --authenticationDatabase admin fixture2030 --file /workspace/scripts/queries/05_queries.js
+docker cp scripts/operations/migrar_atributos.py grupo13-hito10-api-1:/tmp/migrar_atributos.py
+docker exec -e PYTHONPATH=/app grupo13-hito10-api-1 python /tmp/migrar_atributos.py respaldar /tmp/mongodb-jugadores-original.json
+$respaldoH4 = Join-Path $env:USERPROFILE 'docker/backups/fixture-auditoria-20261117/mongodb-jugadores-original.json'
+# En otra ejecución, elegir un archivo nuevo. No sobrescribir el respaldo conservado.
+if (Test-Path $respaldoH4) { throw 'El respaldo de esta ejecución ya existe' }
+New-Item -ItemType Directory -Force (Split-Path $respaldoH4)
+docker cp grupo13-hito10-api-1:/tmp/mongodb-jugadores-original.json $respaldoH4
+Get-FileHash -Algorithm SHA256 $respaldoH4
+docker exec grupo13-hito10-api-1 sha256sum /tmp/mongodb-jugadores-original.json
+# Continuar solo si ambos SHA256 coinciden.
+docker exec -e PYTHONPATH=/app grupo13-hito10-api-1 python /tmp/migrar_atributos.py aplicar /tmp/mongodb-jugadores-original.json
 ```
 
-El contrato funcional de cada operación —colección, filtro, campos, índice y resultado esperado— está en [docs/Catalogo_Consultas.md](docs/Catalogo_Consultas.md).
+La acción `aplicar` instala el validador reducido, retira únicamente los dos campos y sustituye el índice de estadísticas por el de posición y altura. Comprueba que cada otro atributo e identificador coincida con el respaldo. No desactiva la validación de dominio.
 
-## Índices y rendimiento
+Para volver atrás, usar `restaurar` con el mismo respaldo y recuperar también la versión anterior de los consumidores. El script se detiene si encuentra otros atributos modificados después del respaldo. No sobrescribe esos cambios. La tabla de [resultados de la auditoría](../Hito%2013/evidencia/auditoria-20261117/README.md) distingue esta migración de las mediciones anteriores.
 
-Los índices se pueden volver a crear de forma idempotente con `03_indexes.js`. La comparación controlada elimina y recrea únicamente `idx_jugadores_nacionalidad_altura`; nunca elimina índices únicos:
+## Detención y límites
 
 ```powershell
-docker compose exec -T mongodb mongosh --quiet --username admin --password password123 --authenticationDatabase admin fixture2030 --file /workspace/scripts/performance/06_compare_index.js
+docker compose stop mongodb
+docker compose start mongodb
 ```
 
-En la ejecución registrada, la consulta por `nacionalidadCodigo = F01` y `alturaCm >= 180`, ordenada por altura e identificador, devolvió 15 documentos en ambos casos:
+El despliegue es una instancia única. Se comprobó integridad documental, pero MongoDB no impone una clave foránea entre colecciones. Los scripts comprueban las referencias y los índices únicos protegen identificadores y camisetas. No se probó un replica set ni sharding.
 
-| Métrica | Antes | Después |
-|---|---:|---:|
-| Etapas | `SORT`, `PROJECTION_SIMPLE`, `COLLSCAN` | `PROJECTION_SIMPLE`, `FETCH`, `IXSCAN` |
-| `nReturned` | 15 | 15 |
-| `totalDocsExamined` | 1.536 | 15 |
-| `totalKeysExamined` | 0 | 15 |
-| `executionTimeMillis` | 0 | 0 |
-
-El conjunto local es pequeño, por lo que el tiempo redondeado no permite afirmar una mejora temporal. La evidencia válida es el cambio de plan y la reducción real de 1.521 documentos examinados. El detalle está en `evidencias/11_comparacion_rendimiento_indice.txt`.
-
-## Generar todas las evidencias
-
-Con Docker Desktop/Engine disponible, el siguiente comando reproduce toda la secuencia en Windows:
-
-```powershell
-.\scripts\verification\generar_evidencias.ps1
-```
-
-En Linux o macOS:
-
-```bash
-bash scripts/verification/generar_evidencias.sh
-```
-
-El proceso valida Compose, inicia y espera MongoDB, instala validadores e índices, carga dos veces, prueba integridad y rechazos, ejecuta CRUD, consultas y rendimiento, verifica el estado final, reinicia el contenedor sin borrar el volumen y vuelve a comprobar datos e integridad. Las salidas reales se guardan en `evidencias/`.
-
-## Conexión interactiva con mongosh
-
-Dentro del contenedor:
-
-```powershell
-docker compose exec mongodb mongosh --username admin --password password123 --authenticationDatabase admin fixture2030
-```
-
-Desde un `mongosh` instalado en la notebook:
-
-```powershell
-mongosh "mongodb://admin:password123@localhost:27017/fixture2030?authSource=admin"
-```
-
-MongoDB Compass puede utilizar la misma URI.
-
-## Detención, reinicio y persistencia
-
-Detener sin eliminar contenedor ni volumen:
-
-```powershell
-docker compose stop
-```
-
-Volver a iniciar:
-
-```powershell
-docker compose start
-```
-
-Reiniciar el servicio conservando el volumen:
-
-```powershell
-docker compose restart mongodb
-```
-
-También se puede ejecutar `docker compose down`; elimina contenedor y red, pero conserva el volumen nombrado. Para comprobar persistencia, ejecutar `07_verify_integrity.js`, reiniciar con el comando anterior y ejecutar otra vez el verificador. La evidencia reproducida en `13_persistencia_despues_reinicio.txt` registra 64 equipos, 1.536 jugadores y cero huérfanos después del reinicio.
-
-> **No ejecutar `docker compose down -v` si se desea conservar la información.** La opción `-v` elimina el volumen persistente.
-
-## Supuestos y limitaciones
-
-- Las fuentes no definen los 64 participantes oficiales de 2030. Por eso todos los equipos y jugadores están marcados con `esDatoSintetico: true` y `origen: sintetico-grupo13-v1`.
-- Se eligieron exactamente 1.536 jugadores para mantener continuidad con “más de 1.500” de los hitos previos y obtener 24 por cada uno de los 64 equipos.
-- El entorno es un único nodo local. No simula alta disponibilidad, sharding ni despliegue multirregional.
-- En una futura arquitectura MongoDB con réplicas, las escrituras oficiales deberían confirmarse por mayoría y las lecturas deberían usar una política coherente con los datos confirmados. Esta es una decisión conceptual pendiente, no una configuración implementada aquí.
-- La notación N/R/W se reserva para Cassandra. En MongoDB, las decisiones de consistencia se expresan mediante conceptos propios del motor.
-- MongoDB no garantiza por sí solo referencias entre colecciones. Los scripts de escritura y verificación cubren esa integridad dentro del alcance local.
-- No se incorporan API REST, interfaz gráfica, Mongo Express, Mongoose ni otros motores: el módulo conserva la responsabilidad documental de equipos y jugadores.
+- [Decisiones documentales](docs/Grupo_13_Hito_4_Decisiones_Documentales_Fixture2030.md)
+- [Catálogo de consultas](docs/Catalogo_Consultas.md)
+- [Evidencias históricas](evidencias/README.md)

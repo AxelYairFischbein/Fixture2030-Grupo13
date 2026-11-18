@@ -7,6 +7,9 @@ const fixtureDb = db.getSiblingDB("fixture2030");
 const tests = [];
 
 function expectValidationFailure(name, collection, document) {
+  if (collection.findOne({ _id: document._id })) {
+    throw new Error("El identificador temporal ya existe. No se modifica.");
+  }
   try {
     collection.insertOne(document);
     collection.deleteOne({ _id: document._id });
@@ -47,8 +50,6 @@ expectValidationFailure(
     numeroCamiseta: 98,
     pieHabil: "DERECHO",
     alturaCm: 180,
-    partidosInternacionales: 0,
-    golesInternacionales: 0,
     estadoPlantel: "CONVOCADO",
     esDatoSintetico: true,
     origen: "demostracion-controlada",

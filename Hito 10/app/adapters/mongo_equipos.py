@@ -17,7 +17,7 @@ PROY_EQUIPO_RESUMEN = {"_id": 0, "equipoId": 1, "codigo": 1, "nombre": 1, "confe
                        "rankingReferencia": 1, "estado": 1}
 PROY_JUGADOR = {"_id": 0, "jugadorId": 1, "equipoId": 1, "nombre": 1, "apellido": 1, "posicion": 1,
                 "numeroCamiseta": 1, "fechaNacimiento": 1, "alturaCm": 1, "pieHabil": 1,
-                "partidosInternacionales": 1, "golesInternacionales": 1, "estadoPlantel": 1}
+                "estadoPlantel": 1}
 
 
 def _fechas_iso(doc: dict) -> dict:

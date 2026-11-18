@@ -14,7 +14,7 @@ El ambiente utiliza un servicio `mongodb`, basado en MongoDB Community Server 8.
 
 La matriz del Hito 2 asignó **equipos y jugadores** al modelo documental/MongoDB con 4,35/5. Los criterios decisivos fueron consultas de perfiles como unidad, predominio de lectura, flexibilidad de atributos deportivos y escalabilidad. Este hito materializa esa selección mediante documentos validados, consultas por identificador y atributos de negocio, índices secundarios y una carga de 64 equipos y 1.536 jugadores.
 
-MongoDB no se utiliza para recorridos deportivos complejos. En este módulo se modela la pertenencia inmediata equipo-jugador; las relaciones partido-jugador-equipo y los eventos permanecen fuera de su responsabilidad.
+MongoDB no se utiliza para recorridos deportivos complejos. En este módulo se modela la pertenencia inmediata equipo-jugador. Las relaciones partido-jugador-equipo y los eventos permanecen fuera de su responsabilidad.
 
 ## Relación con el Hito 3
 
@@ -72,12 +72,11 @@ Campos críticos: `_id`, `equipoId`, `codigo`, `nombre`, `confederacion`, `regio
 
 ### `jugadores`
 
-Campos críticos: `_id`, `jugadorId`, `equipoId`, nombre, apellido, fecha de nacimiento, nacionalidad, posición, camiseta, pie hábil, altura, partidos, goles, estado del plantel, procedencia sintética y fechas de control.
+Campos críticos: `_id`, `jugadorId`, `equipoId`, nombre, apellido, fecha de nacimiento, nacionalidad, posición, camiseta, pie hábil, altura y estado del plantel, procedencia sintética y fechas de control.
 
 - `posicion`: arquero, defensor, mediocampista o delantero.
 - camiseta: entero entre 1 y 99.
 - altura: entero entre 150 y 220 cm.
-- Los partidos deben expresarse con un número entero entre 0 y 300, y los goles con un número entero entre 0 y 250.
 - `estadoPlantel`: convocado, reserva, lesionado o suspendido.
 
 Las pruebas negativas insertan documentos con campos ausentes/ranking fuera de rango y posición inválida. MongoDB los rechazó con código 121 y no quedaron residuos.
@@ -101,11 +100,11 @@ La primera ejecución registrada produjo 64 y 1.536 `upserted`. La segunda encon
 
 MongoDB garantiza atomicidad a nivel de documento para las actualizaciones usadas. La relación entre colecciones no tiene una restricción de clave foránea nativa. Para compensarlo:
 
-1. El alta de jugador de demostración comprueba que el equipo exista;
-2. La carga crea equipos antes de jugadores;
-3. Los índices únicos evitan identificadores y camisetas duplicadas;
-4. `07_verify_integrity.js` cruza las colecciones con `$lookup` y exige cero huérfanos;
-5. El mismo verificador exige 24 jugadores por equipo y campos críticos presentes;
+1. El alta de jugador de demostración comprueba que el equipo exista.
+2. La carga crea equipos antes de jugadores.
+3. Los índices únicos evitan identificadores y camisetas duplicadas.
+4. `07_verify_integrity.js` cruza las colecciones con `$lookup` y exige cero huérfanos.
+5. El mismo verificador exige 24 jugadores por equipo y campos críticos presentes.
 6. Al borrar datos temporales se elimina primero el jugador y luego el equipo.
 
 El standalone local no permite demostrar confirmaciones entre réplicas. La persistencia que sí corresponde al hito se verifica reiniciando el contenedor sin quitar el volumen y repitiendo todos los controles.
@@ -114,13 +113,13 @@ El standalone local no permite demostrar confirmaciones entre réplicas. La pers
 
 | Índice | Consulta asociada y orden | Beneficio esperado | Costo aceptado |
 |---|---|---|---|
-| `uq_equipos_equipoId {equipoId: 1}` | Q01 y referencias `$lookup`; igualdad por ID. | Unicidad y acceso directo. | Una clave por equipo y validación en escritura. |
+| `uq_equipos_equipoId {equipoId: 1}` | Q01 y referencias `$lookup`. Igualdad por ID. | Unicidad y acceso directo. | Una clave por equipo y validación en escritura. |
 | `uq_equipos_codigo {codigo: 1}` | Identificación abreviada y control de duplicados. | Código inequívoco. | Una clave por equipo. |
 | `idx_equipos_confederacion_ranking {confederacion: 1, rankingReferencia: 1, equipoId: 1}` | Q03/Q09: igualdad, luego rango/orden, finalmente desempate. | Evita ordenar fuera del índice y estabiliza páginas. | Espacio y actualización ante cambios de ranking. |
 | `uq_jugadores_jugadorId {jugadorId: 1}` | Q02 y CRUD por ID. | Unicidad y acceso directo. | Una clave por jugador. |
 | `uq_jugadores_equipo_camiseta {equipoId: 1, numeroCamiseta: 1}` | Integridad del plantel. | Impide duplicar camisetas dentro de un equipo. | Control adicional en altas/cambios. |
-| `idx_jugadores_equipo_nombre {equipoId: 1, apellido: 1, nombre: 1, jugadorId: 1}` | Q06/Q07 y `$lookup`: equipo por igualdad y orden estable del plantel. | Filtra, ordena y pagina sin scan global. | Índice compuesto más ancho; afecta cambios de equipo/nombre. |
-| `idx_jugadores_posicion_partidos {posicion: 1, partidosInternacionales: -1, jugadorId: 1}` | Q04: igualdad, rango/orden descendente y desempate. | Top de jugadores por posición sin ordenamiento global. | Se actualiza al cambiar partidos. |
+| `idx_jugadores_equipo_nombre {equipoId: 1, apellido: 1, nombre: 1, jugadorId: 1}` | Q06/Q07 y `$lookup`: equipo por igualdad y orden estable del plantel. | Filtra, ordena y pagina sin scan global. | Índice compuesto más ancho. Afecta cambios de equipo/nombre. |
+| `idx_jugadores_posicion_altura {posicion: 1, alturaCm: -1, jugadorId: 1}` | Q04: igualdad, rango/orden descendente y desempate. | Jugadores ordenados por altura y posición sin ordenamiento global. | Se actualiza al corregir la altura. |
 | `idx_jugadores_nacionalidad_altura {nacionalidadCodigo: 1, alturaCm: -1, jugadorId: 1}` | P01: igualdad, rango/orden y desempate. | Reduce documentos examinados y elimina `COLLSCAN`. | Es un índice no esencial compuesto por tres campos que incrementa el costo de las escrituras. Puede eliminarse si la consulta P01 no se ejecuta con frecuencia. |
 
 No se creó índice para `esDatoSintetico`: todos los documentos canónicos comparten ese valor, por lo que es poco selectivo.
@@ -129,9 +128,9 @@ No se creó índice para `esDatoSintetico`: todos los documentos canónicos comp
 
 P01 devolvió 15 documentos antes y después:
 
-- antes: etapa raíz `SORT`; plan con `COLLSCAN`; 1.536 documentos y 0 claves examinados;
-- después: etapa raíz `PROJECTION_SIMPLE`; plan con `FETCH` e `IXSCAN`; 15 documentos y 15 claves examinados;
-- reducción: 1.521 documentos examinados;
+- antes: etapa raíz `SORT`. Plan con `COLLSCAN`. 1.536 documentos y 0 claves examinados.
+- después: etapa raíz `PROJECTION_SIMPLE`. Plan con `FETCH` e `IXSCAN`. 15 documentos y 15 claves examinados.
+- reducción: 1.521 documentos examinados.
 - tiempo informado: 0 ms en ambos casos.
 
 No se atribuye una mejora de tiempo porque MongoDB redondeó ambas ejecuciones a 0 ms. La mejora demostrada es de trabajo examinado y plan de acceso.
@@ -141,9 +140,9 @@ No se atribuye una mejora de tiempo porque MongoDB redondeó ambas ejecuciones a
 | Decisión | Alternativas consideradas | Elección | Justificación | Impacto esperado |
 |---|---|---|---|---|
 | Relación equipo-jugador | Embedding, referencias, híbrida. | Referencia `jugadores.equipoId`. | Actualización independiente, consulta global, orden y paginación de 1.536 jugadores. | Mantiene documentos de tamaño acotado y exige verificar explícitamente que no existan jugadores huérfanos. |
-| Validación documental | Sin esquema, validación parcial, `$jsonSchema` estricto. | `$jsonSchema` estricto y rechazo de errores. | Evita tipos inválidos, campos críticos ausentes y valores fuera de dominio. | Datos más confiables; cambios de esquema deben planificarse. |
-| Estrategia de identificadores | Sólo ObjectId, IDs de negocio, ambos. | `_id` técnico determinista más IDs de negocio únicos. | Estabilidad entre recargas e integración legible. | Upserts idempotentes y búsquedas inequívocas; leve redundancia. |
-| Índices principales | Sólo `_id`, índices simples, índices compuestos por patrón. | Únicos de identidad más compuestos Q03/Q04/Q06/Q07/P01. | Igualdad primero, rango/orden después y desempate final. | Menos scans/sorts; mayor almacenamiento y costo de escritura. |
+| Validación documental | Sin esquema, validación parcial, `$jsonSchema` estricto. | `$jsonSchema` estricto y rechazo de errores. | Evita tipos inválidos, campos críticos ausentes y valores fuera de dominio. | Datos más confiables. Cambios de esquema deben planificarse. |
+| Estrategia de identificadores | Sólo ObjectId, IDs de negocio, ambos. | `_id` técnico determinista más IDs de negocio únicos. | Estabilidad entre recargas e integración legible. | Upserts idempotentes y búsquedas inequívocas. Leve redundancia. |
+| Índices principales | Sólo `_id`, índices simples, índices compuestos por patrón. | Únicos de identidad más compuestos Q03/Q04/Q06/Q07/P01. | Igualdad primero, rango/orden después y desempate final. | Menos scans/sorts. Mayor almacenamiento y costo de escritura. |
 | Carga y actualización | `insertMany` ciego, init de una sola vez, `upsert` manual repetible. | Reemplazos deterministas con `upsert`. | Puede ejecutarse con volumen nuevo o existente sin duplicar. | La recarga restaura el conjunto de datos canónico y reemplaza los cambios manuales realizados sobre sus identificadores. |
 
 ## Trade-offs
@@ -165,11 +164,11 @@ No se atribuye una mejora de tiempo porque MongoDB redondeó ambas ejecuciones a
 
 ## Matriz de trazabilidad
 
-Los comandos se ejecutan desde `Hito 4/`. `MONGO` abrevia `docker compose exec -T mongodb mongosh --quiet --username admin --password password123 --authenticationDatabase admin fixture2030 --file`.
+Los comandos se ejecutan desde `Hito 4/`. `MONGO` representa la invocación autenticada de `mongosh` indicada en el [README](../README.md), que toma las credenciales del entorno del contenedor. Sustituir únicamente la ruta del archivo para cada operación.
 
 | Requisito | Archivo que lo implementa | Comando que lo verifica | Evidencia generada | Estado |
 |---|---|---|---|---|
-| RF1 | `docker-compose.yml` | `docker compose config` y `docker compose up -d` | `01_docker_compose_config.txt`, `02_inicio_y_estado_contenedor.txt` | Cumplido |
+| RF1 | `docker-compose.yml` | `docker compose config --quiet` y `docker compose up -d` | `01_docker_compose_config.txt`, `02_inicio_y_estado_contenedor.txt` | Cumplido |
 | RF2 | `docker-compose.yml` (volumen `mongodb_data`) | `docker compose restart mongodb` + verificador | `13_persistencia_despues_reinicio.txt` | Cumplido |
 | RF3 | `scripts/init/01_collections.js` | `MONGO /workspace/scripts/init/01_collections.js` | `04_inicializacion_e_indices.txt` | Cumplido |
 | RF4 | `scripts/data/02_seed.js` | `MONGO /workspace/scripts/data/02_seed.js` | `05_carga_inicial.txt` | Cumplido: 64 |
@@ -194,7 +193,7 @@ Los comandos se ejecutan desde `Hito 4/`. `MONGO` abrevia `docker compose exec -
 | RNF5 | Este documento | Revisión de trazabilidad con los Hitos 2 y 3 | Documento versionado | Cumplido |
 | RNF6 | Separación `init/validations/data/indexes/operations/queries/performance/verification/docs/evidencias` | `tree`/listado del directorio | Árbol en `README.md` | Cumplido |
 | RNF7 | Compose, volumen nombrado y scripts `mongosh` en contenedor | `docker compose config` | `01_docker_compose_config.txt` | Cumplido dentro de hosts compatibles con Docker |
-| RNF8 | Generador determinista y ejecución automatizada | Generador integral de evidencias | `00_resumen_ejecucion.txt` | Cumplido por automatización; no requiere carga manual |
+| RNF8 | Generador determinista y ejecución automatizada | Generador integral de evidencias | `00_resumen_ejecucion.txt` | Cumplido por automatización. No requiere carga manual |
 
 ## Resultados de verificación
 

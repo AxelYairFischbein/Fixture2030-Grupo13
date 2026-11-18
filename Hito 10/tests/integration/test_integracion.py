@@ -55,9 +55,12 @@ def test_mongodb_y_redis_cache_aside_e_invalidacion(app_real):
 
 
 def test_mongodb_plantel_filtrado_y_equipo_inexistente(app_real):
-    cliente, _ = app_real
+    cliente, srv = app_real
     r = cliente.get(f"{API}/equipos/EQ-001/jugadores", params={"posicion": "ARQUERO"})
     assert r.status_code == 200 and [j["numeroCamiseta"] for j in r.json()["data"]] == [1, 2, 3]
+    for jugador in r.json()["data"]:
+        assert "partidosInternacionales" not in jugador and "golesInternacionales" not in jugador
+        assert jugador["estadoPlantel"] == "CONVOCADO"
     assert cliente.get(f"{API}/equipos/EQ-999/jugadores").status_code == 404
 
 
@@ -176,7 +179,7 @@ def test_influx_ventana_reciente_y_limites(app_real):
     assert r.status_code == 200 and fuentes(r) == {"influxdb"}
     datos = r.json()["data"]
     if not datos["puntos"]:
-        pytest.skip("Sin puntos retenidos: ejecutar scripts/cargar_muestra_influx.py")
+        pytest.skip("Consulta disponible sin puntos recientes por retención. La agregación requiere una muestra acotada separada.")
     assert {p["equipoId"] for p in datos["puntos"]} == {"EQ-001", "EQ-002"}
     solo = cliente.get(f"{API}/partidos/PAR-001/estadisticas",
                        params={"equipoId": "EQ-002", "desde": datos["desde"], "hasta": datos["hasta"]})

@@ -37,7 +37,8 @@ mongo_eval() {
     sh "$expression"
 }
 
-docker compose config >"$evidence_dir/01_docker_compose_config.txt" 2>&1
+docker compose config --quiet >"$evidence_dir/01_docker_compose_config.txt" 2>&1
+printf 'Configuracion Compose valida\n' >>"$evidence_dir/01_docker_compose_config.txt"
 
 {
   docker version --format 'Client={{.Client.Version}} Server={{.Server.Version}}'

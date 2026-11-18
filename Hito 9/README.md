@@ -4,7 +4,7 @@
 
 El módulo representa personas y un partido con eventos dependientes. Utiliza objetos persistentes, herencia, una relación bidireccional y una operación de dominio que controla las transiciones de estado. La proyección SQL permite consultar los mismos objetos desde tablas.
 
-El alcance comprende cinco clases de dominio, una demostración pequeña y un único servicio IRIS. No hay conexiones ejecutables con otros hitos. Se reutilizan `PAR-001`, `EST-01` y `JUG-0001`, con los atributos sintéticos del jugador del proyecto. `ARB-001` y su licencia son datos sintéticos de esta muestra.
+El alcance comprende cinco clases de dominio, una demostración pequeña y un único servicio IRIS. El adaptador de la API del Hito 10 consulta estas clases y llama a su método de transición. Se reutilizan `PAR-001`, `EST-01` y `JUG-0001`, con los atributos sintéticos del jugador del proyecto. `ARB-001` y su licencia son datos sintéticos de esta muestra.
 
 ## Preparación en Windows
 
@@ -231,3 +231,11 @@ La muestra principal queda en `PENDIENTE`. Las transiciones y el borrado se prue
 | [Captura de integridad](evidencia/02_integridad.png) | Objetos y SQL, validaciones, atomicidad, transiciones y borrado |
 
 RF1 y RNF1 corresponden al entorno. RF2–RF5 y RNF3 corresponden a las cinco clases. RF6–RF8 y RNF2 se verifican con compilación y demostración. RF9 corresponde a `CambiarEstado()`. RNF4 queda representado por los archivos `.cls`, el diagrama y las instrucciones del Terminal. RNF5 corresponde al repositorio del equipo enlazado al comienzo y a esta estructura navegable.
+
+## Recorrido breve y dependencias actuales
+
+Para la exposición alcanza con abrir el partido, navegar un hijo y mostrar el mismo registro por SQL. `FixtureH9.Demo.Verificar()` conserva una comprobación más extensa, útil como respaldo. La carga completa y las pruebas auxiliares no forman parte del recorrido en vivo.
+
+`VALUELIST` limita estados y tipos, y los rangos evitan valores fuera del dominio. Se conservan como validaciones declarativas pequeñas. El índice único `PorCodigo` genera `PorCodigoOpen` y `PorCodigoExists`, que utiliza la API. Retirarlo rompería la lectura de actas y la validación de existencia. `PorPartido` permite recuperar los hijos. Los helpers de la demo comprueban `%Status` y no pertenecen al contrato HTTP.
+
+La transición debe hacerse con `CambiarEstado()` para aplicar la regla encapsulada. Una escritura externa que modifique directamente la propiedad no queda cubierta por esa regla de transición. La muestra `PAR-001` es independiente del grafo y permanece PENDIENTE. Las pruebas actuales usan un acta temporal y la eliminan al terminar.

@@ -83,12 +83,6 @@ for (const team of teams) {
   for (let squadNumber = 1; squadNumber <= PLAYERS_PER_TEAM; squadNumber += 1) {
     const jugadorId = `JUG-${pad(globalPlayerNumber, 4)}`;
     const posicion = positions[squadNumber - 1];
-    const internationalMatches = (globalPlayerNumber * 7) % 181;
-    const goalFactor = posicion === "DELANTERO" ? 3 : posicion === "MEDIOCAMPISTA" ? 5 : 11;
-    const internationalGoals = Math.min(
-      internationalMatches,
-      (globalPlayerNumber * 3) % (Math.floor(internationalMatches / goalFactor) + 1)
-    );
     const year = 1992 + ((globalPlayerNumber - 1) % 15);
     const month = (globalPlayerNumber - 1) % 12;
     const day = ((globalPlayerNumber * 5) % 28) + 1;
@@ -105,8 +99,6 @@ for (const team of teams) {
       numeroCamiseta: squadNumber,
       pieHabil: feet[(globalPlayerNumber - 1) % feet.length],
       alturaCm: heightBase[posicion] + ((globalPlayerNumber * 3) % 13),
-      partidosInternacionales: internationalMatches,
-      golesInternacionales: internationalGoals,
       estadoPlantel: "CONVOCADO",
       esDatoSintetico: true,
       origen: ORIGIN,
