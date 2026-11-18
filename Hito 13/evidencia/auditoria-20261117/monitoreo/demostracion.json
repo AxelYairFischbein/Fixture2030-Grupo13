@@ -1,0 +1,4107 @@
+{
+  "inicio": "2026-11-17T18:05:31.301151-03:00",
+  "completa": true,
+  "falla_solicitada": true,
+  "carga": {
+    "clientes": 2,
+    "pausa_por_cliente_s": 0.5,
+    "timeout_s": 15
+  },
+  "fases": {
+    "antes": {
+      "inicio": "2026-11-17T18:05:33.515606-03:00",
+      "minimo_s": 120,
+      "plazo_s": 180,
+      "duracion_programada_s": 120,
+      "estados_http": {
+        "200": 351,
+        "404": 116
+      },
+      "cache": {
+        "HIT": 117
+      },
+      "inesperados": [],
+      "ejemplos": {
+        "/equipos?tamanio=5": {
+          "status": 200,
+          "cache": null
+        },
+        "/equipos/EQ-001": {
+          "status": 200,
+          "cache": "HIT"
+        },
+        "/sesiones/{sesionId}": {
+          "status": 200,
+          "cache": null
+        },
+        "/equipos/EQ-999": {
+          "status": 404,
+          "cache": null
+        }
+      },
+      "evaluaciones": [
+        {
+          "fecha": "2026-11-17T18:07:34.164767-03:00",
+          "motivo": "Condiciones verificadas"
+        }
+      ],
+      "errores_deliberados": [
+        404
+      ],
+      "fin": "2026-11-17T18:07:34.000876-03:00",
+      "observacion": {
+        "fecha": "2026-11-17T18:07:34.027342-03:00",
+        "salud": {
+          "status": 200,
+          "cache": null,
+          "body": {
+            "data": [
+              {
+                "fuente": "mongodb",
+                "estado": "ok",
+                "ms": 1.42
+              },
+              {
+                "fuente": "neo4j",
+                "estado": "ok",
+                "ms": 5.43
+              },
+              {
+                "fuente": "cassandra",
+                "estado": "ok",
+                "ms": 3.86
+              },
+              {
+                "fuente": "redis",
+                "estado": "ok",
+                "ms": 0.91
+              },
+              {
+                "fuente": "influxdb",
+                "estado": "ok",
+                "ms": 3.85
+              },
+              {
+                "fuente": "iris",
+                "estado": "ok",
+                "ms": 1.14
+              }
+            ],
+            "meta": {
+              "requestId": "31d7484a379248eb9ae01e28fb89e74c",
+              "fuentes": [
+                {
+                  "fuente": "mongodb",
+                  "operacion": "ping",
+                  "resultado": "ok",
+                  "ms": 1.42
+                },
+                {
+                  "fuente": "neo4j",
+                  "operacion": "ping",
+                  "resultado": "ok",
+                  "ms": 5.43
+                },
+                {
+                  "fuente": "cassandra",
+                  "operacion": "ping",
+                  "resultado": "ok",
+                  "ms": 3.86
+                },
+                {
+                  "fuente": "redis",
+                  "operacion": "ping",
+                  "resultado": "ok",
+                  "ms": 0.91
+                },
+                {
+                  "fuente": "influxdb",
+                  "operacion": "ping",
+                  "resultado": "ok",
+                  "ms": 3.85
+                },
+                {
+                  "fuente": "iris",
+                  "operacion": "ping",
+                  "resultado": "ok",
+                  "ms": 1.14
+                }
+              ],
+              "paginacion": null,
+              "cache": null
+            }
+          }
+        },
+        "targets": [
+          {
+            "labels": {
+              "component": "api",
+              "instance": "host.docker.internal:8000",
+              "job": "fixture-api"
+            },
+            "health": "up",
+            "lastError": "",
+            "lastScrape": "2026-11-17T21:07:25.310802993Z",
+            "scrapeUrl": "http://host.docker.internal:8000/metrics"
+          },
+          {
+            "labels": {
+              "component": "mongodb",
+              "instance": "mongodb-exporter:9216",
+              "job": "mongodb"
+            },
+            "health": "up",
+            "lastError": "",
+            "lastScrape": "2026-11-17T21:07:33.264019467Z",
+            "scrapeUrl": "http://mongodb-exporter:9216/metrics"
+          },
+          {
+            "labels": {
+              "component": "prometheus",
+              "instance": "localhost:9090",
+              "job": "prometheus"
+            },
+            "health": "up",
+            "lastError": "",
+            "lastScrape": "2026-11-17T21:07:33.499195923Z",
+            "scrapeUrl": "http://localhost:9090/metrics"
+          },
+          {
+            "labels": {
+              "component": "redis",
+              "instance": "redis-exporter:9121",
+              "job": "redis"
+            },
+            "health": "up",
+            "lastError": "",
+            "lastScrape": "2026-11-17T21:07:28.142908173Z",
+            "scrapeUrl": "http://redis-exporter:9121/metrics"
+          }
+        ],
+        "alertas": [],
+        "consultas": [
+          {
+            "panel": 1,
+            "titulo": "Endpoints de métricas · 1 accesible / 0 inaccesible",
+            "expr": "up{job=~\"fixture-api|mongodb|redis\"}",
+            "leyenda": "{{component}} · scrape",
+            "resultado": {
+              "resultType": "vector",
+              "result": [
+                {
+                  "metric": {
+                    "__name__": "up",
+                    "component": "api",
+                    "instance": "host.docker.internal:8000",
+                    "job": "fixture-api"
+                  },
+                  "value": [
+                    1794949654.099,
+                    "1"
+                  ]
+                },
+                {
+                  "metric": {
+                    "__name__": "up",
+                    "component": "redis",
+                    "instance": "redis-exporter:9121",
+                    "job": "redis"
+                  },
+                  "value": [
+                    1794949654.099,
+                    "1"
+                  ]
+                },
+                {
+                  "metric": {
+                    "__name__": "up",
+                    "component": "mongodb",
+                    "instance": "mongodb-exporter:9216",
+                    "job": "mongodb"
+                  },
+                  "value": [
+                    1794949654.099,
+                    "1"
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "panel": 2,
+            "titulo": "Bases observadas · 1 responde / 0 falla",
+            "expr": "mongodb_up{job=\"mongodb\"}",
+            "leyenda": "MongoDB",
+            "resultado": {
+              "resultType": "vector",
+              "result": [
+                {
+                  "metric": {
+                    "__name__": "mongodb_up",
+                    "cluster_role": "mongod",
+                    "component": "mongodb",
+                    "instance": "mongodb-exporter:9216",
+                    "job": "mongodb"
+                  },
+                  "value": [
+                    1794949654.101,
+                    "1"
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "panel": 2,
+            "titulo": "Bases observadas · 1 responde / 0 falla",
+            "expr": "redis_up{job=\"redis\"}",
+            "leyenda": "Redis",
+            "resultado": {
+              "resultType": "vector",
+              "result": [
+                {
+                  "metric": {
+                    "__name__": "redis_up",
+                    "component": "redis",
+                    "instance": "redis-exporter:9121",
+                    "job": "redis"
+                  },
+                  "value": [
+                    1794949654.117,
+                    "1"
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "panel": 3,
+            "titulo": "Latencia de negocio · P95 y media · ventana 2 min",
+            "expr": "histogram_quantile(0.95, sum by (le) (rate(fixture_http_request_duration_seconds_bucket{job=\"fixture-api\",traffic=\"negocio\"}[2m])))",
+            "leyenda": "P95 estimado",
+            "resultado": {
+              "resultType": "vector",
+              "result": [
+                {
+                  "metric": {},
+                  "value": [
+                    1794949654.133,
+                    "0.008336363636363635"
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "panel": 3,
+            "titulo": "Latencia de negocio · P95 y media · ventana 2 min",
+            "expr": "sum(rate(fixture_http_request_duration_seconds_sum{job=\"fixture-api\",traffic=\"negocio\"}[2m])) / sum(rate(fixture_http_request_duration_seconds_count{job=\"fixture-api\",traffic=\"negocio\"}[2m]))",
+            "leyenda": "Media",
+            "resultado": {
+              "resultType": "vector",
+              "result": [
+                {
+                  "metric": {},
+                  "value": [
+                    1794949654.135,
+                    "0.003705990859603741"
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "panel": 4,
+            "titulo": "Requests de negocio por segundo · ventana 2 min",
+            "expr": "sum by (route) (rate(fixture_http_requests_total{job=\"fixture-api\",traffic=\"negocio\"}[2m]))",
+            "leyenda": "{{route}}",
+            "resultado": {
+              "resultType": "vector",
+              "result": [
+                {
+                  "metric": {
+                    "route": "/api/v1/partidos/{partidoId}/estadisticas"
+                  },
+                  "value": [
+                    1794949654.148,
+                    "0"
+                  ]
+                },
+                {
+                  "metric": {
+                    "route": "/api/v1/equipos"
+                  },
+                  "value": [
+                    1794949654.148,
+                    "0.971465579641129"
+                  ]
+                },
+                {
+                  "metric": {
+                    "route": "/api/v1/equipos/{equipoId}/jugadores"
+                  },
+                  "value": [
+                    1794949654.148,
+                    "0"
+                  ]
+                },
+                {
+                  "metric": {
+                    "route": "/api/v1/partidos/{partidoId}"
+                  },
+                  "value": [
+                    1794949654.148,
+                    "0"
+                  ]
+                },
+                {
+                  "metric": {
+                    "route": "/api/v1/partidos/{partidoId}/comentarios"
+                  },
+                  "value": [
+                    1794949654.148,
+                    "0"
+                  ]
+                },
+                {
+                  "metric": {
+                    "route": "/api/v1/sesiones/{sesionId}"
+                  },
+                  "value": [
+                    1794949654.148,
+                    "0.971465579641129"
+                  ]
+                },
+                {
+                  "metric": {
+                    "route": "/api/v1/actas/{codigo}"
+                  },
+                  "value": [
+                    1794949654.148,
+                    "0"
+                  ]
+                },
+                {
+                  "metric": {
+                    "route": "/api/v1/equipos/{equipoId}"
+                  },
+                  "value": [
+                    1794949654.148,
+                    "1.9238828145834124"
+                  ]
+                },
+                {
+                  "metric": {
+                    "route": "/api/v1/sesiones"
+                  },
+                  "value": [
+                    1794949654.148,
+                    "0"
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "panel": 5,
+            "titulo": "Respuestas 4xx y 5xx por segundo · ventana 2 min",
+            "expr": "sum(rate(fixture_http_requests_total{job=\"fixture-api\",traffic=\"negocio\",status=~\"4..\"}[2m])) or (0 * sum(rate(fixture_http_requests_total{job=\"fixture-api\",traffic=\"negocio\"}[2m])))",
+            "leyenda": "4xx",
+            "resultado": {
+              "resultType": "vector",
+              "result": [
+                {
+                  "metric": {},
+                  "value": [
+                    1794949654.15,
+                    "0.9714655796411293"
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "panel": 5,
+            "titulo": "Respuestas 4xx y 5xx por segundo · ventana 2 min",
+            "expr": "sum(rate(fixture_http_requests_total{job=\"fixture-api\",traffic=\"negocio\",status=~\"5..\"}[2m])) or (0 * sum(rate(fixture_http_requests_total{job=\"fixture-api\",traffic=\"negocio\"}[2m])))",
+            "leyenda": "5xx",
+            "resultado": {
+              "resultType": "vector",
+              "result": [
+                {
+                  "metric": {},
+                  "value": [
+                    1794949654.151,
+                    "0"
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "panel": 6,
+            "titulo": "Conexiones actuales · MongoDB y Redis",
+            "expr": "mongodb_ss_connections{job=\"mongodb\",conn_type=\"current\"}",
+            "leyenda": "MongoDB · conexiones",
+            "resultado": {
+              "resultType": "vector",
+              "result": [
+                {
+                  "metric": {
+                    "__name__": "mongodb_ss_connections",
+                    "component": "mongodb",
+                    "conn_type": "current",
+                    "instance": "mongodb-exporter:9216",
+                    "job": "mongodb"
+                  },
+                  "value": [
+                    1794949654.163,
+                    "7"
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "panel": 6,
+            "titulo": "Conexiones actuales · MongoDB y Redis",
+            "expr": "redis_connected_clients{job=\"redis\"}",
+            "leyenda": "Redis · clientes",
+            "resultado": {
+              "resultType": "vector",
+              "result": [
+                {
+                  "metric": {
+                    "__name__": "redis_connected_clients",
+                    "component": "redis",
+                    "instance": "redis-exporter:9121",
+                    "job": "redis"
+                  },
+                  "value": [
+                    1794949654.164,
+                    "3"
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "comprobaciones": "OK: targets, exporters, salud, actividad, errores, caché, sesión y alertas"
+    },
+    "durante": {
+      "inicio": "2026-11-17T18:07:34.537428-03:00",
+      "minimo_s": 105,
+      "plazo_s": 240,
+      "duracion_programada_s": 105,
+      "estados_http": {
+        "200": 206,
+        "503": 102,
+        "404": 102
+      },
+      "cache": {
+        "BYPASS": 102
+      },
+      "inesperados": [],
+      "ejemplos": {
+        "/equipos?tamanio=5": {
+          "status": 200,
+          "cache": null
+        },
+        "/equipos/EQ-001": {
+          "status": 200,
+          "cache": "BYPASS"
+        },
+        "/sesiones/{sesionId}": {
+          "status": 503,
+          "cache": null
+        },
+        "/equipos/EQ-999": {
+          "status": 404,
+          "cache": null
+        }
+      },
+      "evaluaciones": [
+        {
+          "fecha": "2026-11-17T18:09:20.097530-03:00",
+          "motivo": "Condiciones verificadas"
+        }
+      ],
+      "errores_deliberados": [
+        404,
+        503
+      ],
+      "fin": "2026-11-17T18:09:19.995739-03:00",
+      "observacion": {
+        "fecha": "2026-11-17T18:09:20.020250-03:00",
+        "salud": {
+          "status": 503,
+          "cache": null,
+          "body": {
+            "error": {
+              "codigo": "DEPENDENCIA_NO_DISPONIBLE",
+              "mensaje": "Una o más fuentes no están disponibles.",
+              "requestId": "6c3f49aedf0d41eab6a509f2ff8eebfc",
+              "detalles": [
+                {
+                  "fuente": "mongodb",
+                  "estado": "ok",
+                  "ms": 1.1
+                },
+                {
+                  "fuente": "neo4j",
+                  "estado": "ok",
+                  "ms": 4.42
+                },
+                {
+                  "fuente": "cassandra",
+                  "estado": "ok",
+                  "ms": 3.79
+                },
+                {
+                  "fuente": "redis",
+                  "estado": "no_disponible",
+                  "ms": 1.09
+                },
+                {
+                  "fuente": "influxdb",
+                  "estado": "ok",
+                  "ms": 3.82
+                },
+                {
+                  "fuente": "iris",
+                  "estado": "ok",
+                  "ms": 0.96
+                }
+              ]
+            }
+          }
+        },
+        "targets": [
+          {
+            "labels": {
+              "component": "api",
+              "instance": "host.docker.internal:8000",
+              "job": "fixture-api"
+            },
+            "health": "up",
+            "lastError": "",
+            "lastScrape": "2026-11-17T21:09:10.303507839Z",
+            "scrapeUrl": "http://host.docker.internal:8000/metrics"
+          },
+          {
+            "labels": {
+              "component": "mongodb",
+              "instance": "mongodb-exporter:9216",
+              "job": "mongodb"
+            },
+            "health": "up",
+            "lastError": "",
+            "lastScrape": "2026-11-17T21:09:18.257496708Z",
+            "scrapeUrl": "http://mongodb-exporter:9216/metrics"
+          },
+          {
+            "labels": {
+              "component": "prometheus",
+              "instance": "localhost:9090",
+              "job": "prometheus"
+            },
+            "health": "up",
+            "lastError": "",
+            "lastScrape": "2026-11-17T21:09:18.49261269Z",
+            "scrapeUrl": "http://localhost:9090/metrics"
+          },
+          {
+            "labels": {
+              "component": "redis",
+              "instance": "redis-exporter:9121",
+              "job": "redis"
+            },
+            "health": "up",
+            "lastError": "",
+            "lastScrape": "2026-11-17T21:09:13.135858696Z",
+            "scrapeUrl": "http://redis-exporter:9121/metrics"
+          }
+        ],
+        "alertas": [
+          {
+            "labels": {
+              "alertname": "FuenteNoDisponible",
+              "component": "redis",
+              "instance": "redis-exporter:9121",
+              "job": "redis",
+              "responsable": "operacion-grupo13",
+              "severity": "critical"
+            },
+            "annotations": {
+              "description": "Revisar target, exporter, contenedor y consulta funcional. Recuperar el servicio conservando sus datos.",
+              "summary": "Fuente o medición no disponible: redis"
+            },
+            "state": "firing",
+            "activeAt": "2026-11-17T21:07:48.917447976Z",
+            "value": "0e+00"
+          },
+          {
+            "labels": {
+              "alertname": "ErroresAPIAltos",
+              "responsable": "api-grupo13",
+              "severity": "warning"
+            },
+            "annotations": {
+              "description": "Revisar rutas, salud y logs por requestId. Recuperar la dependencia afectada y repetir el recorrido.",
+              "summary": "Más de 5 % de respuestas 5xx con al menos 20 requests en 2 minutos"
+            },
+            "state": "firing",
+            "activeAt": "2026-11-17T21:08:03.917447976Z",
+            "value": "1.87074225078284e-01"
+          }
+        ],
+        "consultas": [
+          {
+            "panel": 1,
+            "titulo": "Endpoints de métricas · 1 accesible / 0 inaccesible",
+            "expr": "up{job=~\"fixture-api|mongodb|redis\"}",
+            "leyenda": "{{component}} · scrape",
+            "resultado": {
+              "resultType": "vector",
+              "result": [
+                {
+                  "metric": {
+                    "__name__": "up",
+                    "component": "api",
+                    "instance": "host.docker.internal:8000",
+                    "job": "fixture-api"
+                  },
+                  "value": [
+                    1794949760.051,
+                    "1"
+                  ]
+                },
+                {
+                  "metric": {
+                    "__name__": "up",
+                    "component": "redis",
+                    "instance": "redis-exporter:9121",
+                    "job": "redis"
+                  },
+                  "value": [
+                    1794949760.051,
+                    "1"
+                  ]
+                },
+                {
+                  "metric": {
+                    "__name__": "up",
+                    "component": "mongodb",
+                    "instance": "mongodb-exporter:9216",
+                    "job": "mongodb"
+                  },
+                  "value": [
+                    1794949760.051,
+                    "1"
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "panel": 2,
+            "titulo": "Bases observadas · 1 responde / 0 falla",
+            "expr": "mongodb_up{job=\"mongodb\"}",
+            "leyenda": "MongoDB",
+            "resultado": {
+              "resultType": "vector",
+              "result": [
+                {
+                  "metric": {
+                    "__name__": "mongodb_up",
+                    "cluster_role": "mongod",
+                    "component": "mongodb",
+                    "instance": "mongodb-exporter:9216",
+                    "job": "mongodb"
+                  },
+                  "value": [
+                    1794949760.065,
+                    "1"
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "panel": 2,
+            "titulo": "Bases observadas · 1 responde / 0 falla",
+            "expr": "redis_up{job=\"redis\"}",
+            "leyenda": "Redis",
+            "resultado": {
+              "resultType": "vector",
+              "result": [
+                {
+                  "metric": {
+                    "__name__": "redis_up",
+                    "component": "redis",
+                    "instance": "redis-exporter:9121",
+                    "job": "redis"
+                  },
+                  "value": [
+                    1794949760.067,
+                    "0"
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "panel": 3,
+            "titulo": "Latencia de negocio · P95 y media · ventana 2 min",
+            "expr": "histogram_quantile(0.95, sum by (le) (rate(fixture_http_request_duration_seconds_bucket{job=\"fixture-api\",traffic=\"negocio\"}[2m])))",
+            "leyenda": "P95 estimado",
+            "resultado": {
+              "resultType": "vector",
+              "result": [
+                {
+                  "metric": {},
+                  "value": [
+                    1794949760.069,
+                    "0.008586805555555552"
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "panel": 3,
+            "titulo": "Latencia de negocio · P95 y media · ventana 2 min",
+            "expr": "sum(rate(fixture_http_request_duration_seconds_sum{job=\"fixture-api\",traffic=\"negocio\"}[2m])) / sum(rate(fixture_http_request_duration_seconds_count{job=\"fixture-api\",traffic=\"negocio\"}[2m]))",
+            "leyenda": "Media",
+            "resultado": {
+              "resultType": "vector",
+              "result": [
+                {
+                  "metric": {},
+                  "value": [
+                    1794949760.07,
+                    "0.0041348081081081615"
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "panel": 4,
+            "titulo": "Requests de negocio por segundo · ventana 2 min",
+            "expr": "sum by (route) (rate(fixture_http_requests_total{job=\"fixture-api\",traffic=\"negocio\"}[2m]))",
+            "leyenda": "{{route}}",
+            "resultado": {
+              "resultType": "vector",
+              "result": [
+                {
+                  "metric": {
+                    "route": "/api/v1/partidos/{partidoId}/estadisticas"
+                  },
+                  "value": [
+                    1794949760.072,
+                    "0"
+                  ]
+                },
+                {
+                  "metric": {
+                    "route": "/api/v1/equipos"
+                  },
+                  "value": [
+                    1794949760.072,
+                    "0.9714933376510816"
+                  ]
+                },
+                {
+                  "metric": {
+                    "route": "/api/v1/equipos/{equipoId}/jugadores"
+                  },
+                  "value": [
+                    1794949760.072,
+                    "0"
+                  ]
+                },
+                {
+                  "metric": {
+                    "route": "/api/v1/partidos/{partidoId}"
+                  },
+                  "value": [
+                    1794949760.072,
+                    "0"
+                  ]
+                },
+                {
+                  "metric": {
+                    "route": "/api/v1/partidos/{partidoId}/comentarios"
+                  },
+                  "value": [
+                    1794949760.072,
+                    "0"
+                  ]
+                },
+                {
+                  "metric": {
+                    "route": "/api/v1/sesiones/{sesionId}"
+                  },
+                  "value": [
+                    1794949760.072,
+                    "0.9391334554578772"
+                  ]
+                },
+                {
+                  "metric": {
+                    "route": "/api/v1/actas/{codigo}"
+                  },
+                  "value": [
+                    1794949760.072,
+                    "0"
+                  ]
+                },
+                {
+                  "metric": {
+                    "route": "/api/v1/equipos/{equipoId}"
+                  },
+                  "value": [
+                    1794949760.072,
+                    "1.9334622308153877"
+                  ]
+                },
+                {
+                  "metric": {
+                    "route": "/api/v1/sesiones"
+                  },
+                  "value": [
+                    1794949760.072,
+                    "0"
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "panel": 5,
+            "titulo": "Respuestas 4xx y 5xx por segundo · ventana 2 min",
+            "expr": "sum(rate(fixture_http_requests_total{job=\"fixture-api\",traffic=\"negocio\",status=~\"4..\"}[2m])) or (0 * sum(rate(fixture_http_requests_total{job=\"fixture-api\",traffic=\"negocio\"}[2m])))",
+            "leyenda": "4xx",
+            "resultado": {
+              "resultType": "vector",
+              "result": [
+                {
+                  "metric": {},
+                  "value": [
+                    1794949760.073,
+                    "0.9524444486775308"
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "panel": 5,
+            "titulo": "Respuestas 4xx y 5xx por segundo · ventana 2 min",
+            "expr": "sum(rate(fixture_http_requests_total{job=\"fixture-api\",traffic=\"negocio\",status=~\"5..\"}[2m])) or (0 * sum(rate(fixture_http_requests_total{job=\"fixture-api\",traffic=\"negocio\"}[2m])))",
+            "leyenda": "5xx",
+            "resultado": {
+              "resultType": "vector",
+              "result": [
+                {
+                  "metric": {},
+                  "value": [
+                    1794949760.075,
+                    "0.8629623456378573"
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "panel": 6,
+            "titulo": "Conexiones actuales · MongoDB y Redis",
+            "expr": "mongodb_ss_connections{job=\"mongodb\",conn_type=\"current\"}",
+            "leyenda": "MongoDB · conexiones",
+            "resultado": {
+              "resultType": "vector",
+              "result": [
+                {
+                  "metric": {
+                    "__name__": "mongodb_ss_connections",
+                    "component": "mongodb",
+                    "conn_type": "current",
+                    "instance": "mongodb-exporter:9216",
+                    "job": "mongodb"
+                  },
+                  "value": [
+                    1794949760.077,
+                    "7"
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "panel": 6,
+            "titulo": "Conexiones actuales · MongoDB y Redis",
+            "expr": "redis_connected_clients{job=\"redis\"}",
+            "leyenda": "Redis · clientes",
+            "resultado": {
+              "resultType": "vector",
+              "result": []
+            }
+          }
+        ]
+      },
+      "comprobaciones": "OK: targets, exporters, salud, actividad, errores, caché, sesión y alertas"
+    },
+    "despues": {
+      "inicio": "2026-11-17T18:09:20.339936-03:00",
+      "minimo_s": 135,
+      "plazo_s": 240,
+      "duracion_programada_s": 135,
+      "estados_http": {
+        "200": 396,
+        "404": 130
+      },
+      "cache": {
+        "HIT": 131,
+        "MISS": 1
+      },
+      "inesperados": [],
+      "ejemplos": {
+        "/equipos?tamanio=5": {
+          "status": 200,
+          "cache": null
+        },
+        "/equipos/EQ-001": {
+          "status": 200,
+          "cache": "HIT"
+        },
+        "/sesiones/{sesionId}": {
+          "status": 200,
+          "cache": null
+        },
+        "/equipos/EQ-999": {
+          "status": 404,
+          "cache": null
+        }
+      },
+      "evaluaciones": [
+        {
+          "fecha": "2026-11-17T18:11:35.748257-03:00",
+          "motivo": "Condiciones verificadas"
+        }
+      ],
+      "errores_deliberados": [
+        404
+      ],
+      "fin": "2026-11-17T18:11:35.600727-03:00",
+      "observacion": {
+        "fecha": "2026-11-17T18:11:35.603647-03:00",
+        "salud": {
+          "status": 200,
+          "cache": null,
+          "body": {
+            "data": [
+              {
+                "fuente": "mongodb",
+                "estado": "ok",
+                "ms": 1.17
+              },
+              {
+                "fuente": "neo4j",
+                "estado": "ok",
+                "ms": 4.23
+              },
+              {
+                "fuente": "cassandra",
+                "estado": "ok",
+                "ms": 3.85
+              },
+              {
+                "fuente": "redis",
+                "estado": "ok",
+                "ms": 1.48
+              },
+              {
+                "fuente": "influxdb",
+                "estado": "ok",
+                "ms": 4.5
+              },
+              {
+                "fuente": "iris",
+                "estado": "ok",
+                "ms": 0.99
+              }
+            ],
+            "meta": {
+              "requestId": "c0a9f7c033144bb489e80f46bebcb5d7",
+              "fuentes": [
+                {
+                  "fuente": "mongodb",
+                  "operacion": "ping",
+                  "resultado": "ok",
+                  "ms": 1.17
+                },
+                {
+                  "fuente": "neo4j",
+                  "operacion": "ping",
+                  "resultado": "ok",
+                  "ms": 4.23
+                },
+                {
+                  "fuente": "cassandra",
+                  "operacion": "ping",
+                  "resultado": "ok",
+                  "ms": 3.85
+                },
+                {
+                  "fuente": "redis",
+                  "operacion": "ping",
+                  "resultado": "ok",
+                  "ms": 1.48
+                },
+                {
+                  "fuente": "influxdb",
+                  "operacion": "ping",
+                  "resultado": "ok",
+                  "ms": 4.5
+                },
+                {
+                  "fuente": "iris",
+                  "operacion": "ping",
+                  "resultado": "ok",
+                  "ms": 0.99
+                }
+              ],
+              "paginacion": null,
+              "cache": null
+            }
+          }
+        },
+        "targets": [
+          {
+            "labels": {
+              "component": "api",
+              "instance": "host.docker.internal:8000",
+              "job": "fixture-api"
+            },
+            "health": "up",
+            "lastError": "",
+            "lastScrape": "2026-11-17T21:11:25.296970793Z",
+            "scrapeUrl": "http://host.docker.internal:8000/metrics"
+          },
+          {
+            "labels": {
+              "component": "mongodb",
+              "instance": "mongodb-exporter:9216",
+              "job": "mongodb"
+            },
+            "health": "up",
+            "lastError": "",
+            "lastScrape": "2026-11-17T21:11:33.251207363Z",
+            "scrapeUrl": "http://mongodb-exporter:9216/metrics"
+          },
+          {
+            "labels": {
+              "component": "prometheus",
+              "instance": "localhost:9090",
+              "job": "prometheus"
+            },
+            "health": "up",
+            "lastError": "",
+            "lastScrape": "2026-11-17T21:11:33.485672829Z",
+            "scrapeUrl": "http://localhost:9090/metrics"
+          },
+          {
+            "labels": {
+              "component": "redis",
+              "instance": "redis-exporter:9121",
+              "job": "redis"
+            },
+            "health": "up",
+            "lastError": "",
+            "lastScrape": "2026-11-17T21:11:28.129545693Z",
+            "scrapeUrl": "http://redis-exporter:9121/metrics"
+          }
+        ],
+        "alertas": [],
+        "consultas": [
+          {
+            "panel": 1,
+            "titulo": "Endpoints de métricas · 1 accesible / 0 inaccesible",
+            "expr": "up{job=~\"fixture-api|mongodb|redis\"}",
+            "leyenda": "{{component}} · scrape",
+            "resultado": {
+              "resultType": "vector",
+              "result": [
+                {
+                  "metric": {
+                    "__name__": "up",
+                    "component": "api",
+                    "instance": "host.docker.internal:8000",
+                    "job": "fixture-api"
+                  },
+                  "value": [
+                    1794949895.643,
+                    "1"
+                  ]
+                },
+                {
+                  "metric": {
+                    "__name__": "up",
+                    "component": "redis",
+                    "instance": "redis-exporter:9121",
+                    "job": "redis"
+                  },
+                  "value": [
+                    1794949895.643,
+                    "1"
+                  ]
+                },
+                {
+                  "metric": {
+                    "__name__": "up",
+                    "component": "mongodb",
+                    "instance": "mongodb-exporter:9216",
+                    "job": "mongodb"
+                  },
+                  "value": [
+                    1794949895.643,
+                    "1"
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "panel": 2,
+            "titulo": "Bases observadas · 1 responde / 0 falla",
+            "expr": "mongodb_up{job=\"mongodb\"}",
+            "leyenda": "MongoDB",
+            "resultado": {
+              "resultType": "vector",
+              "result": [
+                {
+                  "metric": {
+                    "__name__": "mongodb_up",
+                    "cluster_role": "mongod",
+                    "component": "mongodb",
+                    "instance": "mongodb-exporter:9216",
+                    "job": "mongodb"
+                  },
+                  "value": [
+                    1794949895.665,
+                    "1"
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "panel": 2,
+            "titulo": "Bases observadas · 1 responde / 0 falla",
+            "expr": "redis_up{job=\"redis\"}",
+            "leyenda": "Redis",
+            "resultado": {
+              "resultType": "vector",
+              "result": [
+                {
+                  "metric": {
+                    "__name__": "redis_up",
+                    "component": "redis",
+                    "instance": "redis-exporter:9121",
+                    "job": "redis"
+                  },
+                  "value": [
+                    1794949895.686,
+                    "1"
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "panel": 3,
+            "titulo": "Latencia de negocio · P95 y media · ventana 2 min",
+            "expr": "histogram_quantile(0.95, sum by (le) (rate(fixture_http_request_duration_seconds_bucket{job=\"fixture-api\",traffic=\"negocio\"}[2m])))",
+            "leyenda": "P95 estimado",
+            "resultado": {
+              "resultType": "vector",
+              "result": [
+                {
+                  "metric": {},
+                  "value": [
+                    1794949895.688,
+                    "0.008548507462686565"
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "panel": 3,
+            "titulo": "Latencia de negocio · P95 y media · ventana 2 min",
+            "expr": "sum(rate(fixture_http_request_duration_seconds_sum{job=\"fixture-api\",traffic=\"negocio\"}[2m])) / sum(rate(fixture_http_request_duration_seconds_count{job=\"fixture-api\",traffic=\"negocio\"}[2m]))",
+            "leyenda": "Media",
+            "resultado": {
+              "resultType": "vector",
+              "result": [
+                {
+                  "metric": {},
+                  "value": [
+                    1794949895.69,
+                    "0.0038474275256745244"
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "panel": 4,
+            "titulo": "Requests de negocio por segundo · ventana 2 min",
+            "expr": "sum by (route) (rate(fixture_http_requests_total{job=\"fixture-api\",traffic=\"negocio\"}[2m]))",
+            "leyenda": "{{route}}",
+            "resultado": {
+              "resultType": "vector",
+              "result": [
+                {
+                  "metric": {
+                    "route": "/api/v1/partidos/{partidoId}/estadisticas"
+                  },
+                  "value": [
+                    1794949895.704,
+                    "0"
+                  ]
+                },
+                {
+                  "metric": {
+                    "route": "/api/v1/equipos"
+                  },
+                  "value": [
+                    1794949895.704,
+                    "0.971484084804846"
+                  ]
+                },
+                {
+                  "metric": {
+                    "route": "/api/v1/equipos/{equipoId}/jugadores"
+                  },
+                  "value": [
+                    1794949895.704,
+                    "0"
+                  ]
+                },
+                {
+                  "metric": {
+                    "route": "/api/v1/partidos/{partidoId}"
+                  },
+                  "value": [
+                    1794949895.704,
+                    "0"
+                  ]
+                },
+                {
+                  "metric": {
+                    "route": "/api/v1/partidos/{partidoId}/comentarios"
+                  },
+                  "value": [
+                    1794949895.704,
+                    "0"
+                  ]
+                },
+                {
+                  "metric": {
+                    "route": "/api/v1/sesiones/{sesionId}"
+                  },
+                  "value": [
+                    1794949895.704,
+                    "0.971484084804846"
+                  ]
+                },
+                {
+                  "metric": {
+                    "route": "/api/v1/actas/{codigo}"
+                  },
+                  "value": [
+                    1794949895.704,
+                    "0"
+                  ]
+                },
+                {
+                  "metric": {
+                    "route": "/api/v1/equipos/{equipoId}"
+                  },
+                  "value": [
+                    1794949895.704,
+                    "1.9524925233822885"
+                  ]
+                },
+                {
+                  "metric": {
+                    "route": "/api/v1/sesiones"
+                  },
+                  "value": [
+                    1794949895.704,
+                    "0"
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "panel": 5,
+            "titulo": "Respuestas 4xx y 5xx por segundo · ventana 2 min",
+            "expr": "sum(rate(fixture_http_requests_total{job=\"fixture-api\",traffic=\"negocio\",status=~\"4..\"}[2m])) or (0 * sum(rate(fixture_http_requests_total{job=\"fixture-api\",traffic=\"negocio\"}[2m])))",
+            "leyenda": "4xx",
+            "resultado": {
+              "resultType": "vector",
+              "result": [
+                {
+                  "metric": {},
+                  "value": [
+                    1794949895.706,
+                    "0.9810084385774426"
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "panel": 5,
+            "titulo": "Respuestas 4xx y 5xx por segundo · ventana 2 min",
+            "expr": "sum(rate(fixture_http_requests_total{job=\"fixture-api\",traffic=\"negocio\",status=~\"5..\"}[2m])) or (0 * sum(rate(fixture_http_requests_total{job=\"fixture-api\",traffic=\"negocio\"}[2m])))",
+            "leyenda": "5xx",
+            "resultado": {
+              "resultType": "vector",
+              "result": [
+                {
+                  "metric": {},
+                  "value": [
+                    1794949895.729,
+                    "0"
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "panel": 6,
+            "titulo": "Conexiones actuales · MongoDB y Redis",
+            "expr": "mongodb_ss_connections{job=\"mongodb\",conn_type=\"current\"}",
+            "leyenda": "MongoDB · conexiones",
+            "resultado": {
+              "resultType": "vector",
+              "result": [
+                {
+                  "metric": {
+                    "__name__": "mongodb_ss_connections",
+                    "component": "mongodb",
+                    "conn_type": "current",
+                    "instance": "mongodb-exporter:9216",
+                    "job": "mongodb"
+                  },
+                  "value": [
+                    1794949895.746,
+                    "7"
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "panel": 6,
+            "titulo": "Conexiones actuales · MongoDB y Redis",
+            "expr": "redis_connected_clients{job=\"redis\"}",
+            "leyenda": "Redis · clientes",
+            "resultado": {
+              "resultType": "vector",
+              "result": [
+                {
+                  "metric": {
+                    "__name__": "redis_connected_clients",
+                    "component": "redis",
+                    "instance": "redis-exporter:9121",
+                    "job": "redis"
+                  },
+                  "value": [
+                    1794949895.748,
+                    "3"
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "comprobaciones": "OK: targets, exporters, salud, actividad, errores, caché, sesión y alertas"
+    }
+  },
+  "fallos": [],
+  "version": {
+    "fecha": "2026-11-17T18:05:33.258707-03:00",
+    "commit": "ed49e3fcb1dad4f1767dc17dbb0c87753e9cc4aa",
+    "contenedor": "grupo13-hito10-api-1",
+    "imagen": "grupo13-hito10-api",
+    "image_id": "sha256:1910fc8428d1528750a389e0461d0df55214da3125de557a385fceae6bdd5eae",
+    "repo_digests": [
+      "grupo13-hito10-api@sha256:1910fc8428d1528750a389e0461d0df55214da3125de557a385fceae6bdd5eae"
+    ],
+    "inicio_contenedor": "2026-11-17T21:04:57.464169349Z",
+    "cambios_api": "",
+    "archivos_coinciden": true,
+    "metodo": "SHA256 de cada archivo copiado a /app contra git show del commit, normalizando CRLF a LF",
+    "sha256_archivos": {
+      "app/adapters/cassandra_comentarios.py": "c4495d014a1b7575f50adb6ee84b9045cde783a079e3881c914ae6aed4998405",
+      "app/adapters/influx_estadisticas.py": "18416ee2b49a474ff4fa42b52fa30308bf1c82c7178b7d1e2b2cabf454f0073d",
+      "app/adapters/iris_actas.py": "c24900c6d993b6e7f4b153c332b683fbba5fcc3b8a2d1d0b4aff3a4555fe9cef",
+      "app/adapters/mongo_equipos.py": "4d1ba4f8ea20831a595f271b9e22343ccb7565d63ce3b2af375929430d11f8db",
+      "app/adapters/neo4j_partidos.py": "d2888f200ebec25e715d3010b7b78aa9f88a703a193707e6720c806821b02e5c",
+      "app/adapters/redis_kv.py": "a2289d961d5c9eec4f25af1e6f7431a542bc8491d0a2bd830a3828121aa8934f",
+      "app/config.py": "0cabc9b09803a5ff4a539c8166d6a834e712965a3d7c61d8b3a04a49b988de1e",
+      "app/contexto.py": "766ec6d00061ecf9beedff7cd2459903f375c1273a8de8500b2b8985ffe3dca6",
+      "app/errors.py": "c61f15165fd47f218220ecff803fd686f363c5b819bd3dc1d4e06b2c698efc28",
+      "app/main.py": "aafd63d6c7e10b263b866d589addf4ebc0e11f0fd1ebdddbdc464ecdac87f28e",
+      "app/metricas.py": "902c1c77eb240416a6f795e0ced8672671a2006cf1000ed63334d4ef91a0e238",
+      "app/routes.py": "1701660c76afa0bbb539496ec8f1acbd85f44530b786387bce639a401880b569",
+      "app/schemas.py": "953107ff27596c9c8e424b4d497019fd3e41937d27886140195f2d8e52b140cb",
+      "app/services.py": "1559fe5cd4b6881e175c5366f8bbd9de188e98b9cfcf60dc52e1f3a75fef13a8",
+      "openapi/openapi.yaml": "20fa065d3fcb49aecedd87467824eec2ddd6c81f78b4a26ddd2e77d4522113c4",
+      "pytest.ini": "c4aeae2c3ec807a94ef0c8e8b2dcf9a2ae71f6a626b8274149f9c517635e0340",
+      "requirements.txt": "9e5c683903cda6f2ae9218b5db0735ed9bc4067d77fa84844894209242e70e56",
+      "scripts/cargar_muestra_influx.py": "eeabf47a5615f39f89a5912c1099fe42af3e765a275d797e4fe470235f391a84",
+      "scripts/ejecutar_pruebas.ps1": "29d3cf04bb45ed3342c42ec8032fefd13f73590dd0c668dca1b5719bab1e473e",
+      "scripts/exportar_openapi.py": "cc29c9af590bb6ef0ac2d77eb0e9fb4d16b5cdc7cc7988979a80487342bb139f",
+      "scripts/iniciar_api.ps1": "5f509a57a62750c72ebc74a0ad88af99d27a7090263bed8ccd3e7283c98b40a2",
+      "scripts/iris_crear_usuario_api.ps1": "ca9f9eaa46287383116bbb93ec19b2f4ddd0fa167ab8cfb22a84a60c800fcf08",
+      "scripts/medir_latencia.py": "dbbd61eea6fefa5e87c586185c870797f75970cf7502df43946f2487061ffa50",
+      "scripts/verificar_conectividad.py": "0cbbb5334ad6c7a868ff6185fdbe69f2193088c54b91fbc55b729d7dfb4c470f",
+      "tests/README.md": "7ee57605f3757cbb647462dfbf70f2c5242982ccebe8a4a02a224e52d6efb0ae",
+      "tests/integration/test_integracion.py": "44f52d949e100f4de68765b0ff1e2c004ad2d9b21d1bc0fd05297734cd55e938",
+      "tests/unit/test_api.py": "f567686630fdb5c35d1f5f139130703c4db1bb9305fe51b917616527bce099aa",
+      "tests/unit/test_cursor_comentarios.py": "f09d81e228ff4367a66f09deec8a261edd96b2c2d722e607d445972e73fa2f31",
+      "tests/unit/test_metricas.py": "7be8e594f1560d8af22366e8ddeef58cd37da6dcc895d14cfeb4cef306757c2a",
+      "tests/unit/test_redis_memoria.py": "f046fe99cd104dc76cb581758d7dc2c814b6a0ce074f483e0ad43125685dad74",
+      "web/index.html": "e086723bdb0aae32177d48b197ad4149575334e295c1d17b85f6b97179ac9919"
+    },
+    "montajes": [
+      {
+        "destino": "/Hito 8/scripts",
+        "solo_lectura": true
+      },
+      {
+        "destino": "/run/influx",
+        "solo_lectura": true
+      }
+    ]
+  },
+  "funciones": {
+    "/salud": {
+      "status": 200,
+      "cache": null,
+      "body": {
+        "data": [
+          {
+            "fuente": "mongodb",
+            "estado": "ok",
+            "ms": 1.48
+          },
+          {
+            "fuente": "neo4j",
+            "estado": "ok",
+            "ms": 6.35
+          },
+          {
+            "fuente": "cassandra",
+            "estado": "ok",
+            "ms": 4.63
+          },
+          {
+            "fuente": "redis",
+            "estado": "ok",
+            "ms": 1.4
+          },
+          {
+            "fuente": "influxdb",
+            "estado": "ok",
+            "ms": 5.26
+          },
+          {
+            "fuente": "iris",
+            "estado": "ok",
+            "ms": 3.65
+          }
+        ],
+        "meta": {
+          "requestId": "af69f7c93d0642e88a27aace4a5e5195",
+          "fuentes": [
+            {
+              "fuente": "mongodb",
+              "operacion": "ping",
+              "resultado": "ok",
+              "ms": 1.48
+            },
+            {
+              "fuente": "neo4j",
+              "operacion": "ping",
+              "resultado": "ok",
+              "ms": 6.35
+            },
+            {
+              "fuente": "cassandra",
+              "operacion": "ping",
+              "resultado": "ok",
+              "ms": 4.63
+            },
+            {
+              "fuente": "redis",
+              "operacion": "ping",
+              "resultado": "ok",
+              "ms": 1.4
+            },
+            {
+              "fuente": "influxdb",
+              "operacion": "ping",
+              "resultado": "ok",
+              "ms": 5.26
+            },
+            {
+              "fuente": "iris",
+              "operacion": "ping",
+              "resultado": "ok",
+              "ms": 3.65
+            }
+          ],
+          "paginacion": null,
+          "cache": null
+        }
+      }
+    },
+    "/equipos?tamanio=2": {
+      "status": 200,
+      "cache": null,
+      "body": {
+        "data": [
+          {
+            "equipoId": "EQ-001",
+            "codigo": "F01",
+            "nombre": "Seleccion Sintetica 01",
+            "confederacion": "AFC",
+            "rankingReferencia": 1,
+            "estado": "PRESELECCIONADO"
+          },
+          {
+            "equipoId": "EQ-002",
+            "codigo": "F02",
+            "nombre": "Seleccion Sintetica 02",
+            "confederacion": "CAF",
+            "rankingReferencia": 2,
+            "estado": "PRESELECCIONADO"
+          }
+        ],
+        "meta": {
+          "requestId": "5ecae6458df64ea2a1cb096d7c3c613c",
+          "fuentes": [
+            {
+              "fuente": "mongodb",
+              "operacion": "listar_equipos",
+              "resultado": "ok",
+              "ms": 3.63
+            }
+          ],
+          "paginacion": {
+            "pagina": 1,
+            "tamanio": 2,
+            "total": 64,
+            "siguienteCursor": null
+          },
+          "cache": null
+        }
+      }
+    },
+    "/equipos/EQ-001": {
+      "status": 200,
+      "cache": "MISS",
+      "body": {
+        "data": {
+          "equipoId": "EQ-001",
+          "codigo": "F01",
+          "nombre": "Seleccion Sintetica 01",
+          "confederacion": "AFC",
+          "rankingReferencia": 1,
+          "estado": "PRESELECCIONADO",
+          "region": "ASIA_PACIFICO",
+          "sedeBase": {
+            "ciudad": "Ciudad Sintetica 01",
+            "pais": "Pais Sintetico 01"
+          },
+          "participacionesMundiales": 1,
+          "titulosMundiales": 0,
+          "actualizadoEn": "2026-09-02T00:00:00Z"
+        },
+        "meta": {
+          "requestId": "299f9ef9f0dc4e8cbb3fc1184d240d6c",
+          "fuentes": [
+            {
+              "fuente": "redis",
+              "operacion": "leer_cache_equipo",
+              "resultado": "ok",
+              "ms": 1.39
+            },
+            {
+              "fuente": "mongodb",
+              "operacion": "buscar_equipo",
+              "resultado": "ok",
+              "ms": 1.61
+            },
+            {
+              "fuente": "redis",
+              "operacion": "guardar_cache_equipo",
+              "resultado": "ok",
+              "ms": 1.41
+            }
+          ],
+          "paginacion": null,
+          "cache": "MISS"
+        }
+      }
+    },
+    "/partidos/PAR-001": {
+      "status": 200,
+      "cache": null,
+      "body": {
+        "data": {
+          "partidoId": "PAR-001",
+          "grupo": "G01",
+          "fase": "GRUPOS_MUESTRA",
+          "estado": "FINALIZADO",
+          "jornada": 1,
+          "inicio": "2030-06-10T18:00:00Z",
+          "estadio": {
+            "estadioId": "EST-01",
+            "nombre": "Estadio Sintetico 01",
+            "ciudad": "Ciudad Sede 01"
+          },
+          "equipos": [
+            {
+              "equipoId": "EQ-001",
+              "codigo": "F01",
+              "nombre": "Seleccion Sintetica 01",
+              "rol": "LOCAL"
+            },
+            {
+              "equipoId": "EQ-002",
+              "codigo": "F02",
+              "nombre": "Seleccion Sintetica 02",
+              "rol": "VISITANTE"
+            }
+          ],
+          "eventos": [
+            {
+              "eventoId": "EVT-PAR-001-LOCAL",
+              "tipo": "SUSTITUCION",
+              "minuto": 60,
+              "involucrados": [
+                {
+                  "jugadorId": "JUG-0020",
+                  "nombre": "Nombre0020",
+                  "apellido": "Apellido0020",
+                  "rol": "SALE"
+                },
+                {
+                  "jugadorId": "JUG-0021",
+                  "nombre": "Nombre0021",
+                  "apellido": "Apellido0021",
+                  "rol": "ENTRA"
+                }
+              ]
+            },
+            {
+              "eventoId": "EVT-PAR-001-VISITANTE",
+              "tipo": "SUSTITUCION",
+              "minuto": 65,
+              "involucrados": [
+                {
+                  "jugadorId": "JUG-0044",
+                  "nombre": "Nombre0044",
+                  "apellido": "Apellido0044",
+                  "rol": "SALE"
+                },
+                {
+                  "jugadorId": "JUG-0045",
+                  "nombre": "Nombre0045",
+                  "apellido": "Apellido0045",
+                  "rol": "ENTRA"
+                }
+              ]
+            }
+          ]
+        },
+        "meta": {
+          "requestId": "dbf68d96f54841f98b0ccd6494beb1f9",
+          "fuentes": [
+            {
+              "fuente": "neo4j",
+              "operacion": "partido",
+              "resultado": "ok",
+              "ms": 7.62
+            },
+            {
+              "fuente": "neo4j",
+              "operacion": "eventos",
+              "resultado": "ok",
+              "ms": 7.76
+            }
+          ],
+          "paginacion": null,
+          "cache": null
+        }
+      }
+    },
+    "/actas/PAR-001": {
+      "status": 200,
+      "cache": null,
+      "body": {
+        "data": {
+          "id": "1",
+          "codigo": "PAR-001",
+          "estadioCodigo": "EST-01",
+          "estado": "PENDIENTE",
+          "arbitro": {
+            "id": "1",
+            "codigo": "ARB-001",
+            "nombre": "Arbitro Sintetico 01",
+            "nacionalidad": "F01",
+            "licencia": "LIC-DEMO-001"
+          },
+          "eventos": [
+            {
+              "id": "1||1",
+              "tipo": "TARJETA",
+              "minuto": 15,
+              "jugador": {
+                "id": "2",
+                "codigo": "JUG-0001",
+                "nombre": "Nombre0001 Apellido0001",
+                "numero": 1,
+                "posicion": "ARQUERO"
+              }
+            },
+            {
+              "id": "1||2",
+              "tipo": "CAMBIO",
+              "minuto": 75,
+              "jugador": {
+                "id": "2",
+                "codigo": "JUG-0001",
+                "nombre": "Nombre0001 Apellido0001",
+                "numero": 1,
+                "posicion": "ARQUERO"
+              }
+            }
+          ]
+        },
+        "meta": {
+          "requestId": "94ec8948f4584b5b9518053b6eec120c",
+          "fuentes": [
+            {
+              "fuente": "iris",
+              "operacion": "leer_acta",
+              "resultado": "ok",
+              "ms": 2.59
+            }
+          ],
+          "paginacion": null,
+          "cache": null
+        }
+      }
+    },
+    "/partidos/PAR-001/estadisticas": {
+      "status": 200,
+      "cache": null,
+      "body": {
+        "data": {
+          "partidoId": "PAR-001",
+          "equipoId": null,
+          "desde": null,
+          "hasta": null,
+          "intervalo": "1m",
+          "puntos": []
+        },
+        "meta": {
+          "requestId": "4eaa8880791846cd92d34d0077d4c6e4",
+          "fuentes": [
+            {
+              "fuente": "influxdb",
+              "operacion": "ultimo_instante",
+              "resultado": "ok",
+              "ms": 4.03
+            }
+          ],
+          "paginacion": null,
+          "cache": null
+        }
+      }
+    },
+    "/partidos/PAR-001/comentarios?desde=2030-06-10T18:00:30Z&hasta=2030-06-10T18:02:10Z&limite=3": {
+      "status": 200,
+      "cache": null,
+      "body": {
+        "data": {
+          "partidoId": "PAR-001",
+          "desde": "2030-06-10T18:00:30.000Z",
+          "hasta": "2030-06-10T18:02:10.000Z",
+          "particiones": 12,
+          "items": [
+            {
+              "comentarioId": "MASIVO-000000008321",
+              "usuarioId": "USR-08321",
+              "contenido": "Comentario sintetico 8321 del Fixture 2030 en PAR-001",
+              "estado": "visible",
+              "likes": 4,
+              "creadoEn": "2030-06-10T18:02:09.610Z"
+            },
+            {
+              "comentarioId": "MASIVO-000000008257",
+              "usuarioId": "USR-08257",
+              "contenido": "Comentario sintetico 8257 del Fixture 2030 en PAR-001",
+              "estado": "pendiente",
+              "likes": 6,
+              "creadoEn": "2030-06-10T18:02:08.613Z"
+            },
+            {
+              "comentarioId": "MASIVO-000000008193",
+              "usuarioId": "USR-08193",
+              "contenido": "Comentario sintetico 8193 del Fixture 2030 en PAR-001",
+              "estado": "visible",
+              "likes": 8,
+              "creadoEn": "2030-06-10T18:02:07.616Z"
+            }
+          ]
+        },
+        "meta": {
+          "requestId": "00ec0daeca1446308b7a14ffdbf04ef9",
+          "fuentes": [
+            {
+              "fuente": "cassandra",
+              "operacion": "listar_ventana",
+              "resultado": "ok",
+              "ms": 6.34
+            }
+          ],
+          "paginacion": {
+            "pagina": null,
+            "tamanio": 3,
+            "total": null,
+            "siguienteCursor": "1907344927616_MASIVO-000000008193"
+          },
+          "cache": null
+        }
+      }
+    }
+  },
+  "recuperacion": {
+    "fecha": "2026-11-17T18:09:20.339905-03:00",
+    "redis": "PONG"
+  },
+  "series": [
+    {
+      "panel": 1,
+      "titulo": "Endpoints de métricas · 1 accesible / 0 inaccesible",
+      "expr": "up{job=~\"fixture-api|mongodb|redis\"}",
+      "leyenda": "{{component}} · scrape",
+      "resultado": {
+        "resultType": "matrix",
+        "result": [
+          {
+            "metric": {
+              "__name__": "up",
+              "component": "api",
+              "instance": "host.docker.internal:8000",
+              "job": "fixture-api"
+            },
+            "values": [
+              [
+                1794949531.301,
+                "1"
+              ],
+              [
+                1794949546.301,
+                "1"
+              ],
+              [
+                1794949561.301,
+                "1"
+              ],
+              [
+                1794949576.301,
+                "1"
+              ],
+              [
+                1794949591.301,
+                "1"
+              ],
+              [
+                1794949606.301,
+                "1"
+              ],
+              [
+                1794949621.301,
+                "1"
+              ],
+              [
+                1794949636.301,
+                "1"
+              ],
+              [
+                1794949651.301,
+                "1"
+              ],
+              [
+                1794949666.301,
+                "1"
+              ],
+              [
+                1794949681.301,
+                "1"
+              ],
+              [
+                1794949696.301,
+                "1"
+              ],
+              [
+                1794949711.301,
+                "1"
+              ],
+              [
+                1794949726.301,
+                "1"
+              ],
+              [
+                1794949741.301,
+                "1"
+              ],
+              [
+                1794949756.301,
+                "1"
+              ],
+              [
+                1794949771.301,
+                "1"
+              ],
+              [
+                1794949786.301,
+                "1"
+              ],
+              [
+                1794949801.301,
+                "1"
+              ],
+              [
+                1794949816.301,
+                "1"
+              ],
+              [
+                1794949831.301,
+                "1"
+              ],
+              [
+                1794949846.301,
+                "1"
+              ],
+              [
+                1794949861.301,
+                "1"
+              ],
+              [
+                1794949876.301,
+                "1"
+              ],
+              [
+                1794949891.301,
+                "1"
+              ]
+            ]
+          },
+          {
+            "metric": {
+              "__name__": "up",
+              "component": "mongodb",
+              "instance": "mongodb-exporter:9216",
+              "job": "mongodb"
+            },
+            "values": [
+              [
+                1794949531.301,
+                "1"
+              ],
+              [
+                1794949546.301,
+                "1"
+              ],
+              [
+                1794949561.301,
+                "1"
+              ],
+              [
+                1794949576.301,
+                "1"
+              ],
+              [
+                1794949591.301,
+                "1"
+              ],
+              [
+                1794949606.301,
+                "1"
+              ],
+              [
+                1794949621.301,
+                "1"
+              ],
+              [
+                1794949636.301,
+                "1"
+              ],
+              [
+                1794949651.301,
+                "1"
+              ],
+              [
+                1794949666.301,
+                "1"
+              ],
+              [
+                1794949681.301,
+                "1"
+              ],
+              [
+                1794949696.301,
+                "1"
+              ],
+              [
+                1794949711.301,
+                "1"
+              ],
+              [
+                1794949726.301,
+                "1"
+              ],
+              [
+                1794949741.301,
+                "1"
+              ],
+              [
+                1794949756.301,
+                "1"
+              ],
+              [
+                1794949771.301,
+                "1"
+              ],
+              [
+                1794949786.301,
+                "1"
+              ],
+              [
+                1794949801.301,
+                "1"
+              ],
+              [
+                1794949816.301,
+                "1"
+              ],
+              [
+                1794949831.301,
+                "1"
+              ],
+              [
+                1794949846.301,
+                "1"
+              ],
+              [
+                1794949861.301,
+                "1"
+              ],
+              [
+                1794949876.301,
+                "1"
+              ],
+              [
+                1794949891.301,
+                "1"
+              ]
+            ]
+          },
+          {
+            "metric": {
+              "__name__": "up",
+              "component": "redis",
+              "instance": "redis-exporter:9121",
+              "job": "redis"
+            },
+            "values": [
+              [
+                1794949531.301,
+                "1"
+              ],
+              [
+                1794949546.301,
+                "1"
+              ],
+              [
+                1794949561.301,
+                "1"
+              ],
+              [
+                1794949576.301,
+                "1"
+              ],
+              [
+                1794949591.301,
+                "1"
+              ],
+              [
+                1794949606.301,
+                "1"
+              ],
+              [
+                1794949621.301,
+                "1"
+              ],
+              [
+                1794949636.301,
+                "1"
+              ],
+              [
+                1794949651.301,
+                "1"
+              ],
+              [
+                1794949666.301,
+                "1"
+              ],
+              [
+                1794949681.301,
+                "1"
+              ],
+              [
+                1794949696.301,
+                "1"
+              ],
+              [
+                1794949711.301,
+                "1"
+              ],
+              [
+                1794949726.301,
+                "1"
+              ],
+              [
+                1794949741.301,
+                "1"
+              ],
+              [
+                1794949756.301,
+                "1"
+              ],
+              [
+                1794949771.301,
+                "1"
+              ],
+              [
+                1794949786.301,
+                "1"
+              ],
+              [
+                1794949801.301,
+                "1"
+              ],
+              [
+                1794949816.301,
+                "1"
+              ],
+              [
+                1794949831.301,
+                "1"
+              ],
+              [
+                1794949846.301,
+                "1"
+              ],
+              [
+                1794949861.301,
+                "1"
+              ],
+              [
+                1794949876.301,
+                "1"
+              ],
+              [
+                1794949891.301,
+                "1"
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "panel": 2,
+      "titulo": "Bases observadas · 1 responde / 0 falla",
+      "expr": "mongodb_up{job=\"mongodb\"}",
+      "leyenda": "MongoDB",
+      "resultado": {
+        "resultType": "matrix",
+        "result": [
+          {
+            "metric": {
+              "__name__": "mongodb_up",
+              "cluster_role": "mongod",
+              "component": "mongodb",
+              "instance": "mongodb-exporter:9216",
+              "job": "mongodb"
+            },
+            "values": [
+              [
+                1794949531.301,
+                "1"
+              ],
+              [
+                1794949546.301,
+                "1"
+              ],
+              [
+                1794949561.301,
+                "1"
+              ],
+              [
+                1794949576.301,
+                "1"
+              ],
+              [
+                1794949591.301,
+                "1"
+              ],
+              [
+                1794949606.301,
+                "1"
+              ],
+              [
+                1794949621.301,
+                "1"
+              ],
+              [
+                1794949636.301,
+                "1"
+              ],
+              [
+                1794949651.301,
+                "1"
+              ],
+              [
+                1794949666.301,
+                "1"
+              ],
+              [
+                1794949681.301,
+                "1"
+              ],
+              [
+                1794949696.301,
+                "1"
+              ],
+              [
+                1794949711.301,
+                "1"
+              ],
+              [
+                1794949726.301,
+                "1"
+              ],
+              [
+                1794949741.301,
+                "1"
+              ],
+              [
+                1794949756.301,
+                "1"
+              ],
+              [
+                1794949771.301,
+                "1"
+              ],
+              [
+                1794949786.301,
+                "1"
+              ],
+              [
+                1794949801.301,
+                "1"
+              ],
+              [
+                1794949816.301,
+                "1"
+              ],
+              [
+                1794949831.301,
+                "1"
+              ],
+              [
+                1794949846.301,
+                "1"
+              ],
+              [
+                1794949861.301,
+                "1"
+              ],
+              [
+                1794949876.301,
+                "1"
+              ],
+              [
+                1794949891.301,
+                "1"
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "panel": 2,
+      "titulo": "Bases observadas · 1 responde / 0 falla",
+      "expr": "redis_up{job=\"redis\"}",
+      "leyenda": "Redis",
+      "resultado": {
+        "resultType": "matrix",
+        "result": [
+          {
+            "metric": {
+              "__name__": "redis_up",
+              "component": "redis",
+              "instance": "redis-exporter:9121",
+              "job": "redis"
+            },
+            "values": [
+              [
+                1794949531.301,
+                "1"
+              ],
+              [
+                1794949546.301,
+                "1"
+              ],
+              [
+                1794949561.301,
+                "1"
+              ],
+              [
+                1794949576.301,
+                "1"
+              ],
+              [
+                1794949591.301,
+                "1"
+              ],
+              [
+                1794949606.301,
+                "1"
+              ],
+              [
+                1794949621.301,
+                "1"
+              ],
+              [
+                1794949636.301,
+                "1"
+              ],
+              [
+                1794949651.301,
+                "1"
+              ],
+              [
+                1794949666.301,
+                "0"
+              ],
+              [
+                1794949681.301,
+                "0"
+              ],
+              [
+                1794949696.301,
+                "0"
+              ],
+              [
+                1794949711.301,
+                "0"
+              ],
+              [
+                1794949726.301,
+                "0"
+              ],
+              [
+                1794949741.301,
+                "0"
+              ],
+              [
+                1794949756.301,
+                "0"
+              ],
+              [
+                1794949771.301,
+                "1"
+              ],
+              [
+                1794949786.301,
+                "1"
+              ],
+              [
+                1794949801.301,
+                "1"
+              ],
+              [
+                1794949816.301,
+                "1"
+              ],
+              [
+                1794949831.301,
+                "1"
+              ],
+              [
+                1794949846.301,
+                "1"
+              ],
+              [
+                1794949861.301,
+                "1"
+              ],
+              [
+                1794949876.301,
+                "1"
+              ],
+              [
+                1794949891.301,
+                "1"
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "panel": 3,
+      "titulo": "Latencia de negocio · P95 y media · ventana 2 min",
+      "expr": "histogram_quantile(0.95, sum by (le) (rate(fixture_http_request_duration_seconds_bucket{job=\"fixture-api\",traffic=\"negocio\"}[2m])))",
+      "leyenda": "P95 estimado",
+      "resultado": {
+        "resultType": "matrix",
+        "result": [
+          {
+            "metric": {},
+            "values": [
+              [
+                1794949531.301,
+                "0.009749999999999998"
+              ],
+              [
+                1794949546.301,
+                "0.021894903297118223"
+              ],
+              [
+                1794949561.301,
+                "0.014345399133572183"
+              ],
+              [
+                1794949576.301,
+                "0.00971971082058835"
+              ],
+              [
+                1794949591.301,
+                "0.009387741922507804"
+              ],
+              [
+                1794949606.301,
+                "0.009097809913813835"
+              ],
+              [
+                1794949621.301,
+                "0.009018611039286601"
+              ],
+              [
+                1794949636.301,
+                "0.008922447385450252"
+              ],
+              [
+                1794949651.301,
+                "0.008508990073298316"
+              ],
+              [
+                1794949666.301,
+                "0.008112745098039213"
+              ],
+              [
+                1794949681.301,
+                "0.008395833333333335"
+              ],
+              [
+                1794949696.301,
+                "0.00834051724137931"
+              ],
+              [
+                1794949711.301,
+                "0.008340517241379308"
+              ],
+              [
+                1794949726.301,
+                "0.008422131147540982"
+              ],
+              [
+                1794949741.301,
+                "0.008364406779661012"
+              ],
+              [
+                1794949756.301,
+                "0.008586805555555552"
+              ],
+              [
+                1794949771.301,
+                "0.00862837837837838"
+              ],
+              [
+                1794949786.301,
+                "0.008462121212121209"
+              ],
+              [
+                1794949801.301,
+                "0.008430769230769228"
+              ],
+              [
+                1794949816.301,
+                "0.008477611940298509"
+              ],
+              [
+                1794949831.301,
+                "0.00854285714285714"
+              ],
+              [
+                1794949846.301,
+                "0.00876282051282051"
+              ],
+              [
+                1794949861.301,
+                "0.00865972222222222"
+              ],
+              [
+                1794949876.301,
+                "0.008594202898550724"
+              ],
+              [
+                1794949891.301,
+                "0.008548507462686565"
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "panel": 3,
+      "titulo": "Latencia de negocio · P95 y media · ventana 2 min",
+      "expr": "sum(rate(fixture_http_request_duration_seconds_sum{job=\"fixture-api\",traffic=\"negocio\"}[2m])) / sum(rate(fixture_http_request_duration_seconds_count{job=\"fixture-api\",traffic=\"negocio\"}[2m]))",
+      "leyenda": "Media",
+      "resultado": {
+        "resultType": "matrix",
+        "result": [
+          {
+            "metric": {},
+            "values": [
+              [
+                1794949531.301,
+                "+Inf"
+              ],
+              [
+                1794949546.301,
+                "0.0067500790922362455"
+              ],
+              [
+                1794949561.301,
+                "0.0044629899208844335"
+              ],
+              [
+                1794949576.301,
+                "0.004099869457810462"
+              ],
+              [
+                1794949591.301,
+                "0.004102680232170767"
+              ],
+              [
+                1794949606.301,
+                "0.003929430505062041"
+              ],
+              [
+                1794949621.301,
+                "0.0038727282046446525"
+              ],
+              [
+                1794949636.301,
+                "0.0038761325740957926"
+              ],
+              [
+                1794949651.301,
+                "0.0037300006657177533"
+              ],
+              [
+                1794949666.301,
+                "0.003698160896294526"
+              ],
+              [
+                1794949681.301,
+                "0.003803851422221781"
+              ],
+              [
+                1794949696.301,
+                "0.0038132788000009694"
+              ],
+              [
+                1794949711.301,
+                "0.0038990998888897995"
+              ],
+              [
+                1794949726.301,
+                "0.0039986484074065465"
+              ],
+              [
+                1794949741.301,
+                "0.0040061532783243516"
+              ],
+              [
+                1794949756.301,
+                "0.0041348081081081615"
+              ],
+              [
+                1794949771.301,
+                "0.00418965184236368"
+              ],
+              [
+                1794949786.301,
+                "0.004063709615763296"
+              ],
+              [
+                1794949801.301,
+                "0.004003130455882677"
+              ],
+              [
+                1794949816.301,
+                "0.003956815872549677"
+              ],
+              [
+                1794949831.301,
+                "0.003961338698528652"
+              ],
+              [
+                1794949846.301,
+                "0.004023471145319658"
+              ],
+              [
+                1794949861.301,
+                "0.003912456591132885"
+              ],
+              [
+                1794949876.301,
+                "0.0038445294264718927"
+              ],
+              [
+                1794949891.301,
+                "0.0038474275256745244"
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "panel": 4,
+      "titulo": "Requests de negocio por segundo · ventana 2 min",
+      "expr": "sum by (route) (rate(fixture_http_requests_total{job=\"fixture-api\",traffic=\"negocio\"}[2m]))",
+      "leyenda": "{{route}}",
+      "resultado": {
+        "resultType": "matrix",
+        "result": [
+          {
+            "metric": {
+              "route": "/api/v1/actas/{codigo}"
+            },
+            "values": [
+              [
+                1794949546.301,
+                "0.01582677646640439"
+              ],
+              [
+                1794949561.301,
+                "0.012079555303686911"
+              ],
+              [
+                1794949576.301,
+                "0.010831209687774715"
+              ],
+              [
+                1794949591.301,
+                "0.010206722114807654"
+              ],
+              [
+                1794949606.301,
+                "0.009832515468316622"
+              ],
+              [
+                1794949621.301,
+                "0.009582444385181235"
+              ],
+              [
+                1794949636.301,
+                "0.00952444448677531"
+              ],
+              [
+                1794949651.301,
+                "0"
+              ],
+              [
+                1794949666.301,
+                "0"
+              ],
+              [
+                1794949681.301,
+                "0"
+              ],
+              [
+                1794949696.301,
+                "0"
+              ],
+              [
+                1794949711.301,
+                "0"
+              ],
+              [
+                1794949726.301,
+                "0"
+              ],
+              [
+                1794949741.301,
+                "0"
+              ],
+              [
+                1794949756.301,
+                "0"
+              ],
+              [
+                1794949771.301,
+                "0"
+              ],
+              [
+                1794949786.301,
+                "0"
+              ],
+              [
+                1794949801.301,
+                "0"
+              ],
+              [
+                1794949816.301,
+                "0"
+              ],
+              [
+                1794949831.301,
+                "0"
+              ],
+              [
+                1794949846.301,
+                "0"
+              ],
+              [
+                1794949861.301,
+                "0"
+              ],
+              [
+                1794949876.301,
+                "0"
+              ],
+              [
+                1794949891.301,
+                "0"
+              ]
+            ]
+          },
+          {
+            "metric": {
+              "route": "/api/v1/equipos"
+            },
+            "values": [
+              [
+                1794949546.301,
+                "0.11327432153097287"
+              ],
+              [
+                1794949561.301,
+                "0.23824643865146564"
+              ],
+              [
+                1794949576.301,
+                "0.35769920289210894"
+              ],
+              [
+                1794949591.301,
+                "0.4940812720848056"
+              ],
+              [
+                1794949606.301,
+                "0.6112785363772136"
+              ],
+              [
+                1794949621.301,
+                "0.7282613285330132"
+              ],
+              [
+                1794949636.301,
+                "0.8539820908695501"
+              ],
+              [
+                1794949651.301,
+                "0.9714655796411293"
+              ],
+              [
+                1794949666.301,
+                "0.971484084804846"
+              ],
+              [
+                1794949681.301,
+                "0.9905139243399751"
+              ],
+              [
+                1794949696.301,
+                "0.9714933376510816"
+              ],
+              [
+                1794949711.301,
+                "0.9714563273236376"
+              ],
+              [
+                1794949726.301,
+                "0.971484084804846"
+              ],
+              [
+                1794949741.301,
+                "0.9809990951950093"
+              ],
+              [
+                1794949756.301,
+                "0.9714933376510816"
+              ],
+              [
+                1794949771.301,
+                "0.9905327923500391"
+              ],
+              [
+                1794949786.301,
+                "0.9714933376510814"
+              ],
+              [
+                1794949801.301,
+                "0.9905139243399746"
+              ],
+              [
+                1794949816.301,
+                "0.990542226624632"
+              ],
+              [
+                1794949831.301,
+                "0.9905327923500391"
+              ],
+              [
+                1794949846.301,
+                "0.9714748321348636"
+              ],
+              [
+                1794949861.301,
+                "0.9905139243399746"
+              ],
+              [
+                1794949876.301,
+                "0.971484084804846"
+              ],
+              [
+                1794949891.301,
+                "0.971484084804846"
+              ]
+            ]
+          },
+          {
+            "metric": {
+              "route": "/api/v1/equipos/{equipoId}"
+            },
+            "values": [
+              [
+                1794949561.301,
+                "0.43477601493233786"
+              ],
+              [
+                1794949576.301,
+                "0.6881432158849741"
+              ],
+              [
+                1794949591.301,
+                "0.9203665637014157"
+              ],
+              [
+                1794949606.301,
+                "1.173629156596383"
+              ],
+              [
+                1794949621.301,
+                "1.4058438337533503"
+              ],
+              [
+                1794949636.301,
+                "1.6562481789314092"
+              ],
+              [
+                1794949651.301,
+                "1.900917654005867"
+              ],
+              [
+                1794949666.301,
+                "1.9334438158370957"
+              ],
+              [
+                1794949681.301,
+                "1.9143586422339902"
+              ],
+              [
+                1794949696.301,
+                "1.9334622308153877"
+              ],
+              [
+                1794949711.301,
+                "1.914340409725992"
+              ],
+              [
+                1794949726.301,
+                "1.9334438158370957"
+              ],
+              [
+                1794949741.301,
+                "1.9334254012095813"
+              ],
+              [
+                1794949756.301,
+                "1.9334622308153877"
+              ],
+              [
+                1794949771.301,
+                "1.923919462064499"
+              ],
+              [
+                1794949786.301,
+                "1.923937786328612"
+              ],
+              [
+                1794949801.301,
+                "1.9238828145834124"
+              ],
+              [
+                1794949816.301,
+                "1.9429866753021627"
+              ],
+              [
+                1794949831.301,
+                "1.923919462064499"
+              ],
+              [
+                1794949846.301,
+                "1.9239011381494358"
+              ],
+              [
+                1794949861.301,
+                "1.9238828145834124"
+              ],
+              [
+                1794949876.301,
+                "1.942968169609692"
+              ],
+              [
+                1794949891.301,
+                "1.9524925233822885"
+              ]
+            ]
+          },
+          {
+            "metric": {
+              "route": "/api/v1/equipos/{equipoId}/jugadores"
+            },
+            "values": [
+              [
+                1794949546.301,
+                "0"
+              ],
+              [
+                1794949561.301,
+                "0"
+              ],
+              [
+                1794949576.301,
+                "0"
+              ],
+              [
+                1794949591.301,
+                "0"
+              ],
+              [
+                1794949606.301,
+                "0"
+              ],
+              [
+                1794949621.301,
+                "0"
+              ],
+              [
+                1794949636.301,
+                "0"
+              ],
+              [
+                1794949651.301,
+                "0"
+              ],
+              [
+                1794949666.301,
+                "0"
+              ],
+              [
+                1794949681.301,
+                "0"
+              ],
+              [
+                1794949696.301,
+                "0"
+              ],
+              [
+                1794949711.301,
+                "0"
+              ],
+              [
+                1794949726.301,
+                "0"
+              ],
+              [
+                1794949741.301,
+                "0"
+              ],
+              [
+                1794949756.301,
+                "0"
+              ],
+              [
+                1794949771.301,
+                "0"
+              ],
+              [
+                1794949786.301,
+                "0"
+              ],
+              [
+                1794949801.301,
+                "0"
+              ],
+              [
+                1794949816.301,
+                "0"
+              ],
+              [
+                1794949831.301,
+                "0"
+              ],
+              [
+                1794949846.301,
+                "0"
+              ],
+              [
+                1794949861.301,
+                "0"
+              ],
+              [
+                1794949876.301,
+                "0"
+              ],
+              [
+                1794949891.301,
+                "0"
+              ]
+            ]
+          },
+          {
+            "metric": {
+              "route": "/api/v1/partidos/{partidoId}"
+            },
+            "values": [
+              [
+                1794949546.301,
+                "0.01582677646640439"
+              ],
+              [
+                1794949561.301,
+                "0.012079555303686911"
+              ],
+              [
+                1794949576.301,
+                "0.010831209687774715"
+              ],
+              [
+                1794949591.301,
+                "0.010206722114807654"
+              ],
+              [
+                1794949606.301,
+                "0.009832515468316622"
+              ],
+              [
+                1794949621.301,
+                "0.009582444385181235"
+              ],
+              [
+                1794949636.301,
+                "0.00952444448677531"
+              ],
+              [
+                1794949651.301,
+                "0"
+              ],
+              [
+                1794949666.301,
+                "0"
+              ],
+              [
+                1794949681.301,
+                "0"
+              ],
+              [
+                1794949696.301,
+                "0"
+              ],
+              [
+                1794949711.301,
+                "0"
+              ],
+              [
+                1794949726.301,
+                "0"
+              ],
+              [
+                1794949741.301,
+                "0"
+              ],
+              [
+                1794949756.301,
+                "0"
+              ],
+              [
+                1794949771.301,
+                "0"
+              ],
+              [
+                1794949786.301,
+                "0"
+              ],
+              [
+                1794949801.301,
+                "0"
+              ],
+              [
+                1794949816.301,
+                "0"
+              ],
+              [
+                1794949831.301,
+                "0"
+              ],
+              [
+                1794949846.301,
+                "0"
+              ],
+              [
+                1794949861.301,
+                "0"
+              ],
+              [
+                1794949876.301,
+                "0"
+              ],
+              [
+                1794949891.301,
+                "0"
+              ]
+            ]
+          },
+          {
+            "metric": {
+              "route": "/api/v1/partidos/{partidoId}/comentarios"
+            },
+            "values": [
+              [
+                1794949546.301,
+                "0.01582677646640439"
+              ],
+              [
+                1794949561.301,
+                "0.012079555303686911"
+              ],
+              [
+                1794949576.301,
+                "0.010831209687774715"
+              ],
+              [
+                1794949591.301,
+                "0.010206722114807654"
+              ],
+              [
+                1794949606.301,
+                "0.009832515468316622"
+              ],
+              [
+                1794949621.301,
+                "0.009582444385181235"
+              ],
+              [
+                1794949636.301,
+                "0.00952444448677531"
+              ],
+              [
+                1794949651.301,
+                "0"
+              ],
+              [
+                1794949666.301,
+                "0"
+              ],
+              [
+                1794949681.301,
+                "0"
+              ],
+              [
+                1794949696.301,
+                "0"
+              ],
+              [
+                1794949711.301,
+                "0"
+              ],
+              [
+                1794949726.301,
+                "0"
+              ],
+              [
+                1794949741.301,
+                "0"
+              ],
+              [
+                1794949756.301,
+                "0"
+              ],
+              [
+                1794949771.301,
+                "0"
+              ],
+              [
+                1794949786.301,
+                "0"
+              ],
+              [
+                1794949801.301,
+                "0"
+              ],
+              [
+                1794949816.301,
+                "0"
+              ],
+              [
+                1794949831.301,
+                "0"
+              ],
+              [
+                1794949846.301,
+                "0"
+              ],
+              [
+                1794949861.301,
+                "0"
+              ],
+              [
+                1794949876.301,
+                "0"
+              ],
+              [
+                1794949891.301,
+                "0"
+              ]
+            ]
+          },
+          {
+            "metric": {
+              "route": "/api/v1/partidos/{partidoId}/estadisticas"
+            },
+            "values": [
+              [
+                1794949531.301,
+                "0"
+              ],
+              [
+                1794949546.301,
+                "0.011525468930571606"
+              ],
+              [
+                1794949561.301,
+                "0.010553652682634132"
+              ],
+              [
+                1794949576.301,
+                "0.010040377691846123"
+              ],
+              [
+                1794949591.301,
+                "0.00972114191529159"
+              ],
+              [
+                1794949606.301,
+                "0.009524625920316979"
+              ],
+              [
+                1794949621.301,
+                "0.009582444385181235"
+              ],
+              [
+                1794949636.301,
+                "0.00952444448677531"
+              ],
+              [
+                1794949651.301,
+                "0"
+              ],
+              [
+                1794949666.301,
+                "0"
+              ],
+              [
+                1794949681.301,
+                "0"
+              ],
+              [
+                1794949696.301,
+                "0"
+              ],
+              [
+                1794949711.301,
+                "0"
+              ],
+              [
+                1794949726.301,
+                "0"
+              ],
+              [
+                1794949741.301,
+                "0"
+              ],
+              [
+                1794949756.301,
+                "0"
+              ],
+              [
+                1794949771.301,
+                "0"
+              ],
+              [
+                1794949786.301,
+                "0"
+              ],
+              [
+                1794949801.301,
+                "0"
+              ],
+              [
+                1794949816.301,
+                "0"
+              ],
+              [
+                1794949831.301,
+                "0"
+              ],
+              [
+                1794949846.301,
+                "0"
+              ],
+              [
+                1794949861.301,
+                "0"
+              ],
+              [
+                1794949876.301,
+                "0"
+              ],
+              [
+                1794949891.301,
+                "0"
+              ]
+            ]
+          },
+          {
+            "metric": {
+              "route": "/api/v1/sesiones"
+            },
+            "values": [
+              [
+                1794949561.301,
+                "0"
+              ],
+              [
+                1794949576.301,
+                "0"
+              ],
+              [
+                1794949591.301,
+                "0"
+              ],
+              [
+                1794949606.301,
+                "0"
+              ],
+              [
+                1794949621.301,
+                "0"
+              ],
+              [
+                1794949636.301,
+                "0"
+              ],
+              [
+                1794949651.301,
+                "0"
+              ],
+              [
+                1794949666.301,
+                "0"
+              ],
+              [
+                1794949681.301,
+                "0"
+              ],
+              [
+                1794949696.301,
+                "0"
+              ],
+              [
+                1794949711.301,
+                "0"
+              ],
+              [
+                1794949726.301,
+                "0"
+              ],
+              [
+                1794949741.301,
+                "0"
+              ],
+              [
+                1794949756.301,
+                "0"
+              ],
+              [
+                1794949771.301,
+                "0"
+              ],
+              [
+                1794949786.301,
+                "0"
+              ],
+              [
+                1794949801.301,
+                "0"
+              ],
+              [
+                1794949816.301,
+                "0"
+              ],
+              [
+                1794949831.301,
+                "0"
+              ],
+              [
+                1794949846.301,
+                "0"
+              ],
+              [
+                1794949861.301,
+                "0"
+              ],
+              [
+                1794949876.301,
+                "0"
+              ],
+              [
+                1794949891.301,
+                "0"
+              ]
+            ]
+          },
+          {
+            "metric": {
+              "route": "/api/v1/sesiones/{sesionId}"
+            },
+            "values": [
+              [
+                1794949546.301,
+                "0"
+              ],
+              [
+                1794949561.301,
+                "0.23653867519943114"
+              ],
+              [
+                1794949576.301,
+                "0.34990166338877965"
+              ],
+              [
+                1794949591.301,
+                "0.46545886204878634"
+              ],
+              [
+                1794949606.301,
+                "0.5816062449648581"
+              ],
+              [
+                1794949621.301,
+                "0.7159197479010271"
+              ],
+              [
+                1794949636.301,
+                "0.8321510585655658"
+              ],
+              [
+                1794949651.301,
+                "0.9485004190635833"
+              ],
+              [
+                1794949666.301,
+                "0.8952892546240737"
+              ],
+              [
+                1794949681.301,
+                "0.975204899064938"
+              ],
+              [
+                1794949696.301,
+                "0.9585791104823836"
+              ],
+              [
+                1794949711.301,
+                "0.9607703168773887"
+              ],
+              [
+                1794949726.301,
+                "0.9245144005466794"
+              ],
+              [
+                1794949741.301,
+                "0.9075043457529888"
+              ],
+              [
+                1794949756.301,
+                "0.9084047402101938"
+              ],
+              [
+                1794949771.301,
+                "0.9337990742328133"
+              ],
+              [
+                1794949786.301,
+                "0.9714933376510814"
+              ],
+              [
+                1794949801.301,
+                "0.9714655796411289"
+              ],
+              [
+                1794949816.301,
+                "0.9524444486775308"
+              ],
+              [
+                1794949831.301,
+                "0.971484084804846"
+              ],
+              [
+                1794949846.301,
+                "0.9714748321348636"
+              ],
+              [
+                1794949861.301,
+                "0.9524172349422834"
+              ],
+              [
+                1794949876.301,
+                "0.971484084804846"
+              ],
+              [
+                1794949891.301,
+                "0.971484084804846"
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "panel": 5,
+      "titulo": "Respuestas 4xx y 5xx por segundo · ventana 2 min",
+      "expr": "sum(rate(fixture_http_requests_total{job=\"fixture-api\",traffic=\"negocio\",status=~\"4..\"}[2m])) or (0 * sum(rate(fixture_http_requests_total{job=\"fixture-api\",traffic=\"negocio\"}[2m])))",
+      "leyenda": "4xx",
+      "resultado": {
+        "resultType": "matrix",
+        "result": [
+          {
+            "metric": {},
+            "values": [
+              [
+                1794949531.301,
+                "0"
+              ],
+              [
+                1794949546.301,
+                "0"
+              ],
+              [
+                1794949561.301,
+                "0.21322134079950228"
+              ],
+              [
+                1794949576.301,
+                "0.34990166338877965"
+              ],
+              [
+                1794949591.301,
+                "0.46545886204878634"
+              ],
+              [
+                1794949606.301,
+                "0.5816062449648581"
+              ],
+              [
+                1794949621.301,
+                "0.6979219168766752"
+              ],
+              [
+                1794949636.301,
+                "0.8321510585655658"
+              ],
+              [
+                1794949651.301,
+                "0.9485004190635833"
+              ],
+              [
+                1794949666.301,
+                "0.971484084804846"
+              ],
+              [
+                1794949681.301,
+                "0.9524172349422837"
+              ],
+              [
+                1794949696.301,
+                "0.952444448677531"
+              ],
+              [
+                1794949711.301,
+                "0.9524081640427821"
+              ],
+              [
+                1794949726.301,
+                "0.971484084804846"
+              ],
+              [
+                1794949741.301,
+                "0.9524263060145721"
+              ],
+              [
+                1794949756.301,
+                "0.952444448677531"
+              ],
+              [
+                1794949771.301,
+                "0.952435377259653"
+              ],
+              [
+                1794949786.301,
+                "0.9524444486775308"
+              ],
+              [
+                1794949801.301,
+                "0.971465579641129"
+              ],
+              [
+                1794949816.301,
+                "0.9714933376510814"
+              ],
+              [
+                1794949831.301,
+                "0.952435377259653"
+              ],
+              [
+                1794949846.301,
+                "0.9714748321348636"
+              ],
+              [
+                1794949861.301,
+                "0.971465579641129"
+              ],
+              [
+                1794949876.301,
+                "0.971484084804846"
+              ],
+              [
+                1794949891.301,
+                "0.9810084385774426"
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "panel": 5,
+      "titulo": "Respuestas 4xx y 5xx por segundo · ventana 2 min",
+      "expr": "sum(rate(fixture_http_requests_total{job=\"fixture-api\",traffic=\"negocio\",status=~\"5..\"}[2m])) or (0 * sum(rate(fixture_http_requests_total{job=\"fixture-api\",traffic=\"negocio\"}[2m])))",
+      "leyenda": "5xx",
+      "resultado": {
+        "resultType": "matrix",
+        "result": [
+          {
+            "metric": {},
+            "values": [
+              [
+                1794949531.301,
+                "0"
+              ],
+              [
+                1794949546.301,
+                "0"
+              ],
+              [
+                1794949561.301,
+                "0"
+              ],
+              [
+                1794949576.301,
+                "0"
+              ],
+              [
+                1794949591.301,
+                "0"
+              ],
+              [
+                1794949606.301,
+                "0"
+              ],
+              [
+                1794949621.301,
+                "0"
+              ],
+              [
+                1794949636.301,
+                "0"
+              ],
+              [
+                1794949651.301,
+                "0"
+              ],
+              [
+                1794949666.301,
+                "0"
+              ],
+              [
+                1794949681.301,
+                "0.2132711111111111"
+              ],
+              [
+                1794949696.301,
+                "0.32996577435521324"
+              ],
+              [
+                1794949711.301,
+                "0.465518071575142"
+              ],
+              [
+                1794949726.301,
+                "0.5816376647332043"
+              ],
+              [
+                1794949741.301,
+                "0.6979705584297828"
+              ],
+              [
+                1794949756.301,
+                "0.8322091843159913"
+              ],
+              [
+                1794949771.301,
+                "0.8957016591424272"
+              ],
+              [
+                1794949786.301,
+                "0.7810044479155752"
+              ],
+              [
+                1794949801.301,
+                "0.6476437197607526"
+              ],
+              [
+                1794949816.301,
+                "0.495271113312316"
+              ],
+              [
+                1794949831.301,
+                "0.3619254433586681"
+              ],
+              [
+                1794949846.301,
+                "0.22858231344349733"
+              ],
+              [
+                1794949861.301,
+                "0.07619337879538267"
+              ],
+              [
+                1794949876.301,
+                "0"
+              ],
+              [
+                1794949891.301,
+                "0"
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "panel": 6,
+      "titulo": "Conexiones actuales · MongoDB y Redis",
+      "expr": "mongodb_ss_connections{job=\"mongodb\",conn_type=\"current\"}",
+      "leyenda": "MongoDB · conexiones",
+      "resultado": {
+        "resultType": "matrix",
+        "result": [
+          {
+            "metric": {
+              "__name__": "mongodb_ss_connections",
+              "component": "mongodb",
+              "conn_type": "current",
+              "instance": "mongodb-exporter:9216",
+              "job": "mongodb"
+            },
+            "values": [
+              [
+                1794949531.301,
+                "6"
+              ],
+              [
+                1794949546.301,
+                "6"
+              ],
+              [
+                1794949561.301,
+                "7"
+              ],
+              [
+                1794949576.301,
+                "7"
+              ],
+              [
+                1794949591.301,
+                "7"
+              ],
+              [
+                1794949606.301,
+                "7"
+              ],
+              [
+                1794949621.301,
+                "7"
+              ],
+              [
+                1794949636.301,
+                "9"
+              ],
+              [
+                1794949651.301,
+                "7"
+              ],
+              [
+                1794949666.301,
+                "7"
+              ],
+              [
+                1794949681.301,
+                "7"
+              ],
+              [
+                1794949696.301,
+                "7"
+              ],
+              [
+                1794949711.301,
+                "7"
+              ],
+              [
+                1794949726.301,
+                "7"
+              ],
+              [
+                1794949741.301,
+                "7"
+              ],
+              [
+                1794949756.301,
+                "7"
+              ],
+              [
+                1794949771.301,
+                "7"
+              ],
+              [
+                1794949786.301,
+                "7"
+              ],
+              [
+                1794949801.301,
+                "7"
+              ],
+              [
+                1794949816.301,
+                "7"
+              ],
+              [
+                1794949831.301,
+                "7"
+              ],
+              [
+                1794949846.301,
+                "7"
+              ],
+              [
+                1794949861.301,
+                "7"
+              ],
+              [
+                1794949876.301,
+                "7"
+              ],
+              [
+                1794949891.301,
+                "7"
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "panel": 6,
+      "titulo": "Conexiones actuales · MongoDB y Redis",
+      "expr": "redis_connected_clients{job=\"redis\"}",
+      "leyenda": "Redis · clientes",
+      "resultado": {
+        "resultType": "matrix",
+        "result": [
+          {
+            "metric": {
+              "__name__": "redis_connected_clients",
+              "component": "redis",
+              "instance": "redis-exporter:9121",
+              "job": "redis"
+            },
+            "values": [
+              [
+                1794949531.301,
+                "2"
+              ],
+              [
+                1794949546.301,
+                "2"
+              ],
+              [
+                1794949561.301,
+                "3"
+              ],
+              [
+                1794949576.301,
+                "3"
+              ],
+              [
+                1794949591.301,
+                "3"
+              ],
+              [
+                1794949606.301,
+                "3"
+              ],
+              [
+                1794949621.301,
+                "3"
+              ],
+              [
+                1794949636.301,
+                "3"
+              ],
+              [
+                1794949651.301,
+                "3"
+              ],
+              [
+                1794949771.301,
+                "3"
+              ],
+              [
+                1794949786.301,
+                "3"
+              ],
+              [
+                1794949801.301,
+                "3"
+              ],
+              [
+                1794949816.301,
+                "3"
+              ],
+              [
+                1794949831.301,
+                "3"
+              ],
+              [
+                1794949846.301,
+                "3"
+              ],
+              [
+                1794949861.301,
+                "3"
+              ],
+              [
+                1794949876.301,
+                "3"
+              ],
+              [
+                1794949891.301,
+                "3"
+              ]
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "cierre_sesion": 204,
+  "fin": "2026-11-17T18:11:35.793336-03:00"
+}

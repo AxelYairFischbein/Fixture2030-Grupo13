@@ -1,18 +1,17 @@
 # Modelo multidimensional
 
-La base `fixture2030_h8` contiene la tabla `estadisticas_equipo`. Cada fila representa una observación de un equipo en un partido y un instante. Una tabla común permite comparar equipos y agregar por tiempo sin crear una tabla por entidad o consulta.
+La base `fixture2030_h8` contiene la tabla `estadisticas_equipo_v2`. Cada fila representa una observación de un equipo en un partido y un instante. Una tabla común permite comparar equipos y agregar por tiempo sin crear una tabla por entidad o consulta.
 
 | Componente | Nombre y tipo | Significado y uso |
 | --- | --- | --- |
 | Tag | `partido_id`, texto | Identificador estable, filtro principal de las ventanas |
 | Tag | `equipo_id`, texto | Equipo participante, comparación y separación de contadores |
-| Tag | `estadio_id`, texto | Sede del partido. Depende de `partido_id` y no varía por muestra |
 | Field | `posesion_pct`, Float64 | Indicador de posesión estimada que la fuente informa en ese instante, entre 0 y 100 |
 | Field | `pases_acumulados`, Int64 | Contador de pases desde el inicio del partido. Comienza en cero y no disminuye en la muestra |
 | Field | `tiros_intervalo`, Int64 | Cantidad de tiros ocurridos en el intervalo de muestreo que termina en el timestamp |
 | Timestamp | `time` | Instante de observación UTC. Se escribe como Unix epoch con `precision=second` |
 
-Una serie es la tabla más una combinación de sus tres tags. La identidad de un punto agrega el timestamp a esa combinación. Los tres fields pertenecen al mismo punto. Repetir esa identidad y esos valores conserva el mismo punto lógico, como se comprobó al repetir la carga. Escribir valores diferentes sobre la misma identidad sería una modificación y no un dato nuevo. Por eso los reintentos conservan el contenido exacto del lote.
+Una serie es la tabla más una combinación de sus dos tags. La identidad de un punto agrega el timestamp a esa combinación. Los tres fields pertenecen al mismo punto. Repetir esa identidad y esos valores conserva el mismo punto lógico, como se comprobó al repetir la carga. Escribir valores diferentes sobre la misma identidad sería una modificación y no un dato nuevo. Por eso los reintentos conservan el contenido exacto del lote.
 
 No hay identificadores únicos por observación ni texto libre en tags. Los porcentajes y contadores son valores observados, no dimensiones. La variación de un field no crea una serie nueva. Los nombres, descripciones y atributos maestros de equipos y estadios se conservan fuera del modelo temporal.
 
@@ -32,13 +31,23 @@ Los puntos se generan en `[inicio, fin)`. Para un paso de un segundo, cada `tiro
 
 ## Datos de muestra y relación con el Fixture
 
-| Partido | Equipos | Estadio | Series |
-| --- | --- | --- | ---: |
-| PAR-001 | EQ-001 y EQ-002 | EST-01 | 2 |
-| PAR-002 | EQ-003 y EQ-004 | EST-02 | 2 |
+| Partido | Equipos | Series |
+| --- | --- | ---: |
+| PAR-001 | EQ-001 y EQ-002 | 2 |
+| PAR-002 | EQ-003 y EQ-004 | 2 |
 
-Estos identificadores y relaciones coinciden con los datos de partidos, equipos y estadios utilizados en los hitos anteriores. La opción de hasta 32 partidos mantiene la correspondencia de la primera jornada del conjunto existente. Las fechas de observación son una reproducción sintética reciente, separada del calendario del torneo. No se consultó ninguna base anterior para producir estas estadísticas.
+Estos identificadores y relaciones coinciden con los datos de partidos y equipos utilizados en los hitos anteriores. La opción de hasta 32 partidos mantiene la correspondencia de la primera jornada del conjunto existente. Las fechas de observación son una reproducción sintética reciente, separada del calendario del torneo. No se consultó ninguna base anterior para producir estas estadísticas.
 
 Conceptualmente, el Hito 4 conserva información documental del Fixture, el Hito 5 sus relaciones, el Hito 6 sus patrones de consulta de gran volumen y el Hito 7 la caché, las sesiones y la actividad temporal. Este módulo conserva la evolución de medidas deportivas. Un tiro agregado no reemplaza a un evento deportivo con identidad propia. Los usuarios serían consumidores de las consultas, pero sus sesiones no forman parte de las series. No se duplican usuarios ni se ejecutan integraciones con otros motores.
 
 El generador utiliza fórmulas deterministas. Los porcentajes de los dos equipos suman 100 en cada instante. Los pases aumentan cada 10 o 12 segundos según el equipo y los tiros se distribuyen en intervalos de varios minutos. Las variaciones son didácticas y no pretenden simular estadísticamente un torneo real.
+
+## Cambio de esquema y conservación
+
+Desde la revisión del 17 de noviembre, `estadisticas_equipo_v2` usa solo `partido_id` y `equipo_id` como tags. El estadio depende del partido y ninguna consulta implementada lo utiliza como filtro. Se retiró del generador, las consultas y la validación. La API consume la tabla nueva y conserva su contrato temporal.
+
+InfluxDB 3 Core 3.12.0 permite añadir columnas, pero no retirar un tag de la clave existente. Por eso se creó una tabla con el esquema reducido, sin borrar `estadisticas_equipo`. La inspección anterior al cambio encontró cero puntos retenidos, así que no hubo puntos vigentes que copiar. Los registros y archivos de muestras anteriores siguen representando el esquema original.
+
+El origen y sus archivos locales se conservan como respaldo. Volver a la versión anterior del adaptador y los scripts permite consultar la tabla original, sin modificar sus timestamps. Si otro entorno tiene puntos vigentes, debe exportarlos y verificar que la proyección a dos tags no produzca identidades duplicadas antes de cambiar de tabla. El procedimiento de esta revisión no autoriza descartarlos.
+
+La [documentación del esquema de InfluxDB](https://docs.influxdata.com/influxdb3/core/get-started/) explica la identidad formada por tags y tiempo. Las [operaciones de modificación](https://docs.influxdata.com/influxdb3/core/admin/tables/update/) permiten añadir columnas. La versión instalada y el resultado efectivo se registran en la [auditoría integrada](../../Hito%2013/evidencia/auditoria-20261117/README.md).

@@ -1,0 +1,136 @@
+{
+  "fecha": "2026-11-17T21:04:50.711341+00:00",
+  "commit": "ed49e3fcb1dad4f1767dc17dbb0c87753e9cc4aa",
+  "base_temporal": "auditoria_20261117_1794949490",
+  "tabla": "estadisticas_equipo_v2",
+  "puntos_canonicos_antes": [
+    {
+      "puntos": 0
+    }
+  ],
+  "puntos_v2_antes": [
+    {
+      "puntos": 0
+    }
+  ],
+  "creada": true,
+  "limpieza": true,
+  "carga": "puntos escritos: 20 | ventana UTC 2026-11-17T20:59:00Z -> 2026-11-17T21:04:00Z | paso 60s",
+  "respuesta_http": {
+    "data": {
+      "partidoId": "PAR-001",
+      "equipoId": null,
+      "desde": "2026-11-17T20:53:01.000Z",
+      "hasta": "2026-11-17T21:03:01.000Z",
+      "intervalo": "1m",
+      "puntos": [
+        {
+          "inicio": "2026-11-17T20:59:00Z",
+          "equipoId": "EQ-001",
+          "muestras": 1,
+          "posesionMedia": 45.5,
+          "tiros": 0,
+          "pasesAcumulados": 0
+        },
+        {
+          "inicio": "2026-11-17T20:59:00Z",
+          "equipoId": "EQ-002",
+          "muestras": 1,
+          "posesionMedia": 54.5,
+          "tiros": 0,
+          "pasesAcumulados": 0
+        },
+        {
+          "inicio": "2026-11-17T21:00:00Z",
+          "equipoId": "EQ-001",
+          "muestras": 1,
+          "posesionMedia": 46.0,
+          "tiros": 0,
+          "pasesAcumulados": 6
+        },
+        {
+          "inicio": "2026-11-17T21:00:00Z",
+          "equipoId": "EQ-002",
+          "muestras": 1,
+          "posesionMedia": 54.0,
+          "tiros": 0,
+          "pasesAcumulados": 5
+        },
+        {
+          "inicio": "2026-11-17T21:01:00Z",
+          "equipoId": "EQ-001",
+          "muestras": 1,
+          "posesionMedia": 46.5,
+          "tiros": 0,
+          "pasesAcumulados": 12
+        },
+        {
+          "inicio": "2026-11-17T21:01:00Z",
+          "equipoId": "EQ-002",
+          "muestras": 1,
+          "posesionMedia": 53.5,
+          "tiros": 0,
+          "pasesAcumulados": 10
+        },
+        {
+          "inicio": "2026-11-17T21:02:00Z",
+          "equipoId": "EQ-001",
+          "muestras": 1,
+          "posesionMedia": 47.0,
+          "tiros": 0,
+          "pasesAcumulados": 18
+        },
+        {
+          "inicio": "2026-11-17T21:02:00Z",
+          "equipoId": "EQ-002",
+          "muestras": 1,
+          "posesionMedia": 53.0,
+          "tiros": 0,
+          "pasesAcumulados": 15
+        },
+        {
+          "inicio": "2026-11-17T21:03:00Z",
+          "equipoId": "EQ-001",
+          "muestras": 1,
+          "posesionMedia": 47.5,
+          "tiros": 0,
+          "pasesAcumulados": 24
+        },
+        {
+          "inicio": "2026-11-17T21:03:00Z",
+          "equipoId": "EQ-002",
+          "muestras": 1,
+          "posesionMedia": 52.5,
+          "tiros": 0,
+          "pasesAcumulados": 20
+        }
+      ]
+    },
+    "meta": {
+      "requestId": "cb79b99cba8e4f7a9b3d6047a39117a7",
+      "fuentes": [
+        {
+          "fuente": "influxdb",
+          "operacion": "ultimo_instante",
+          "resultado": "ok",
+          "ms": 7.61
+        },
+        {
+          "fuente": "influxdb",
+          "operacion": "resumen_ventana",
+          "resultado": "ok",
+          "ms": 8.52
+        }
+      ],
+      "paginacion": null,
+      "cache": null
+    }
+  },
+  "pruebas": "...                                                                      [100%]\n3 passed, 43 deselected in 1.00s",
+  "agregacion_con_datos_verificada": true,
+  "puntos_v2_despues": [
+    {
+      "puntos": 0
+    }
+  ]
+}

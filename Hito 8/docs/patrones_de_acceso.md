@@ -4,12 +4,12 @@ Se necesita observar la evolución de un partido y comparar sus equipos sin reco
 
 | Patrón | Productor o consumidor y objetivo | Ventana y frecuencia | Dimensiones y medidas | Precisión y respuesta |
 | --- | --- | --- | --- | --- |
-| P1 Registrar observaciones | Proveedor sintético que actualiza el estado del partido | 90 minutos por partido, una muestra por equipo cada segundo | Partido, equipo y estadio. Posesión estimada, pases acumulados y tiros del intervalo | Timestamp UTC en segundos. Un punto con tres fields. La carga local reproduce la secuencia por lotes |
-| P2 Recuperar estado reciente | Consumidor de seguimiento que comprueba cambios y frescura | Último minuto de la muestra, lectura conceptual cada 5 s | Un partido y un equipo, con estadio como contexto. Las tres medidas | Hasta cinco observaciones en orden descendente, conservando sus timestamps |
+| P1 Registrar observaciones | Proveedor sintético que actualiza el estado del partido | 90 minutos por partido, una muestra por equipo cada segundo | Partido y equipo. Posesión estimada, pases acumulados y tiros del intervalo | Timestamp UTC en segundos. Un punto con tres fields. La carga local reproduce la secuencia por lotes |
+| P2 Recuperar estado reciente | Consumidor de seguimiento que comprueba cambios y frescura | Último minuto de la muestra, lectura conceptual cada 5 s | Un partido y un equipo. Las tres medidas | Hasta cinco observaciones en orden descendente, conservando sus timestamps |
 | P3 Comparar equipos | Analista que compara actividad reciente | Cinco minutos, consulta conceptual cada minuto | Los dos equipos de un partido. Media de posesión, incremento de pases y suma de tiros | Una fila por equipo, cantidad de muestras y marca de intervalos inválidos |
 | P4 Resumir evolución | Analista que observa tendencias con menos filas | Cinco minutos agrupados por minuto, consulta bajo demanda | Partido y equipo. Las mismas medidas con agregaciones propias | Un intervalo por equipo, 60 muestras esperadas por minuto con paso de 1 s |
 
-Las frecuencias de lectura son necesidades de diseño. Los scripts se ejecutan una vez por invocación y no implementan consultas periódicas. P1 justifica la escritura ordenada y compacta. P2 y P3 requieren filtrar por partido y equipo. El estadio identifica el contexto de cada serie y permite una futura selección por sede sin copiar su ficha. P4 necesita timestamps uniformes y funciones distintas para cada medida. De estos patrones se deriva una sola tabla, descrita en [modelo multidimensional](modelo_multidimensional.md).
+Las frecuencias de lectura son necesidades de diseño. Los scripts se ejecutan una vez por invocación y no implementan consultas periódicas. P1 justifica la escritura ordenada y compacta. P2 y P3 requieren filtrar por partido y equipo. El estadio no forma parte de los accesos implementados y se retiró del modelo temporal. P4 necesita timestamps uniformes y funciones distintas para cada medida. De estos patrones se deriva una sola tabla, descrita en [modelo multidimensional](modelo_multidimensional.md).
 
 ## Ausencias y datos tardíos
 

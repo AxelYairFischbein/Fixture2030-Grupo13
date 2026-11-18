@@ -1,0 +1,476 @@
+{
+  "fecha": "2026-11-18T11:33:40.468956-03:00",
+  "commit_codigo": "ed49e3fcb1dad4f1767dc17dbb0c87753e9cc4aa",
+  "configuraciones": [
+    {
+      "comando": "docker compose -f \"Hito 4/docker-compose.yml\" config --quiet",
+      "salida": 0
+    },
+    {
+      "comando": "docker compose -f \"Hito 5/docker-compose.yml\" config --quiet",
+      "salida": 0
+    },
+    {
+      "comando": "docker compose -f \"Hito 6/docker-compose.yml\" config --quiet",
+      "salida": 0
+    },
+    {
+      "comando": "docker compose -f \"Hito 7/docker-compose.yml\" config --quiet",
+      "salida": 0
+    },
+    {
+      "comando": "docker compose -f \"Hito 8/docker-compose.yml\" config --quiet",
+      "salida": 0
+    },
+    {
+      "comando": "docker compose -f \"Hito 9/docker-compose.yml\" config --quiet",
+      "salida": 0
+    },
+    {
+      "comando": "docker compose -f \"Hito 10/docker-compose.yml\" config --quiet",
+      "salida": 0
+    },
+    {
+      "comando": "docker compose -f \"Hito 12/docker-compose.yml\" config --quiet",
+      "salida": 0
+    },
+    {
+      "comando": "docker compose -f \"Hito 13/docker-compose.yml\" config --quiet",
+      "salida": 0
+    },
+    {
+      "comando": "docker exec grupo13-hito13-prometheus-1 promtool check config /etc/prometheus/prometheus.yml",
+      "salida": 0,
+      "resultado": "Checking /etc/prometheus/prometheus.yml\n  SUCCESS: 1 rule files found\n SUCCESS: /etc/prometheus/prometheus.yml is valid prometheus config file syntax\n\nChecking /etc/prometheus/reglas.yml\n  SUCCESS: 2 rules found"
+    },
+    {
+      "comando": "docker exec grupo13-hito13-prometheus-1 promtool check rules /etc/prometheus/reglas.yml",
+      "salida": 0,
+      "resultado": "Checking /etc/prometheus/reglas.yml\n  SUCCESS: 2 rules found"
+    }
+  ],
+  "salud": {
+    "data": [
+      {
+        "fuente": "mongodb",
+        "estado": "ok",
+        "ms": 3.1
+      },
+      {
+        "fuente": "neo4j",
+        "estado": "ok",
+        "ms": 10.03
+      },
+      {
+        "fuente": "cassandra",
+        "estado": "ok",
+        "ms": 311.59
+      },
+      {
+        "fuente": "redis",
+        "estado": "ok",
+        "ms": 17.23
+      },
+      {
+        "fuente": "influxdb",
+        "estado": "ok",
+        "ms": 45.95
+      },
+      {
+        "fuente": "iris",
+        "estado": "ok",
+        "ms": 3.34
+      }
+    ],
+    "meta": {
+      "requestId": "1e8bdc27bcbf48498842af88d5f50336",
+      "fuentes": [
+        {
+          "fuente": "mongodb",
+          "operacion": "ping",
+          "resultado": "ok",
+          "ms": 3.1
+        },
+        {
+          "fuente": "neo4j",
+          "operacion": "ping",
+          "resultado": "ok",
+          "ms": 10.03
+        },
+        {
+          "fuente": "cassandra",
+          "operacion": "ping",
+          "resultado": "ok",
+          "ms": 311.59
+        },
+        {
+          "fuente": "redis",
+          "operacion": "ping",
+          "resultado": "ok",
+          "ms": 17.23
+        },
+        {
+          "fuente": "influxdb",
+          "operacion": "ping",
+          "resultado": "ok",
+          "ms": 45.95
+        },
+        {
+          "fuente": "iris",
+          "operacion": "ping",
+          "resultado": "ok",
+          "ms": 3.34
+        }
+      ],
+      "paginacion": null,
+      "cache": null
+    }
+  },
+  "targets": [
+    {
+      "job": "fixture-api",
+      "estado": "up",
+      "error": ""
+    },
+    {
+      "job": "mongodb",
+      "estado": "up",
+      "error": ""
+    },
+    {
+      "job": "prometheus",
+      "estado": "up",
+      "error": ""
+    },
+    {
+      "job": "redis",
+      "estado": "up",
+      "error": ""
+    }
+  ],
+  "grafana": {
+    "paneles": 6,
+    "provisionado": true,
+    "json_coincide": true,
+    "fuente": {
+      "details": {
+        "application": "Prometheus",
+        "features": {
+          "rulerApiEnabled": false
+        }
+      },
+      "message": "Successfully queried the Prometheus API.",
+      "status": "OK"
+    },
+    "intervalo_ms": [
+      1794949531301,
+      1794949895793
+    ],
+    "consultas": [
+      {
+        "panel": 1,
+        "consulta": "up{job=~\"fixture-api|mongodb|redis\"}",
+        "series": 3,
+        "muestras_numericas": 75
+      },
+      {
+        "panel": 2,
+        "consulta": "mongodb_up{job=\"mongodb\"}",
+        "series": 1,
+        "muestras_numericas": 25
+      },
+      {
+        "panel": 2,
+        "consulta": "redis_up{job=\"redis\"}",
+        "series": 1,
+        "muestras_numericas": 25
+      },
+      {
+        "panel": 3,
+        "consulta": "histogram_quantile(0.95, sum by (le) (rate(fixture_http_request_duration_seconds_bucket{job=\"fixture-api\",traffic=\"negocio\"}[2m])))",
+        "series": 1,
+        "muestras_numericas": 25
+      },
+      {
+        "panel": 3,
+        "consulta": "sum(rate(fixture_http_request_duration_seconds_sum{job=\"fixture-api\",traffic=\"negocio\"}[2m])) / sum(rate(fixture_http_request_duration_seconds_count{job=\"fixture-api\",traffic=\"negocio\"}[2m]))",
+        "series": 1,
+        "muestras_numericas": 24
+      },
+      {
+        "panel": 4,
+        "consulta": "sum by (route) (rate(fixture_http_requests_total{job=\"fixture-api\",traffic=\"negocio\"}[2m]))",
+        "series": 9,
+        "muestras_numericas": 215
+      },
+      {
+        "panel": 5,
+        "consulta": "sum(rate(fixture_http_requests_total{job=\"fixture-api\",traffic=\"negocio\",status=~\"4..\"}[2m])) or (0 * sum(rate(fixture_http_requests_total{job=\"fixture-api\",traffic=\"negocio\"}[2m])))",
+        "series": 1,
+        "muestras_numericas": 25
+      },
+      {
+        "panel": 5,
+        "consulta": "sum(rate(fixture_http_requests_total{job=\"fixture-api\",traffic=\"negocio\",status=~\"5..\"}[2m])) or (0 * sum(rate(fixture_http_requests_total{job=\"fixture-api\",traffic=\"negocio\"}[2m])))",
+        "series": 1,
+        "muestras_numericas": 25
+      },
+      {
+        "panel": 6,
+        "consulta": "mongodb_ss_connections{job=\"mongodb\",conn_type=\"current\"}",
+        "series": 1,
+        "muestras_numericas": 25
+      },
+      {
+        "panel": 6,
+        "consulta": "redis_connected_clients{job=\"redis\"}",
+        "series": 1,
+        "muestras_numericas": 18
+      }
+    ]
+  },
+  "alertas_historicas": {
+    "instante": 1794949760.02025,
+    "series": [
+      {
+        "metric": {
+          "__name__": "ALERTS",
+          "alertname": "ErroresAPIAltos",
+          "alertstate": "firing",
+          "responsable": "api-grupo13",
+          "severity": "warning"
+        },
+        "value": [
+          1794949760.02,
+          "1"
+        ]
+      },
+      {
+        "metric": {
+          "__name__": "ALERTS",
+          "alertname": "FuenteNoDisponible",
+          "alertstate": "firing",
+          "component": "redis",
+          "instance": "redis-exporter:9121",
+          "job": "redis",
+          "responsable": "operacion-grupo13",
+          "severity": "critical"
+        },
+        "value": [
+          1794949760.02,
+          "1"
+        ]
+      }
+    ]
+  },
+  "alertas_actuales": [],
+  "api_version": {
+    "commit": "ed49e3fcb1dad4f1767dc17dbb0c87753e9cc4aa",
+    "imagen": "sha256:1910fc8428d1528750a389e0461d0df55214da3125de557a385fceae6bdd5eae",
+    "archivos_coinciden": true,
+    "archivos": 31
+  },
+  "bases": [
+    {
+      "contenedor": "/fixture2030-mongodb",
+      "imagen": "sha256:f161f58d3fd773ad9f01a7f217fc27ade85c866f9bb9c6993a6b507e24ce05a5",
+      "estado": "running",
+      "puertos": {
+        "27017/tcp": [
+          {
+            "HostIp": "0.0.0.0",
+            "HostPort": "27017"
+          },
+          {
+            "HostIp": "::",
+            "HostPort": "27017"
+          }
+        ]
+      }
+    },
+    {
+      "contenedor": "/grupo13-hito5-neo4j-1",
+      "imagen": "sha256:956faa5d14b6beaa629b80c718bfd389ec12064f97e276ed9a58b0c53b25a323",
+      "estado": "running",
+      "puertos": {
+        "7474/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "7474"
+          }
+        ],
+        "7687/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "7687"
+          }
+        ]
+      }
+    },
+    {
+      "contenedor": "/grupo13-hito6-cassandra-1",
+      "imagen": "sha256:ee178b38a2746a8e15a115bd038ad1f864391d04a84162a018cb0dd79511709a",
+      "estado": "running",
+      "puertos": {
+        "9042/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "9042"
+          }
+        ]
+      }
+    },
+    {
+      "contenedor": "/grupo13-hito7-redis-1",
+      "imagen": "sha256:718f745deb7dfefeac6eed7041fc7ec9476b50e61b247932682457c41adafa0e",
+      "estado": "running",
+      "puertos": {
+        "6379/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "16379"
+          }
+        ]
+      }
+    },
+    {
+      "contenedor": "/grupo13-hito8-influxdb-1",
+      "imagen": "sha256:624d69bca6bf6fb174aca5a974e1d96e5c5486994e6ae35bc9b4fe02b9520076",
+      "estado": "running",
+      "puertos": {
+        "8181/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "8181"
+          }
+        ]
+      }
+    },
+    {
+      "contenedor": "/grupo13-hito9-iris-1",
+      "imagen": "sha256:cd2ebcab02d1ef80ec155def4418399f353d867162688c36a3705760e750bdaa",
+      "estado": "running",
+      "puertos": {
+        "1972/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "1972"
+          }
+        ],
+        "52773/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "52773"
+          }
+        ]
+      }
+    }
+  ],
+  "cassandra_montaje": {
+    "Type": "volume",
+    "Name": "grupo13-hito6_cassandra_data",
+    "Destination": "/var/lib/cassandra",
+    "RW": true
+  },
+  "respaldos_conservados": true,
+  "h12_trazabilidad": {
+    "commit": "5054f7f333133228cc23c635ad4c4491a4567974",
+    "imagen_conservada": true,
+    "archivos_historicos_coinciden_con_git": true,
+    "carga_repetida": false,
+    "archivos_medidor_coinciden_con_git": 4,
+    "ejecucion_historica_completa": true,
+    "integridad_historica_antes_despues": "OK",
+    "escrituras_historicas": 0
+  },
+  "influx_catalogo": {
+    "fecha": "2026-11-18T16:38:15.200084-03:00",
+    "version": "influxdb3 InfluxDB 3 Core, 3.12.0, revision 3ba97c65f1ee4e1f127a8266517d4d2083b7ea39",
+    "contexto": "fixture2030_h8",
+    "columnas": [
+      {
+        "table_name": "estadisticas_equipo",
+        "column_name": "equipo_id",
+        "data_type": "Dictionary(Int32, Utf8)"
+      },
+      {
+        "table_name": "estadisticas_equipo",
+        "column_name": "estadio_id",
+        "data_type": "Dictionary(Int32, Utf8)"
+      },
+      {
+        "table_name": "estadisticas_equipo",
+        "column_name": "partido_id",
+        "data_type": "Dictionary(Int32, Utf8)"
+      },
+      {
+        "table_name": "estadisticas_equipo",
+        "column_name": "pases_acumulados",
+        "data_type": "Int64"
+      },
+      {
+        "table_name": "estadisticas_equipo",
+        "column_name": "posesion_pct",
+        "data_type": "Float64"
+      },
+      {
+        "table_name": "estadisticas_equipo",
+        "column_name": "time",
+        "data_type": "Timestamp(ns)"
+      },
+      {
+        "table_name": "estadisticas_equipo",
+        "column_name": "tiros_intervalo",
+        "data_type": "Int64"
+      },
+      {
+        "table_name": "estadisticas_equipo_v2",
+        "column_name": "equipo_id",
+        "data_type": "Dictionary(Int32, Utf8)"
+      },
+      {
+        "table_name": "estadisticas_equipo_v2",
+        "column_name": "partido_id",
+        "data_type": "Dictionary(Int32, Utf8)"
+      },
+      {
+        "table_name": "estadisticas_equipo_v2",
+        "column_name": "pases_acumulados",
+        "data_type": "Int64"
+      },
+      {
+        "table_name": "estadisticas_equipo_v2",
+        "column_name": "posesion_pct",
+        "data_type": "Float64"
+      },
+      {
+        "table_name": "estadisticas_equipo_v2",
+        "column_name": "time",
+        "data_type": "Timestamp(ns)"
+      },
+      {
+        "table_name": "estadisticas_equipo_v2",
+        "column_name": "tiros_intervalo",
+        "data_type": "Int64"
+      }
+    ],
+    "puntos": {
+      "estadisticas_equipo": 0,
+      "estadisticas_equipo_v2": 0
+    }
+  },
+  "lanzadores": {
+    "commit": "4ddebf43a6ffee603cb2ccf91c06e17bddf4acd9",
+    "fecha": "2026-11-18T16:38:15.367425-03:00",
+    "preparacion_local": {
+      "sin_mongodb": "salida 1 esperada",
+      "sin_neo4j": "salida 1 esperada",
+      "archivos_temporales_validos": "generación verificada",
+      "env_preexistente": "contenido existente conservado en el archivo temporal de prueba"
+    },
+    "fixture_estado_http": 200,
+    "syntax_powershell_bash": "OK",
+    "compose_h4_h5": "OK",
+    "imagen_api_cambios": false
+  }
+}

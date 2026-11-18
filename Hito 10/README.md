@@ -73,13 +73,13 @@ Clonar el repositorio, abrir una terminal (PowerShell o cmd) en `Hito 10` y ejec
 .\fixture.cmd todo
 ```
 
-Ese comando, sin pasos manuales y de forma repetible:
+Antes de usar ese comando, configurar las credenciales locales de [MongoDB](../Hito%204/README.md) y [Neo4j](../Hito%205/README.md) en sus respectivos `.env`. Usarlo solo sobre un entorno nuevo o cuya recarga se haya decidido expresamente. La secuencia:
 
-1. comprueba que Docker responda y que los puertos 27017, 7474, 7687, 9042, 16379, 8181, 1972, 52773 y 8000 no estén ocupados por otro programa.
-2. crea las carpetas de datos (`%USERPROFILE%\docker\data\...`), `Hito 5\.env` desde su ejemplo y `Hito 10\.env` con las credenciales del entorno de prueba y una clave IRIS aleatoria
-3. inicia los contenedores de los Hitos 4 a 9 y espera a cada base.
-4. carga las muestras con los scripts de cada hito (MongoDB, Neo4j, Cassandra, clases y demo de IRIS), corrige el `chown` de IRIS si la carpeta es nueva, crea el usuario IRIS de la API y el token y la base de InfluxDB.
-5. construye y levanta la API en un contenedor, agrega 30 minutos de estadísticas recientes y abre <http://127.0.0.1:8000/>.
+1. Comprueba que Docker responda y que los puertos 27017, 7474, 7687, 9042, 16379, 8181, 1972, 52773 y 8000 no estén ocupados por otro programa.
+2. Comprueba las credenciales locales de los Hitos 4 y 5. Prepara las carpetas de InfluxDB e IRIS. Si falta `Hito 10/.env`, lo genera con esas credenciales y una clave IRIS aleatoria
+3. Inicia los contenedores de los Hitos 4 a 9 y espera a cada base.
+4. Carga las muestras con los scripts de cada hito (MongoDB, Neo4j, Cassandra, clases y demo de IRIS), corrige el `chown` de IRIS si la carpeta es nueva, crea el usuario IRIS de la API y el token y la base de InfluxDB.
+5. Construye y levanta la API en un contenedor, agrega 30 minutos de estadísticas recientes y abre <http://127.0.0.1:8000/>.
 
 La primera vez tarda varios minutos (descarga de imágenes y arranque de Cassandra e IRIS). Las siguientes, menos de un minuto.
 
@@ -184,3 +184,11 @@ Resultado registrado: **36 pruebas aprobadas** ([evidencia](docs/evidencia/02_pr
 - Las evidencias iniciales registraron un healthcheck de Neo4j afectado por CRLF. El estado depende del checkout y debe verificarse con `docker ps` y una consulta real.
 - Las transiciones de un acta IRIS son permanentes. Las pruebas las ejercitan sobre un acta temporal que se borra al terminar.
 - `PAR-001` de Neo4j está FINALIZADO y el acta de IRIS está PENDIENTE por el diseño de dos muestras independientes. No hay sincronización entre ellas. El [Hito 13](../Hito%2013/README.md) explica su alcance y el monitoreo de `/metrics`.
+
+## Revisión integrada del 17 de noviembre
+
+El plantel de MongoDB y su contrato HTTP ya no incluyen partidos o goles internacionales. Se conservaron identidad, atributos del jugador y estado del plantel. La interfaz existente muestra esos mismos campos. El adaptador temporal consulta `estadisticas_equipo_v2`, con dos tags. Cassandra usa el volumen nombrado del Hito 6, conservando los keyspaces y la versión del motor.
+
+La API mantiene rutas, errores, límites, sesión, caché e idempotencia. Estos comportamientos participan en las comprobaciones de recuperación y evitan duplicar comentarios al reintentar. La consola y los comandos de preparación son recursos opcionales. La entrada principal para explicar los casos de uso es Swagger, con sus adaptadores y contratos. No se amplió la interfaz ni la orquestación.
+
+La [auditoría integrada](../Hito%2013/evidencia/auditoria-20261117/README.md) identifica la versión nueva, las migraciones, las pruebas reales y las limitaciones. Las mediciones anteriores de este hito conservan su alcance original.

@@ -46,6 +46,11 @@ docker compose logs --tail 30 influxdb
 
 ## 2. Generar, cargar y validar
 
+La tabla actual es `estadisticas_equipo_v2`, con tags `partido_id` y `equipo_id`. `inicializacion.py` crea su esquema si falta. Se conserva `estadisticas_equipo` como origen anterior. Consultar el [cambio de esquema](docs/modelo_multidimensional.md#cambio-de-esquema-y-conservación) antes de aplicar el código sobre otra instalación con puntos vigentes.
+
+Los siguientes comandos son preparación de una muestra, no pasos de arranque. Conservar fuera de Git una copia de `datos/` si contiene una ejecución anterior. No cambiar sus timestamps para presentar las cifras históricas como actuales. La auditoría usó una muestra temporal de 20 puntos y la eliminó al terminar, como registra la [evidencia nueva](../Hito%2013/evidencia/auditoria-20261117/influx-muestra-temporal.json).
+
+
 ```powershell
 python -X utf8 scripts/generacion_puntos.py
 python -X utf8 scripts/carga_lotes.py --lote 1000

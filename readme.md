@@ -12,3 +12,5 @@ Trabajo práctico de Ingeniería de Datos II.
 - [Hito 11: evaluación de conectividad de la API y sus dependencias](Hito%2011/README.md).
 - [Hito 12: pruebas de carga y optimización de comentarios](Hito%2012/README.md).
 - [Hito 13: monitoreo con Prometheus y Grafana, defensa final](Hito%2013/README.md).
+
+La [auditoría integrada de los Hitos 4 a 13](Hito%2013/evidencia/auditoria-20261117/README.md) reúne las migraciones, las pruebas y sus límites. El [guion de defensa](Hito%2013/defensa.md) distribuye 18 minutos entre dos integrantes y reserva 2 minutos de margen.

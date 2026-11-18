@@ -1,13 +1,13 @@
 # Contexto completo del Hito 10 - API REST integrada (Fixture 2030, Grupo 13)
 
-Documento de contexto para retomar el trabajo o responder preguntas sobre el Hito 10. Describe qué se pidió, qué se construyó, cómo funciona cada parte, cómo se ejecuta, qué decisiones se tomaron, qué problemas aparecieron y qué queda pendiente.
+Este documento describe la API integrada, sus adaptadores y sus límites. La revisión del 17 y 18 de noviembre actualiza los modelos y la persistencia. Las mediciones de octubre se conservan como antecedentes identificados.
 
 ---
 
 ## 1. Contexto de la materia
 
 - Asignatura: Ingeniería de Datos II (UADE). Trabajo práctico grupal "Fixture Mundial 2030", Grupo 13.
-- Repositorio: `https://github.com/AxelYairFischbein/Fixture2030-Grupo13`, carpetas `Hito 4` a `Hito 9`, `Hito 10` y `Hito 10a`.
+- Repositorio: `https://github.com/AxelYairFischbein/Fixture2030-Grupo13`, con implementación en las carpetas `Hito 4` a `Hito 13`.
 - Cada hito anterior implementó un módulo NoSQL con Docker Compose y datos sintéticos:
 
 | Hito | Motor | Módulo | Datos de muestra |
@@ -16,7 +16,7 @@ Documento de contexto para retomar el trabajo o responder preguntas sobre el Hit
 | 5 | Neo4j | Grafo: `Jugador-[:PERTENECE_A]->Equipo-[:DISPUTA {rol}]->Partido-[:SE_JUEGA_EN]->Estadio`, `EventoDeportivo-[:OCURRE_EN]->Partido`, `EventoDeportivo-[:INVOLUCRA {rol SALE/ENTRA}]->Jugador` | 64 partidos `PAR-001..PAR-064`, 8 estadios `EST-01..EST-08`, 128 eventos (sustituciones) |
 | 6 | Cassandra | Comentarios masivos, keyspace `fixture2030_comentarios`. Tabla principal `comentarios_por_partido` con PK `((partido_id, minuto, segmento), creado_en, comentario_id)` y tabla secundaria `comentarios_por_usuario` con PK `((usuario_id, dia), creado_en, comentario_id)`. Segmento = `CRC32(comentario_id) % 4` | 12 comentarios `MUESTRA-001..012`, casi todos en PAR-001 entre 18:00 y 18:03 UTC del 10/06/2030 |
 | 7 | Redis | Sesiones (hash con TTL 1800 s creado con Lua), caché de ficha de equipo (String JSON, TTL 300 s), ranking (sorted set). Puerto publicado 16379 | Claves demo `fixture2030:h7:demo:*` |
-| 8 | InfluxDB 3 Core | Series temporales: base `fixture2030_h8`, tabla `estadisticas_equipo`, tags `partido_id, equipo_id, estadio_id`, fields `posesion_pct, pases_acumulados, tiros_intervalo`. Retención 7 días. Token en `Hito 8/.local/admin.token` | 21.600 puntos (PAR-001 y PAR-002, 90 min, 1/s), generados el 09/10/2026 y vencidos el 16/10/2026 |
+| 8 | InfluxDB 3 Core | Series temporales: base `fixture2030_h8`, tabla `estadisticas_equipo_v2`, tags `partido_id, equipo_id`, fields `posesion_pct, pases_acumulados, tiros_intervalo`. Retención 7 días. Token en `Hito 8/.local/admin.token` | Tabla actual vacía tras la retención. La evidencia de octubre corresponde a 21.600 puntos de la tabla original. La auditoría comprobó la tabla nueva con 20 puntos temporales y los limpió |
 | 9 | InterSystems IRIS | Objetos persistentes en namespace `USER`, paquete `FixtureH9`: `Persona` (base), `Jugador` y `Arbitro` (herencia), `Partido` (padre) con `Eventos` (relación parent/children con `Evento`). Método `Partido.CambiarEstado(nuevo)` que solo permite `PENDIENTE -> EN_JUEGO -> FINALIZADO` (error 5001 si no) | Un partido `PAR-001` en `PENDIENTE`, árbitro `ARB-001`, jugador `JUG-0001`, eventos con IDs `1\|\|1` y `1\|\|2` |
 
 - Todos comparten identificadores (`EQ-001`, `PAR-001`, `JUG-0001`, `EST-01`, `USR-00001`), aunque no hay conexiones entre bases.
@@ -24,7 +24,7 @@ Documento de contexto para retomar el trabajo o responder preguntas sobre el Hit
 
 ## 2. Qué pide el Hito 10 (consigna)
 
-PDF: `Hito 10a/Hito_10_Requisitos_Tecnicos_-_API_REST_Integrada_Fixture_2030.md.pdf`. Hay que hacer una API REST que acceda a los módulos NoSQL mediante **adaptadores separados**, con:
+La API REST accede a los módulos NoSQL mediante **adaptadores separados**, con:
 
 - Casos de uso documentados antes de las rutas.
 - Un endpoint por fuente: Mongo (documentos), Neo4j (Cypher parametrizado), Cassandra (respetando la partición, lectura y escritura), Redis (sesión con clave inexistente o expirada), InfluxDB (intervalo y agregación) e IRIS (entidad compleja y transición validada).
@@ -35,7 +35,7 @@ PDF: `Hito 10a/Hito_10_Requisitos_Tecnicos_-_API_REST_Integrada_Fixture_2030.md.
 - Configuración por variables de entorno, sin secretos en Git.
 - Evidencia, request ID, idempotencia, timeouts, paginación, logs sin secretos y rendimiento con método.
 - Documentación con apartados: casos de uso, arquitectura, endpoints, contratos, adaptadores, validación, errores, conectividad, idempotencia, pruebas, seguridad, rendimiento y coherencia con el TPO.
-- Además, el usuario pidió **una interfaz gráfica** integrada.
+- La consola existente permite recorrer los mismos endpoints. Swagger es la entrada principal de la defensa.
 
 ## 3. Qué se construyó (resumen)
 
@@ -45,10 +45,10 @@ En la carpeta `Hito 10/`:
 - La **consola web** es un único `web/index.html`, sin dependencias externas, y la sirve la API en `/`.
 - Swagger UI está en `/docs` y el contrato versionado en `openapi/openapi.yaml`.
 - La colección Postman tiene 32 requests con aserciones.
-- Hay **36 pruebas pytest**, todas aprobadas: 16 unitarias sin bases y 20 de integración contra las 6 bases reales.
+- Hay 46 casos pytest. En la auditoría se aprobaron 26 unitarios y 19 de integración, con una omisión por retención de InfluxDB. La agregación con puntos se comprobó por separado en una base temporal.
 - El script `fixture.ps1` agrupa los comandos (levantar, verificar, probar y detener).
 - La documentación está en `docs/` y la evidencia en `docs/evidencia/`.
-- No se modificó ningún hito anterior.
+- Se actualizaron coherentemente los consumidores de MongoDB e InfluxDB y se comprobó el acceso a Cassandra después de migrar su almacenamiento.
 
 ## 4. Estructura de archivos y rol de cada uno
 
@@ -130,21 +130,21 @@ Cliente (GUI / Swagger / Postman / cURL)
 - Los clientes se crean sin conectar. La API arranca aunque alguna base esté caída y se reconecta cuando vuelve.
 - Cassandra conecta en el primer uso y reintenta si falló.
 - IRIS usa una conexión con `threading.Lock` (el driver no es thread-safe) y la reabre tras una falla.
-- Los endpoints son sincrónicos (`def`); FastAPI los corre en su pool de hilos.
+- Los endpoints son sincrónicos (`def`). FastAPI los corre en su pool de hilos.
 
 ## 6. Endpoints (prefijo `/api/v1`)
 
 | Método y ruta | Fuente(s) | Qué hace | Códigos |
 | --- | --- | --- | --- |
-| `GET /salud` | las 6 | `ping` por adaptador. 200 si todas responden; si no, 503 con `error.detalles` = estado por fuente | 200, 503 |
+| `GET /salud` | las 6 | `ping` por adaptador. 200 si todas responden. Si no, 503 con `error.detalles` = estado por fuente | 200, 503 |
 | `GET /equipos?confederacion&pagina&tamanio` | MongoDB | `find` con proyección, orden `rankingReferencia, equipoId` (índice `idx_equipos_confederacion_ranking`), skip/limit + `count_documents` para el total | 200, 400, 503 |
-| `GET /equipos/{equipoId}` | Redis → MongoDB | Cache-aside: `GET fixture2030:h10:cache:equipo:{id}`; si falta, `find_one` y `SET EX 300`. Header `X-Cache` y `meta.cache` = HIT / MISS / BYPASS (BYPASS = Redis caído, se degrada a Mongo) | 200, 400, 404, 503 |
+| `GET /equipos/{equipoId}` | Redis → MongoDB | Cache-aside: `GET fixture2030:h10:cache:equipo:{id}`. Si falta, `find_one` y `SET EX 300`. Header `X-Cache` y `meta.cache` = HIT / MISS / BYPASS (BYPASS = Redis caído, se degrada a Mongo) | 200, 400, 404, 503 |
 | `DELETE /equipos/{equipoId}/cache` | Redis | `DEL` de la ficha. Idempotente | 204, 400, 503 |
 | `GET /equipos/{equipoId}/jugadores?posicion&pagina&tamanio` | MongoDB | Verifica que exista el equipo y lista ordenando por `numeroCamiseta` (índice `uq_jugadores_equipo_camiseta`) | 200, 400, 404, 503 |
-| `GET /equipos/{equipoId}/partidos?limite` | Neo4j | Agenda: partido, rol, rival, estadio; `[..$limite]` | 200, 400, 404, 503 |
-| `GET /partidos/{partidoId}?limiteEventos` | Neo4j | Partido + estadio + equipos con rol (consulta 1); eventos con involucrados (consulta 2). Partido inexistente → 404; sin eventos → `eventos: []` | 200, 400, 404, 503 |
+| `GET /equipos/{equipoId}/partidos?limite` | Neo4j | Agenda: partido, rol, rival, estadio. `[..$limite]` | 200, 400, 404, 503 |
+| `GET /partidos/{partidoId}?limiteEventos` | Neo4j | Partido + estadio + equipos con rol (consulta 1). Eventos con involucrados (consulta 2). Partido inexistente → 404. Sin eventos → `eventos: []` | 200, 400, 404, 503 |
 | `GET /partidos/{partidoId}/comentarios?desde&hasta&limite&cursor` | Cassandra | Ventana obligatoria ≤ 5 min. Calcula los minutos que la cubren y consulta `minuto IN ? AND segmento IN (0,1,2,3)` (≤ 24 particiones), `ORDER BY creado_en DESC, comentario_id ASC`, `LIMIT`. Cursor de continuación | 200, 400, 503 |
-| `POST /partidos/{partidoId}/comentarios` (header `Idempotency-Key`) | Redis + Neo4j + Cassandra | Ver idempotencia (sección 8). 201 al crear; 200 + `Idempotent-Replayed: true` si se repite | 200, 201, 400, 404, 409, 503 |
+| `POST /partidos/{partidoId}/comentarios` (header `Idempotency-Key`) | Redis + Neo4j + Cassandra | Ver idempotencia (sección 8). 201 al crear. 200 + `Idempotent-Replayed: true` si se repite | 200, 201, 400, 404, 409, 503 |
 | `GET /partidos/{partidoId}/estadisticas?equipoId&desde&hasta&intervalo` | InfluxDB | SQL con `DATE_BIN` (intervalo 10s/30s/1m/5m), promedio de posesión, suma de tiros y máximo de pases acumulados, agrupando por intervalo y equipo. Sin `desde`/`hasta`: últimos 10 min con datos (`MAX(time)` acotado a 7 días). Máx. 720 intervalos por equipo | 200, 400, 503 |
 | `POST /sesiones` `{usuarioId, rol}` | Redis | Script Lua `HSET` + `EXPIRE 1800` atómico (igual que el Hito 7). ID `SES-` + 24 hex aleatorios | 201, 400, 503 |
 | `GET /sesiones/{sesionId}` | Redis | `HGETALL` + `TTL` en una transacción. Vacío → 404 `SESION_NO_VIGENTE` (Redis no distingue "venció" de "nunca existió"). No renueva el TTL | 200, 400, 404, 503 |
@@ -168,7 +168,7 @@ Todas las operaciones documentan además 500. Las rutas `/` (GUI), `/docs` y `/o
 | `TRANSICION_INVALIDA` | 409 | `CambiarEstado` rechazó la transición |
 | `CONFLICTO` | 409 | `Idempotency-Key` reutilizada con otro cuerpo, o todavía en curso |
 | `DEPENDENCIA_NO_DISPONIBLE` | 503 | Base caída, timeout o credencial rechazada (incluye `dependencia`) |
-| `ERROR_INTERNO` | 500 | Excepción no prevista; el traceback solo va al log |
+| `ERROR_INTERNO` | 500 | Excepción no prevista. El traceback solo va al log |
 
 Encabezados: `X-Request-ID` en todas las respuestas (acepta uno entrante si cumple `[A-Za-z0-9-]{8,64}`), `X-Cache` y `Idempotent-Replayed`.
 
@@ -178,9 +178,9 @@ Encabezados: `X-Request-ID` en todas las respuestas (acepta uno entrante si cump
 
 - Patrones: `EQ-\d{3}`, `PAR-\d{3}`, `USR-\d{5}`, `SES-[0-9a-f]{24}`, código de acta `[A-Z0-9][A-Z0-9-]{2,23}`, `Idempotency-Key` `[A-Za-z0-9-]{8,64}`, cursor `\d{13}_[A-Za-z0-9-]{1,64}`.
 - Enums cerrados: confederación, posición, intervalo y estado.
-- Rangos: página 1-1000; tamaño, límite y eventos 1-50; agenda 1-20.
-- Cuerpos con `extra=forbid`; contenido de 1 a 280 caracteres.
-- Fechas ISO; sin zona horaria se toman como UTC; `hasta > desde`.
+- Rangos: página 1-1000. Tamaño, límite y eventos 1-50. Agenda 1-20.
+- Cuerpos con `extra=forbid`. Contenido de 1 a 280 caracteres.
+- Fechas ISO. Sin zona horaria se toman como UTC. `hasta > desde`.
 - Las pruebas unitarias verifican que una entrada inválida no llame a ningún adaptador.
 
 **Cursor de Cassandra:**
@@ -192,22 +192,22 @@ Encabezados: `X-Request-ID` en todas las respuestas (acepta uno entrante si cump
 **Idempotencia del POST de comentarios:**
 
 1. Huella = SHA-256 de `[partido, usuarioId, contenido]`. Clave Redis = `fixture2030:h10:idem:comentario:{partido}:{Idempotency-Key}`.
-2. `SET NX EX 86400` con `{"estado": "EN_CURSO", "huella"}`. Si ya existía: misma huella y `COMPLETADO` → devuelve el original (200); otra huella o `EN_CURSO` → 409.
+2. `SET NX EX 86400` con `{"estado": "EN_CURSO", "huella"}`. Si ya existía: misma huella y `COMPLETADO` → devuelve el original (200). Otra huella o `EN_CURSO` → 409.
 3. Verifica que el partido exista en Neo4j (404 si no) y escribe un `BATCH LOGGED` con las dos tablas de Cassandra. El ID es `API-<uuid>`, `creado_en` es la hora actual con precisión de ms y el segmento sale del CRC32.
 4. Guarda el resultado en la clave (`COMPLETADO`).
 5. Si Neo4j o Cassandra fallan, se libera la clave. Si Redis falla después de escribir, la clave queda `EN_CURSO` hasta su TTL: los reintentos reciben 409 y no se duplica. Sin Redis no se aceptan publicaciones (503).
 
 **Otras escrituras:** los DELETE son idempotentes (204 siempre). El PUT de acta es idempotente (`cambio: false`). `POST /sesiones` **no** es idempotente: cada llamada abre una sesión nueva.
 
-**Límites:** comentarios ≤ 5 min y ≤ 50 por página; estadísticas ≤ 720 intervalos por equipo (por ejemplo, 2 h con intervalo de 10 s); eventos de IRIS `TOP 100`.
+**Límites:** comentarios ≤ 5 min y ≤ 50 por página. Estadísticas ≤ 720 intervalos por equipo (por ejemplo, 2 h con intervalo de 10 s). Eventos de IRIS `TOP 100`.
 
 ## 9. Configuración (`.env`, ignorado por Git)
 
 | Variable | Valor en la notebook |
 | --- | --- |
 | `DEP_TIMEOUT_SEGUNDOS` | 3 (timeout por operación en los 6 clientes) |
-| `MONGO_HOST/PORT/DB/USER/PASSWORD` | 127.0.0.1 / 27017 / fixture2030 / admin / (valor de laboratorio del Hito 4) |
-| `NEO4J_URI/DATABASE/USER/PASSWORD` | bolt://127.0.0.1:7687 / neo4j / neo4j / (valor de laboratorio del Hito 5) |
+| `MONGO_HOST/PORT/DB/USER/PASSWORD` | 127.0.0.1 / 27017 / fixture2030 / admin / (valor de entorno de prueba del Hito 4) |
+| `NEO4J_URI/DATABASE/USER/PASSWORD` | bolt://127.0.0.1:7687 / neo4j / neo4j / (valor de entorno de prueba del Hito 5) |
 | `CASSANDRA_HOSTS/PORT/KEYSPACE` | 127.0.0.1 / 9042 / fixture2030_comentarios (sin auth) |
 | `REDIS_HOST/PORT/PASSWORD/PREFIX` | 127.0.0.1 / 16379 / vacío / `fixture2030:h10` (prefijo propio, no pisa la demo del Hito 7) |
 | `SESION_TTL_SEGUNDOS`, `CACHE_EQUIPO_TTL_SEGUNDOS`, `IDEMPOTENCIA_TTL_SEGUNDOS` | 1800, 300, 86400 |
@@ -215,7 +215,7 @@ Encabezados: `X-Request-ID` en todas las respuestas (acepta uno entrante si cump
 | `IRIS_HOST/PORT/NAMESPACE/USER/PASSWORD` | 127.0.0.1 / 1972 / USER / fixture_api / (aleatoria, solo en `.env`) |
 
 - **Usuario IRIS:** `scripts/iris_crear_usuario_api.ps1` crea el rol `fixture_api_rol` (`%DB_USER:RW`, `%Native_ClassExecution:U`) y el usuario `fixture_api`, más `GRANT SELECT ON SCHEMA FixtureH9`. Envía ObjectScript por stdin a `iris session IRIS -U %SYS` dentro del contenedor del Hito 9.
-- **Notebook vs. Docker:** la API corre en la notebook y usa los puertos publicados en 127.0.0.1. Si corriera en un contenedor, habría que usar `host.docker.internal` o los nombres de servicio con sus puertos internos; solo cambia el `.env`.
+- **Notebook vs. Docker:** la API corre en la notebook y usa los puertos publicados en 127.0.0.1. Si corriera en un contenedor, habría que usar `host.docker.internal` o los nombres de servicio con sus puertos internos. Solo cambia el `.env`.
 
 ## 10. Consola gráfica (`web/index.html`)
 
@@ -223,9 +223,9 @@ HTML, CSS y JS sin librerías, con modo oscuro automático. Usa solo la API púb
 
 | Vista | Qué muestra | Fuentes |
 | --- | --- | --- |
-| Equipos | Tabla paginada con filtro de confederación. Al hacer clic: ficha con badge de caché, "Volver a leer" e "Invalidar caché"; plantel con filtro de posición; agenda (al hacer clic en un partido va a la vista Partido) | MongoDB, Redis, Neo4j |
+| Equipos | Tabla paginada con filtro de confederación. Al hacer clic: ficha con badge de caché, "Volver a leer" e "Invalidar caché". Plantel con filtro de posición. Agenda (al hacer clic en un partido va a la vista Partido) | MongoDB, Redis, Neo4j |
 | Partido | Detalle y eventos. Estadísticas con gráfico SVG de posesión por equipo y totales. Comentarios por ventana con "Cargar más" (cursor) y "Últimos 5 min". Formulario para publicar con `Idempotency-Key` aleatoria y botón "Reintentar el mismo envío" | Neo4j, InfluxDB, Cassandra, Redis |
-| Sesiones | Abrir, consultar (TTL restante) y cerrar; tabla de sesiones abiertas en esta consola | Redis |
+| Sesiones | Abrir, consultar (TTL restante) y cerrar. Tabla de sesiones abiertas en esta consola | Redis |
 | Actas | Acta con árbitro y eventos (IDs IRIS), pasos de estado y botones de transición | IRIS |
 
 En el encabezado: chips de salud de las 6 fuentes, botón "Revisar conectividad" y enlace a Swagger.
@@ -238,20 +238,20 @@ Solo requiere Windows y Docker Desktop (se recomiendan 16 GB de RAM). No hace fa
 .\fixture.cmd todo
 ```
 
-`fixture.cmd` llama a `fixture.ps1` con `-ExecutionPolicy Bypass`. `todo` hace, de forma idempotente:
+`todo` prepara una instalación nueva y puede reescribir muestras. Requiere completar antes los `.env` locales de los Hitos 4 y 5. Para iniciar datos existentes se usan los pasos del README. `fixture.cmd` llama a `fixture.ps1` con `-ExecutionPolicy Bypass` y realiza estas tareas:
 
 1. Verifica que Docker responda y que los puertos no estén ocupados por otros programas.
-2. Crea `%USERPROFILE%\docker\data\{cassandra,influxdb,iris}`, `Hito 8\.local`, `Hito 5\.env` (desde su ejemplo) y `Hito 10\.env` (credenciales de laboratorio y clave IRIS aleatoria).
-3. Ejecuta `docker compose up -d` de los Hitos 4 a 9.
+2. Comprueba los `.env` locales de MongoDB y Neo4j. Prepara las carpetas de InfluxDB e IRIS y genera `Hito 10/.env` si falta.
+3. Ejecuta `docker compose up -d` de los Hitos 4 a 9. Cassandra utiliza el volumen nombrado.
 4. MongoDB: corre los scripts 01, 02, 03 y el seed.
 5. Neo4j: `cypher-shell -f` de `01_constraints` y `02_load`.
 6. Cassandra: espera a `cqlsh` y carga el esquema y la muestra.
 7. InfluxDB: crea el token admin si falta (`Hito 8\.local\admin.token`) y la base con retención de 7 días.
-8. IRIS: espera a que esté `healthy`; si aparece el error de `chown`, lo corrige una sola vez. Luego `LoadDir` y `Demo.Ejecutar()` si falta `PAR-001`, y crea el usuario de la API.
+8. IRIS: espera a que esté `healthy`. Si aparece el error de `chown`, lo corrige una sola vez. Luego `LoadDir` y `Demo.Ejecutar()` si falta `PAR-001`, y crea el usuario de la API.
 9. Construye y levanta la API (`docker compose up -d --build`, imagen `python:3.12-slim`, contenedor `grupo13-hito10-api-1` en `127.0.0.1:8000`, bases vía `host.docker.internal`).
 10. Agrega 30 minutos de estadísticas en InfluxDB y abre el navegador.
 
-Otros comandos: `preparar`, `api`, `abrir`, `estado`, `verificar`, `influx`, `pruebas`, `unitarias`, `latencia`, `logs`, `detener` (`stop`, nunca `down -v`) y `ayuda`. Las pruebas y los scripts Python se ejecutan dentro del contenedor con `docker compose run --rm api ...` (36 aprobadas también así).
+Otros comandos: `preparar`, `api`, `abrir`, `estado`, `verificar`, `influx`, `pruebas`, `unitarias`, `latencia`, `logs`, `detener` (`stop`, nunca `down -v`) y `ayuda`. Las pruebas y los scripts Python se ejecutan dentro del contenedor con `docker compose run --rm api ...`.
 
 Detalles de compatibilidad con PowerShell 5.1 resueltos en el script:
 - No se pasan comillas dobles dentro de argumentos a `docker` (PS 5.1 no las escapa).
@@ -263,25 +263,25 @@ Detalles de compatibilidad con PowerShell 5.1 resueltos en el script:
 
 ## 12. Pruebas y evidencia
 
-**Unitarias** (`tests/unit/test_api.py`, 16): usan la clase `Falso`, un adaptador en memoria que cuenta llamadas y simula caídas con `operacion()`. Cubren:
+**Unitarias** (`tests/unit/`, 26): usan la clase `Falso`, un adaptador en memoria que cuenta llamadas y simula caídas con `operacion()`. Cubren:
 
 - Éxito con requestId y trazas, y caché MISS→HIT.
 - Entrada inválida sin llamadas a las bases.
 - Ventana > 5 min, 404, sesión ausente y 503 sin detalle técnico.
 - Degradación BYPASS y salud con 503.
-- Repetición idempotente (una sola fila) y 409 por huella distinta; falta de `Idempotency-Key`; liberación de la clave ante 404.
-- Transición 409 y PUT sin cambio; ruta inexistente.
+- Repetición idempotente (una sola fila) y 409 por huella distinta. Falta de `Idempotency-Key`. Liberación de la clave ante 404.
+- Transición 409 y PUT sin cambio. Ruta inexistente.
 - Driver real de Redis contra un puerto cerrado (503 en ~1 s), cálculo de minutos de la ventana y OpenAPI versionado igual al generado.
 
 **Integración** (`tests/integration/test_integracion.py`, 20): contra las bases reales.
 
 - Paginación de Mongo (10 equipos UEFA), caché e invalidación, plantel y equipo inexistente.
-- Partido y agenda en Neo4j; cursor de Cassandra (8 comentarios sin repetidos en páginas de 3); ventana vacía.
+- Partido y agenda en Neo4j. Cursor de Cassandra contra una lectura directa, incluidos los ocho comentarios originales aunque coexistan otros. Ventana vacía.
 - Escritura repetida: cuenta la fila en Cassandra y la borra al final.
 - Ciclo de sesión y sesión vencida (TTL 1 s).
 - InfluxDB con ventana, filtro por equipo, tope de intervalos y ventana sin puntos.
-- IRIS: transiciones sobre un acta temporal `H10-TEMPORAL` creada y borrada en un fixture con la API nativa; acta de muestra.
-- Las 6 fuentes "caídas" (cada driver apuntando al puerto 1) → 503 en menos de 8 s.
+- IRIS: transiciones sobre un acta temporal `H10-TEMPORAL` creada y borrada en un fixture con la API nativa. Acta de muestra.
+- Los seis drivers apuntando al puerto 1 → error tipado 503 o 504 en menos de 8 s. Es inaccesibilidad de ese destino, no una detención de los contenedores.
 
 **Evidencia** (`docs/evidencia/`, 16/10/2026):
 
@@ -290,7 +290,7 @@ Detalles de compatibilidad con PowerShell 5.1 resueltos en el script:
 | `01_conectividad.txt` | Las 6 bases ok y `docker ps` |
 | `02_pruebas.txt` | 36 pruebas aprobadas |
 | `03_recorrido_curl.txt` | 22 requests con encabezados y JSON |
-| `04_dependencia_detenida.txt` | `docker compose stop redis` → sesiones 503, ficha 200 BYPASS, salud 503; `start` → 201 |
+| `04_dependencia_detenida.txt` | `docker compose stop redis` → sesiones 503, ficha 200 BYPASS, salud 503. `start` → 201 |
 | `05_logs_correlacion.txt` | Líneas de log por requestId |
 | `06_latencia.txt` | Método, entorno y resultados |
 
@@ -305,32 +305,27 @@ Detalles de compatibilidad con PowerShell 5.1 resueltos en el script:
 | `cassandra-driver` no carga en Python ≥ 3.12 (se eliminó `asyncore`) | Dependencia `pyasyncore`, que restituye el módulo |
 | La DLL de `intersystems-irispython` falla con rutas muy largas | Funciona con la ruta de `Hito 10/.venv` (la falla solo ocurría con un path temporal muy largo) |
 | IRIS en `/durable` no arrancaba (`chown` como root) | Procedimiento documentado en el README del Hito 9: `chown 51773:51773 /durable` como root y reinicio |
-| `_SYSTEM` de IRIS exige cambiar la contraseña | Usuario propio `fixture_api`; además hizo falta el recurso `%Native_ClassExecution` para invocar métodos |
+| `_SYSTEM` de IRIS exige cambiar la contraseña | Usuario propio `fixture_api`. Además hizo falta el recurso `%Native_ClassExecution` para invocar métodos |
 | El script de usuario IRIS fallaba con `<SYNTAX>` | PowerShell 5.1 agrega un BOM al stdin. Se resolvió con `$OutputEncoding = UTF8Encoding($false)` |
 | Fila del cursor IRIS ilegible al reutilizar el cursor | Convertir a `tuple()` antes de la segunda consulta |
-| Redis caído demoraba ~15 s (reintentos por defecto de redis-py) | `retry=Retry(NoBackoff(), 0)`; ahora ~1-2 s |
-| Neo4j del Hito 5 vacío y `cypher.sh` con CRLF (`set: Illegal option -`; el healthcheck figura `unhealthy`) | Se cargaron los `.cypher` con `cypher-shell -f` directo. El healthcheck sigue `unhealthy` pero la base funciona. No se tocó el Hito 5 |
+| Redis caído demoraba ~15 s (reintentos por defecto de redis-py) | `retry=Retry(NoBackoff(), 0)`. Ahora ~1-2 s |
+| Neo4j tuvo un problema de CRLF en su healthcheck durante la preparación inicial | El antecedente queda en las evidencias de octubre. En la auditoría actual el contenedor está saludable y las consultas reales funcionan |
 | Git Bash convertía `/workspace/...` en rutas de Windows | `MSYS_NO_PATHCONV=1` |
-| Muestra de InfluxDB vencida por la retención de 7 días; no se pudo mover `Hito 8/datos` (permiso denegado) | `scripts/cargar_muestra_influx.py` agrega 30 min recientes (1.440 puntos, paso de 5 s) reutilizando `dimensiones()` y `medidas()` del Hito 8 |
+| Muestra de InfluxDB vencida por la retención de 7 días. No se pudo mover `Hito 8/datos` (permiso denegado) | `scripts/cargar_muestra_influx.py` agrega 30 min recientes (1.440 puntos, paso de 5 s) reutilizando `dimensiones()` y `medidas()` del Hito 8 |
 | Acentos rotos en los `.ps1` con PowerShell 5.1 | Archivos guardados en UTF-8 con BOM |
 | Avisos de cassandra-driver (protocolo, balanceo, `USE keyspace`) | `protocol_version=5`, `DCAwareRoundRobinPolicy("datacenter1")` y tablas calificadas `keyspace.tabla` |
 
-## 14. Estado de los datos en la notebook
+## 14. Estado comprobado en la auditoría
 
-- **MongoDB**: muestra del Hito 4 cargada (64 equipos y 1.536 jugadores).
-- **Neo4j**: muestra del Hito 5 cargada.
-- **Cassandra**: 12 comentarios de muestra, más un comentario de evidencia "Evidencia del Hito 10" (usuario `USR-00003`) en `PAR-064`.
-- **IRIS**: muestra del Hito 9 (`Ejecutar()` → `DEMO OK`), `PAR-001` en `PENDIENTE`, y el rol y usuario de la API.
-- **Redis**: claves `fixture2030:h10:*` (sesiones, cachés y claves de idempotencia, todas con TTL).
-- **InfluxDB**: muestra original vencida, más 1.440 puntos recientes de PAR-001 y PAR-002 del 16/10/2026 (vencen en 7 días; se regeneran con `.\fixture.ps1 influx`).
+- MongoDB conserva 64 equipos y 1.536 jugadores, con atributos propios del plantel y sin estadísticas internacionales.
+- Neo4j conserva 1.800 nodos y 2.112 relaciones. PAR-001 está FINALIZADO.
+- Cassandra conserva 20.012 filas en cada tabla de `fixture2030_comentarios`. El keyspace separado `fixture2030_h12` conserva 2.400 filas por partido y ninguna en su tabla por usuario.
+- IRIS conserva el acta PAR-001 PENDIENTE y sus dos eventos. Es una muestra independiente de Neo4j, sin sincronización distribuida.
+- Redis usa el contenedor del Hito 7 en 16379. Las sesiones temporales se cerraron y la falla controlada terminó con el servicio recuperado.
+- InfluxDB conserva la tabla original y la tabla reducida `estadisticas_equipo_v2`, ambas sin puntos recientes al cierre. La base temporal de prueba fue eliminada después de comprobar la agregación.
 
-## 15. Limitaciones y pendientes
+## 15. Límites actuales
 
-- No hay autenticación de consumidores ni TLS; la API escucha solo en 127.0.0.1. Hay un nodo por motor y un worker de uvicorn, y la conexión a IRIS está serializada.
-- Las transiciones válidas sobre `PAR-001` desde la GUI son **permanentes** e irreversibles. El `Verificar()` del Hito 9 espera `PENDIENTE`.
-- La colección Postman publica un comentario real en `PAR-064` cada vez que se ejecuta.
-- **Pendiente para el usuario:**
-  - Hacer el commit y push del Hito 10 (no se hizo commit).
-  - Decidir qué hacer con `Hito 10a/` (copia staged del Hito 9 con el PDF).
-  - Borrar `C:\t10`, un venv temporal de prueba que no se pudo eliminar automáticamente.
-  - Opcionalmente, ejecutar `npx newman run postman\fixture2030_collection.json`.
+La API no incorpora autenticación de consumidores ni TLS y escucha en 127.0.0.1. Hay un nodo por motor, un worker de Uvicorn y acceso serializado a IRIS. Las transiciones de estado se prueban sobre actas temporales. La colección Postman escribe comentarios, por lo que no se usa como comprobación de solo lectura.
+
+La [auditoría integrada](../../Hito%2013/evidencia/auditoria-20261117/README.md) distingue pruebas reales, dobles, autenticación verificable, límites y respaldos conservados. Persistencia local y targets UP no acreditan alta disponibilidad ni todas las operaciones de una fuente.

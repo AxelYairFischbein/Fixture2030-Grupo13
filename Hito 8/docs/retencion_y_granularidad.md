@@ -4,7 +4,7 @@
 
 La base `fixture2030_h8` se crea con retención de **siete días** mediante `influxdb3 create database --retention-period 7d`. Se conserva el detalle por segundo durante esa ventana para revisar partidos recientes y aceptar demoras o ajustes de la fuente. El límite se calcula con el timestamp de observación, no con la fecha de carga.
 
-`inicializacion.py` reutiliza una base existente y verifica su retención con `influxdb3 show retention`. Si la configuración difiere, se detiene y no la reemplaza ni borra datos. La [evidencia del ambiente](evidencia/01_ambiente_y_retencion.txt) registra `7.0000d` en InfluxDB 3 Core 3.12.0. Se comprobó la configuración, no una expiración que todavía no ocurrió.
+`inicializacion.py` reutiliza una base existente y verifica su retención con `influxdb3 show retention`. Si la configuración difiere, se detiene y no la reemplaza ni borra datos. La [evidencia del ambiente](evidencia/01_ambiente_y_retencion.txt) registra `7.0000d` en InfluxDB 3 Core 3.12.0. Esa evidencia inicial comprobó la configuración. La revisión de noviembre encontró cero puntos consultables de aquella muestra, cuyo timestamp ya estaba fuera de la retención.
 
 Al superar el límite de retención, los puntos dejan de ser consultables. La liberación física de archivos se realiza en segundo plano y no tiene por qué coincidir con ese instante. Un timestamp demasiado antiguo no se vuelve reciente por reenviarlo. Una validación de la muestra después de siete días puede devolver menos puntos por vencimiento legítimo.
 
