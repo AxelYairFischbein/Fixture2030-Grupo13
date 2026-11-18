@@ -55,7 +55,7 @@ No hubo fallos funcionales inesperados en las pruebas completadas. Durante el re
 
 El lanzador de PowerShell y el ejemplo de Neo4j se ajustaron en `4ddebf43a6ffee603cb2ccf91c06e17bddf4acd9` para usar credenciales locales. Los generadores de evidencia de MongoDB validan Compose con `--quiet`. Se comprobaron cuatro escenarios del lanzador con archivos temporales, sintaxis de PowerShell y Bash, Compose de ambas bases y `fixture.ps1 estado` con HTTP 200. Estos archivos quedan fuera de la imagen de la API. La imagen y el SHA `ed49e3f` siguen identificando la ejecución de integración y monitoreo.
 
-El registro histórico de configuración de MongoDB conserva un valor de ejemplo que coincidía con la credencial local. También hubo un valor de ejemplo de Neo4j en revisiones anteriores. Antes de compartir el repositorio, corresponde rotar ambas contraseñas y actualizar los `.env` locales de las bases, la API y los exporters que las usen. No se cambiaron las credenciales del entorno durante esta auditoría.
+En el cierre de la entrega se rotaron las contraseñas de MongoDB y Neo4j en las cuentas existentes. Se actualizaron los `.env` locales de las bases, la API y el exporter de MongoDB. Las conexiones nuevas aceptaron las claves nuevas y rechazaron las anteriores. Se conservaron los volúmenes y los recuentos de ambas bases. Los valores de ejemplo de las evidencias y revisiones anteriores quedaron revocados.
 
 ## Migraciones y respaldos
 
