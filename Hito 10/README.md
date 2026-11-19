@@ -130,11 +130,13 @@ Todos los comandos se ejecutan desde `Hito 10/` en PowerShell.
    powershell -ExecutionPolicy Bypass -File .\scripts\iris_crear_usuario_api.ps1
    ```
 
-4. **Si la muestra de InfluxDB del Hito 8 venció** (retención de 7 días), agregar puntos recientes sin tocar la original:
+4. **Si la muestra de InfluxDB venció** por retención de siete días, podés preparar cinco minutos de datos sintéticos para la demostración. Desde esta carpeta, con InfluxDB iniciado y el token local configurado, ejecutar:
 
    ```powershell
-   .\.venv\Scripts\python scripts\cargar_muestra_influx.py   # después del paso 5, que crea el .venv
+   python scripts/cargar_muestra_influx.py --partido 1 --partido 2 --partido 3 --partido 4 --partido 5 --partido 6 --minutos 5 --paso 60
    ```
+
+   En la consola, consultar un partido entre `PAR-001` y `PAR-006` con intervalo `1m` y ambas fechas vacías. El script omite un partido si ya tiene puntos en la ventana de carga. Cada `--partido` identifica un partido de la primera jornada. Sin ese parámetro, el script prepara `PAR-001` y `PAR-002`.
 
 5. **Iniciar la API** (crea `.venv` e instala dependencias la primera vez):
 
@@ -155,8 +157,8 @@ Todos los comandos se ejecutan desde `Hito 10/` en PowerShell.
 La página `web/index.html` la sirve la propia API, por lo que no requiere CORS ni otra instalación. Usa exclusivamente los endpoints públicos:
 
 - **Equipos**: listado paginado por confederación (MongoDB), ficha con indicador de caché `HIT/MISS/BYPASS` e invalidación (Redis), plantel filtrable y agenda (Neo4j). Un partido de la agenda abre su detalle.
-- **Partido**: detalle y eventos (Neo4j), gráfico de posesión y totales por intervalo (InfluxDB), lectura de comentarios por ventana con "Cargar más" por cursor (Cassandra) y publicación con `Idempotency-Key`, con un botón para reintentar el mismo envío y comprobar que no duplica.
-- **Sesiones**: abrir, consultar (TTL restante) y cerrar sesiones (Redis).
+- **Partido**: detalle y eventos (Neo4j), gráfico de posesión y totales por intervalo (InfluxDB), y comentarios paginados por cursor (Cassandra). **Publicar** y **Reintentar el mismo envío** usan la misma clave para el mismo partido, usuario y texto. La API devuelve el comentario original mientras esa clave siga vigente en Redis.
+- **Sesiones**: abrir, consultar y cerrar sesiones (Redis). La consola descuenta el TTL y retira las sesiones cerradas o vencidas. Los roles lector y moderador son datos de demostración, sin permisos asociados en este entorno.
 - **Actas**: acta del partido con árbitro y eventos (IRIS) y botones de transición. Las inválidas muestran el 409 sin modificar el acta.
 
 La barra inferior muestra en cada llamada el método, el estado HTTP, la duración, el `X-Request-ID` y las operaciones que el servidor ejecutó en cada fuente (`meta.fuentes`), y permite ver el JSON completo.

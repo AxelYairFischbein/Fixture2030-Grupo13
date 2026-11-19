@@ -1,16 +1,17 @@
 """Escribe una muestra reciente en InfluxDB cuando la del Hito 8 ya venció por retención (7 días).
 
-Reutiliza dimensiones() y medidas() del Hito 8: misma tabla, tags y fields. Solo agrega puntos
-de los últimos N minutos para PAR-001 y PAR-002. No borra ni reescribe la muestra original.
-Uso: .venv\\Scripts\\python scripts\\cargar_muestra_influx.py [--minutos 30] [--paso 5]
+Reutiliza las medidas y dimensiones de la primera jornada del Hito 8. La carga omite los
+partidos que ya tienen puntos en la ventana para no sobrescribir datos recientes.
+Uso: python scripts/cargar_muestra_influx.py [--partido 3] [--minutos 30] [--paso 5]
 """
 
 import argparse
+import json
 import sys
 import time
 from pathlib import Path
-
-import httpx
+from urllib.parse import urlencode
+from urllib.request import Request, urlopen
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "Hito 8" / "scripts"))
@@ -18,16 +19,40 @@ from app import config  # noqa: E402
 from comun import TABLA, dimensiones, medidas  # noqa: E402  (Hito 8)
 
 
+def enviar(cfg, ruta, cuerpo, tipo):
+    solicitud = Request(
+        f"{cfg.influx_url.rstrip('/')}{ruta}",
+        data=cuerpo.encode("utf-8"),
+        headers={"Authorization": f"Bearer {cfg.influx_token}", "Content-Type": tipo},
+    )
+    with urlopen(solicitud, timeout=30) as respuesta:
+        return respuesta.read()
+
+
 def main():
     args = argparse.ArgumentParser()
     args.add_argument("--minutos", type=int, default=30, choices=range(5, 121))
     args.add_argument("--paso", type=int, default=5, choices=(1, 5, 10, 30, 60))
+    args.add_argument("--partido", type=int, action="append", choices=range(1, 33), metavar="N",
+                      help="partido de la primera jornada (1 a 32). Se puede repetir. Por defecto: 1 y 2")
     a = args.parse_args()
     cfg = config.cargar()
+    if not cfg.influx_token:
+        args.error("No se encontró el token local de InfluxDB configurado para la API.")
     fin = int(time.time()) // a.paso * a.paso
     inicio = fin - a.minutos * 60
+    formato = "%Y-%m-%dT%H:%M:%SZ"
+    desde, hasta = (time.strftime(formato, time.gmtime(t)) for t in (inicio, fin))
     lineas = []
-    for partido in (1, 2):
+    for partido in dict.fromkeys(a.partido or (1, 2)):
+        partido_id, _ = dimensiones(partido, 0)
+        q = (f"SELECT COUNT(*) AS puntos FROM {TABLA} WHERE partido_id = '{partido_id}' "
+             f"AND time >= TIMESTAMP '{desde}' AND time < TIMESTAMP '{hasta}'")
+        puntos = enviar(cfg, "/api/v3/query_sql",
+                        json.dumps({"db": cfg.influx_db, "q": q, "format": "json"}), "application/json")
+        if json.loads(puntos)[0]["puntos"] > 0:
+            print(f"{partido_id}: ya tiene puntos en esta ventana. Se conserva la muestra existente.")
+            continue
         for lado in (0, 1):
             p, e = dimensiones(partido, lado)
             pases = 0
@@ -35,11 +60,10 @@ def main():
                 posesion, pases, tiros = medidas(partido, lado, t - inicio, a.paso)
                 lineas.append(f"{TABLA},partido_id={p},equipo_id={e} "
                               f"posesion_pct={posesion},pases_acumulados={pases}i,tiros_intervalo={tiros}i {t}")
-    r = httpx.post(f"{cfg.influx_url}/api/v3/write_lp", params={"db": cfg.influx_db, "precision": "second"},
-                   content="\n".join(lineas), headers={"Authorization": f"Bearer {cfg.influx_token}"}, timeout=30)
-    r.raise_for_status()
-    print(f"puntos escritos: {len(lineas)} | ventana UTC {time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime(inicio))}"
-          f" -> {time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime(fin))} | paso {a.paso}s")
+    if lineas:
+        parametros = urlencode({"db": cfg.influx_db, "precision": "second"})
+        enviar(cfg, f"/api/v3/write_lp?{parametros}", "\n".join(lineas), "text/plain")
+    print(f"Puntos escritos: {len(lineas)}. Ventana UTC {desde} a {hasta}, paso de {a.paso} s.")
 
 
 if __name__ == "__main__":

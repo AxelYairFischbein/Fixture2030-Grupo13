@@ -122,10 +122,10 @@ a { color: var(--accent); }
     <div class="grid">
       <div class="card"><h2>Detalle</h2><div class="fuente">Neo4j · partido, equipos, estadio y eventos</div><div id="partido" class="vacio">Sin consultar.</div></div>
       <div class="card">
-        <h2>Estadísticas</h2><div class="fuente">InfluxDB · estadisticas_equipo agregadas con DATE_BIN</div>
+        <h2>Estadísticas</h2><div class="fuente">InfluxDB · estadísticas agregadas por intervalo</div>
         <div class="fila">
           <label>Intervalo<select id="intv"><option>10s</option><option>30s</option><option selected>1m</option><option>5m</option></select></label>
-          <label>Desde (UTC, opcional)<input id="stDesde" placeholder="2026-10-09T05:05:00Z" size="20"></label>
+          <label>Desde (UTC, opcional)<input id="stDesde" placeholder="AAAA-MM-DDThh:mm:ssZ" size="20"></label>
           <label>Hasta<input id="stHasta" size="20"></label>
           <button class="btn sec" id="btnStats">Actualizar</button>
         </div>
@@ -153,7 +153,7 @@ a { color: var(--accent); }
           <button class="btn" id="btnPub">Publicar</button>
           <button class="btn sec" id="btnRep" disabled title="Reenvía el mismo cuerpo con la misma Idempotency-Key">Reintentar el mismo envío</button>
         </div>
-        <p class="nota">Clave de idempotencia: <code id="idemKey">—</code>. Un reintento devuelve el comentario original (200) sin duplicarlo.</p>
+        <p class="nota">Clave de idempotencia: <code id="idemKey">—</code>. El mismo usuario, partido y texto reutilizan la clave. Si sigue vigente, la API devuelve el comentario original.</p>
         <div id="pubRes"></div>
       </div>
     </div>
@@ -166,7 +166,7 @@ a { color: var(--accent); }
         <h2>Abrir sesión</h2><div class="fuente">Redis · hash con EXPIRE 1800 s (creación atómica con Lua)</div>
         <div class="fila">
           <label>Usuario<input id="sUsr" value="USR-00001" size="10"></label>
-          <label>Rol<select id="sRol"><option>lector</option><option>moderador</option></select></label>
+          <label>Rol de demostración<select id="sRol"><option>lector</option><option>moderador</option></select></label>
           <button class="btn" id="btnSes">Abrir</button>
         </div>
         <div class="fila">
@@ -175,7 +175,7 @@ a { color: var(--accent); }
         </div>
       </div>
       <div class="card">
-        <h2>Sesiones abiertas en esta consola</h2><div class="fuente">GET no renueva el TTL · DELETE es idempotente</div>
+        <h2>Sesiones vigentes en esta consola</h2><div class="fuente">Consultar no renueva el tiempo de sesión. El rol se registra como dato de la muestra.</div>
         <div id="sesiones" class="vacio">Ninguna.</div>
       </div>
     </div>
@@ -327,7 +327,13 @@ async function estadisticas() {
   if (!r.ok) { $("stats").innerHTML = errorHtml(r); return; }
   const s = r.json.data;
   $("stats").className = "";
-  if (!s.puntos.length) { $("stats").innerHTML = `<p class="vacio">Sin puntos en la ventana${s.desde ? "" : " (no hay datos retenidos para este partido)"}.</p>`; return; }
+  if (!s.puntos.length) {
+    const mensaje = s.desde
+      ? "No hay puntos en la ventana elegida. Dejá ambas fechas vacías para consultar los últimos datos retenidos."
+      : "InfluxDB respondió correctamente. Este partido no tiene puntos retenidos. Las muestras vencen a los siete días.";
+    $("stats").innerHTML = `<p class="vacio">${mensaje}</p>`;
+    return;
+  }
   const equipos = [...new Set(s.puntos.map((p) => p.equipoId))];
   const series = equipos.map((e) => s.puntos.filter((p) => p.equipoId === e));
   const tot = series.map((pts, i) => `<tr><td><span class="badge" style="color:var(--serie${i + 1})">${esc(equipos[i])}</span></td><td>${(pts.reduce((a, p) => a + p.posesionMedia, 0) / pts.length).toFixed(1)} %</td><td>${pts.reduce((a, p) => a + p.tiros, 0)}</td><td>${Math.max(...pts.map((p) => p.pasesAcumulados))}</td></tr>`).join("");
@@ -375,47 +381,96 @@ $("btnAhora").onclick = () => {
   leerComentarios(false);
 };
 
-const pub = { clave: null, cuerpo: null, partido: null };
-async function enviarComentario() {
-  const r = await llamar("POST", `/partidos/${encodeURIComponent(pub.partido)}/comentarios`, { cuerpo: pub.cuerpo, headers: { "Idempotency-Key": pub.clave } });
-  $("btnRep").disabled = false;
-  if (!r.ok) { $("pubRes").innerHTML = errorHtml(r); return; }
-  const repetido = r.headers.get("Idempotent-Replayed") === "true";
-  const c = r.json.data;
-  $("pubRes").innerHTML = `<p><span class="badge ok">${r.status} ${repetido ? "repetición: sin nueva fila" : "creado"}</span> ${esc(c.comentarioId)}</p>
-    <p class="nota">Partición (${esc(c.partidoId)}, ${esc(c.minuto)}, segmento ${c.segmento}) · ${esc(c.creadoEn)}</p>`;
+const pub = { ultimo: null, enviando: false };
+async function enviarComentario(envio) {
+  if (!envio || pub.enviando) return;
+  pub.enviando = true;
+  $("btnPub").disabled = true;
+  $("btnRep").disabled = true;
+  try {
+    const { partido, cuerpo } = envio;
+    // La misma publicación conserva su clave, incluso después de recargar la consola.
+    const datos = new TextEncoder().encode(JSON.stringify([partido, cuerpo.usuarioId, cuerpo.contenido]));
+    const hash = await crypto.subtle.digest("SHA-256", datos);
+    const clave = Array.from(new Uint8Array(hash), (b) => b.toString(16).padStart(2, "0")).join("");
+    pub.ultimo = envio;
+    $("idemKey").textContent = clave;
+    const r = await llamar("POST", `/partidos/${encodeURIComponent(partido)}/comentarios`, { cuerpo, headers: { "Idempotency-Key": clave } });
+    if (!r.ok) { $("pubRes").innerHTML = errorHtml(r); return; }
+    const repetido = r.headers.get("Idempotent-Replayed") === "true";
+    const c = r.json.data;
+    $("pubRes").innerHTML = `<p><span class="badge ok">${r.status} ${repetido ? "repetición: sin nueva fila" : "creado"}</span> ${esc(c.comentarioId)}</p>
+      <p class="nota">Partición (${esc(c.partidoId)}, ${esc(c.minuto)}, segmento ${c.segmento}) · ${esc(c.creadoEn)}</p>`;
+  } catch {
+    $("pubRes").textContent = "No se pudo confirmar el envío. Podés volver a publicar el mismo texto.";
+  } finally {
+    pub.enviando = false;
+    $("btnPub").disabled = false;
+    $("btnRep").disabled = pub.ultimo === null;
+  }
 }
-$("btnPub").onclick = () => {
-  pub.partido = $("parId").value.trim();
-  pub.cuerpo = { usuarioId: $("nUsr").value.trim(), contenido: $("nTxt").value };
-  pub.clave = crypto.randomUUID();
-  $("idemKey").textContent = pub.clave;
-  enviarComentario();
-};
-$("btnRep").onclick = enviarComentario;
+$("btnPub").onclick = () => enviarComentario({
+  partido: $("parId").value.trim(),
+  cuerpo: { usuarioId: $("nUsr").value.trim(), contenido: $("nTxt").value.trim() }
+});
+$("btnRep").onclick = () => enviarComentario(pub.ultimo);
 
 // --- Sesiones -----------------------------------------------------------------------------
 const sesiones = new Map();
+const sesionesEnCurso = new Set();
+function guardarSesion(sesion) {
+  if (sesion.expiraEnSegundos > 0) {
+    sesiones.set(sesion.sesionId, { ...sesion, venceEn: Date.now() + sesion.expiraEnSegundos * 1000 });
+  } else {
+    sesiones.delete(sesion.sesionId);
+  }
+}
+const segundosRestantes = (s, ahora) => Math.max(0, Math.ceil((s.venceEn - ahora) / 1000));
 function pintarSesiones() {
   if (!sesiones.size) { $("sesiones").className = "vacio"; $("sesiones").textContent = "Ninguna."; return; }
   $("sesiones").className = "";
-  $("sesiones").innerHTML = `<div class="tabla"><table><thead><tr><th>Sesión</th><th>Usuario</th><th>Estado</th><th></th></tr></thead><tbody>${[...sesiones.values()].map((s) => `<tr><td><code>${esc(s.sesionId)}</code></td><td>${esc(s.usuarioId)} · ${esc(s.rol)}</td><td>${s.vigente ? `vigente · expira en ${s.expiraEnSegundos} s` : `<span style="color:var(--bad)">${esc(s.motivo)}</span>`}</td>
+  const ahora = Date.now();
+  $("sesiones").innerHTML = `<div class="tabla"><table><thead><tr><th>Sesión</th><th>Usuario</th><th>Estado</th><th></th></tr></thead><tbody>${[...sesiones.values()].map((s) => `<tr><td><code>${esc(s.sesionId)}</code></td><td>${esc(s.usuarioId)} · ${esc(s.rol)}</td><td>vigente · expira en <span data-ttl="${esc(s.sesionId)}">${segundosRestantes(s, ahora)}</span> s</td>
     <td><button class="btn sec" data-get="${esc(s.sesionId)}">Consultar</button> <button class="btn peligro" data-del="${esc(s.sesionId)}">Cerrar</button></td></tr>`).join("")}</tbody></table></div>`;
 }
-async function consultarSesion(id) {
-  const r = await llamar("GET", `/sesiones/${encodeURIComponent(id)}`);
-  const previa = sesiones.get(id) || { sesionId: id, usuarioId: "?", rol: "?" };
-  sesiones.set(id, r.ok ? { ...r.json.data, vigente: true } : { ...previa, vigente: false, motivo: `${r.status} ${r.json?.error?.codigo}` });
-  pintarSesiones();
+function actualizarVencimientos() {
+  if (!sesiones.size) return;
+  const ahora = Date.now();
+  const antes = sesiones.size;
+  for (const [id, s] of sesiones) {
+    if (!segundosRestantes(s, ahora)) sesiones.delete(id);
+  }
+  if (sesiones.size !== antes) pintarSesiones();
+  for (const celda of $("sesiones").querySelectorAll("[data-ttl]")) {
+    celda.textContent = segundosRestantes(sesiones.get(celda.dataset.ttl), ahora);
+  }
+}
+setInterval(actualizarVencimientos, 1000);
+async function operarSesion(id, metodo) {
+  if (!id || sesionesEnCurso.has(id)) return;
+  sesionesEnCurso.add(id);
+  try {
+    const r = await llamar(metodo, `/sesiones/${encodeURIComponent(id)}`);
+    if ((metodo === "DELETE" && r.ok) || (r.status === 404 && r.json?.error?.codigo === "SESION_NO_VIGENTE")) {
+      sesiones.delete(id);
+    } else if (metodo === "GET" && r.ok) {
+      guardarSesion(r.json.data);
+    }
+    pintarSesiones();
+  } catch {
+    // La traza informa la falla de conexión. Redis todavía podría tener la sesión.
+  } finally {
+    sesionesEnCurso.delete(id);
+  }
 }
 $("btnSes").onclick = async () => {
   const r = await llamar("POST", "/sesiones", { cuerpo: { usuarioId: $("sUsr").value.trim(), rol: $("sRol").value } });
-  if (r.ok) { sesiones.set(r.json.data.sesionId, { ...r.json.data, vigente: true }); pintarSesiones(); }
+  if (r.ok) { guardarSesion(r.json.data); pintarSesiones(); }
 };
-$("btnSesGet").onclick = () => $("sId").value.trim() && consultarSesion($("sId").value.trim());
-$("sesiones").onclick = async (e) => {
-  if (e.target.dataset.get) consultarSesion(e.target.dataset.get);
-  if (e.target.dataset.del) { await llamar("DELETE", `/sesiones/${e.target.dataset.del}`); consultarSesion(e.target.dataset.del); }
+$("btnSesGet").onclick = () => operarSesion($("sId").value.trim(), "GET");
+$("sesiones").onclick = (e) => {
+  if (e.target.dataset.get) operarSesion(e.target.dataset.get, "GET");
+  if (e.target.dataset.del) operarSesion(e.target.dataset.del, "DELETE");
 };
 
 // --- Actas --------------------------------------------------------------------------------
