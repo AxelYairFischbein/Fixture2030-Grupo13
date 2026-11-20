@@ -6,6 +6,7 @@ Uso: python scripts/cargar_muestra_influx.py [--partido 3] [--minutos 30] [--pas
 """
 
 import argparse
+import calendar
 import json
 import sys
 import time
@@ -35,12 +36,18 @@ def main():
     args.add_argument("--paso", type=int, default=5, choices=(1, 5, 10, 30, 60))
     args.add_argument("--partido", type=int, action="append", choices=range(1, 33), metavar="N",
                       help="partido de la primera jornada (1 a 32). Se puede repetir. Por defecto: 1 y 2")
+    args.add_argument("--inicio", metavar="AAAA-MM-DDThh:mm:ssZ",
+                      help="comienzo fijo de la ventana UTC, p. ej. el inicio del partido. Por defecto: termina ahora")
     a = args.parse_args()
     cfg = config.cargar()
     if not cfg.influx_token:
         args.error("No se encontró el token local de InfluxDB configurado para la API.")
-    fin = int(time.time()) // a.paso * a.paso
-    inicio = fin - a.minutos * 60
+    if a.inicio:
+        inicio = calendar.timegm(time.strptime(a.inicio, "%Y-%m-%dT%H:%M:%SZ")) // a.paso * a.paso
+        fin = inicio + a.minutos * 60
+    else:
+        fin = int(time.time()) // a.paso * a.paso
+        inicio = fin - a.minutos * 60
     formato = "%Y-%m-%dT%H:%M:%SZ"
     desde, hasta = (time.strftime(formato, time.gmtime(t)) for t in (inicio, fin))
     lineas = []

@@ -28,6 +28,9 @@ class InfluxEstadisticas:
         r = self._http.post("/api/v3/query_sql",
                             json={"db": self._db, "q": consulta, "params": params or {}, "format": "json"})
         if r.status_code == 400:
+            # InfluxDB crea la tabla con la primera escritura: si todavía no existe, no hay puntos.
+            if f"{TABLA}' not found" in r.text:
+                return []
             raise RuntimeError("InfluxDB rechazó la consulta generada por la API")  # defecto propio: 500
         r.raise_for_status()  # 401/403/404/5xx: credencial, base o servicio no disponibles -> 503
         return r.json()
